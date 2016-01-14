@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+	version="2.0">
+	<package>ftp.core.common.model</package>
+
+	<named-query name="File.getFileByDownloadHash">
+		<query>
+			<![CDATA[
+				select file
+				from File file
+				join fetch file.creator
+				where file.downloadHash=:downloadHash
+			]]>
+		</query>
+	</named-query>
+	
+	
+	<named-query name="File.deleteFile">
+		<query>
+			<![CDATA[
+				delete 
+				from File file
+				where file.deleteHash=:deleteHash
+				and file.creator.nickName=:creatorNickName
+			]]>
+		</query>
+	</named-query>
+	
+	
+	<named-query name="File.findByDeleteHash">
+		<query>
+			<![CDATA[
+				select file 
+				from File file
+				where file.deleteHash=:deleteHash
+			]]>
+		</query>
+	</named-query>
+	
+	<named-query name="File.getSharedFilesForUser">
+		<query>
+			<![CDATA[
+				select file 
+				from File file
+				left outer join fetch file.sharedWithUsers swu
+				where swu.nickName=:userNickName
+				and file.fileType = ftp.core.common.model.File$FileType.SHARED
+			]]>
+		</query>
+	</named-query>
+	
+	<named-query name="File.getPrivateFilesForUser">
+		<query>
+			<![CDATA[
+			    select file 
+				from File file
+			    left join file.creator crtr
+			    where crtr.nickName=:userNickName
+				and file.fileType = ftp.core.common.model.File$FileType.PRIVATE
+			]]>
+		</query>
+	</named-query>
+	
+	<named-query name="File.getUploadedFilesForUser">
+		<query>
+			<![CDATA[
+			    select file 
+				from File file
+			    left join file.creator crtr
+			    where crtr.nickName=:userNickName
+			]]>
+		</query>
+	</named-query>
+
+	
+
+</entity-mappings>
