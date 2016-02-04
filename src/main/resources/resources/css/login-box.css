@@ -5,7 +5,7 @@
 	padding: 58px 76px 0 76px;
 	color: #ebebeb;
 	font: 12px Arial, Helvetica, sans-serif;
-	background: url(/ftp-websocket-server/resources/images/login-box-backg.png) no-repeat left top;
+	background: url(/resources/images/login-box-backg.png) no-repeat left top;
 }
 
 #login-box img {

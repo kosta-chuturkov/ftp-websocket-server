@@ -40,7 +40,7 @@ input[type=radio].css-checkbox:checked+label.css-label {
 
 label.css-label {
 	background-image:
-		url(/ftp-websocket-server/resources/images/csscheckbox_996d91117eb555dc280e60dd67119d7e.png);
+		url(/resources/images/csscheckbox_996d91117eb555dc280e60dd67119d7e.png);
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
@@ -121,7 +121,7 @@ label.css-label {
 		<br>
 			
 		<!-- The file upload form used as target for the file upload widget -->
-		<form id="fileupload" action="<c:url value="/upload" />" method="POST"
+		<form id="fileupload" name="file" type="file" action="<c:url value="/upload" />" method="POST"
 			enctype="multipart/form-data">
 			<!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
             <div style="color: #222; padding: 10px;">

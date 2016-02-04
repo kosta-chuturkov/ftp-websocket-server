@@ -7,7 +7,7 @@
     var sharedRowCounter = 0;
     var publicRowCounter = 0;
     var interval = 5000;
-    var serverUrl = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>' + "/ftp-websocket-server/update/";
+    var serverUrl = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>' + "/update/";
     
     function createEventListeners(){
     	document.getElementById("privateTabLabel").addEventListener("click", onPrivateTabClick);
@@ -35,7 +35,7 @@
             var table = document.getElementById("fileInfoTable");
             var rowCount = table.rows.length;
             var row = table.insertRow(rowCount);
-            var downloadLinkURL = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>' + "/ftp-websocket-server/files/" + entry.downloadHash;
+            var downloadLinkURL = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>' + "/files/" + entry.downloadHash;
             row.insertCell(0).innerHTML = privateRowCounter;
             row.insertCell(1).innerHTML = entry.name;
             row.insertCell(2).innerHTML = entry.timestamp;
@@ -46,8 +46,8 @@
             var table1 = document.getElementById(tableName);
             var rowCount1 = table1.rows.length;
             var row1 = table1.insertRow(rowCount1);
-            var downloadLinkURL1 = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>' + "/ftp-websocket-server/files/" + entry.downloadHash;
-            var deleteLinkURL1 = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>' + "/ftp-websocket-server/files/delete/" + entry.deleteHash;
+            var downloadLinkURL1 = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>' + "/files/" + entry.downloadHash;
+            var deleteLinkURL1 = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>' + "/files/delete/" + entry.deleteHash;
             row1.insertCell(0).innerHTML = publicRowCounter;
             row1.insertCell(1).innerHTML = entry.name;
             row1.insertCell(2).innerHTML = entry.timestamp;
@@ -71,7 +71,7 @@
             var table2 = document.getElementById(tableName2);
             var rowCount2 = table2.rows.length;
             var row1 = table2.insertRow(rowCount2);
-            var downloadLinkURL2 = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>' + "/ftp-websocket-server/files/" + entry.downloadHash;
+            var downloadLinkURL2 = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>' + "/files/" + entry.downloadHash;
             row1.insertCell(0).innerHTML = sharedRowCounter;
             row1.insertCell(1).innerHTML = entry.name;
             row1.insertCell(2).innerHTML = entry.timestamp;

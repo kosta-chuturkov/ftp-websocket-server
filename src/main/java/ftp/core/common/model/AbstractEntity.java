@@ -1,23 +1,9 @@
 package ftp.core.common.model;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.SequenceGenerator;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.persistence.*;
 
 
 @MappedSuperclass
-@XmlRootElement(namespace = "urn:ftp.core.common.model.roombar")
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "AbstractEntity", namespace = "urn:ftp.core.common.model")
 public abstract class AbstractEntity implements Entity {
 
 	@Id

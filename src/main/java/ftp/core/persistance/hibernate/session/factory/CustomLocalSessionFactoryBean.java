@@ -12,10 +12,9 @@ import com.google.common.collect.Lists;
 
 public class CustomLocalSessionFactoryBean extends LocalSessionFactoryBean {
 
-	private String hibernateQueriesTemplate;
-	private final String classpathPrefix = "classpath*:";
-
 	private static final Logger logger = Logger.getLogger(CustomLocalSessionFactoryBean.class);
+	private final String classpathPrefix = "classpath*:";
+	private String hibernateQueriesTemplate;
 
 	@Override
 	public void setMappingResources(String... mappingResources) {

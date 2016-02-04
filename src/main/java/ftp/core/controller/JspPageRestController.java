@@ -19,10 +19,8 @@ import com.google.common.collect.Lists;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
-import ftp.core.common.model.dto.UserNickNameDto;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
-import ftp.core.persistance.face.dao.UserDao;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
 
@@ -30,12 +28,16 @@ import ftp.core.service.face.tx.UserService;
 public class JspPageRestController {
 
 	private static final Logger logger = Logger.getLogger(JspPageRestController.class);
-
 	@Resource
 	private UserService userService;
-
 	@Resource
 	private FileService fileService;
+
+	// @RequestMapping("/")
+	// String home() {
+	//
+	// return "Hello World!";
+	// }
 
 	@RequestMapping(value = { "/files/shared/*" }, method = RequestMethod.POST)
 	public List<FileDto> getSharedFiles(HttpServletRequest request, HttpServletResponse response,
@@ -95,48 +97,6 @@ public class JspPageRestController {
 		} else {
 			User.setCurrent(current);
 			List<File> files = fileService.getUploadedFilesForUser(current.getNickName(), firstResult, maxResults);
-			for (File file : files) {
-				FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
-						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-				fileDtos.add(fileDto);
-			}
-		}
-		return fileDtos;
-	}
-	
-	@RequestMapping(value = { "/files/uploaded2/*" }, method = RequestMethod.GET)
-	public List<FileDto> getUploadedFiles2(HttpServletRequest request, HttpServletResponse response,
-			@NotNull @ModelAttribute("firstResult") Integer firstResult,
-			@NotNull @ModelAttribute("maxResults") Integer maxResults,@NotNull @ModelAttribute("uid") String uid) throws IOException {
-		
-		User current = userService.getUserByNickName(uid);
-		List<FileDto> fileDtos = Lists.newArrayList();
-		if (current == null) {
-			ServerUtil.sendJsonErrorResponce(response, "You must login first.");
-		} else {
-			User.setCurrent(current);
-			List<File> files = fileService.getUploadedFilesForUser(current.getNickName(), firstResult, maxResults);
-			for (File file : files) {
-				FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
-						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-				fileDtos.add(fileDto);
-			}
-		}
-		return fileDtos;
-	}
-	
-	@RequestMapping(value = { "/files/shared2/*" }, method = RequestMethod.GET)
-	public List<FileDto> getSharedFiles2(HttpServletRequest request, HttpServletResponse response,
-			@NotNull @ModelAttribute("firstResult") Integer firstResult,
-			@NotNull @ModelAttribute("maxResults") Integer maxResults,@NotNull @ModelAttribute("uid") String uid) throws IOException {
-		
-		User current = userService.getUserByNickName(uid);
-		List<FileDto> fileDtos = Lists.newArrayList();
-		if (current == null) {
-			ServerUtil.sendJsonErrorResponce(response, "You must login first.");
-		} else {
-			User.setCurrent(current);
-			List<File> files = fileService.getSharedFilesForUser(current.getNickName(), firstResult, maxResults);
 			for (File file : files) {
 				FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
 						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
