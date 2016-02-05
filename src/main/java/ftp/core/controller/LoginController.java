@@ -28,8 +28,11 @@ public class LoginController {
 	@Resource
 	private UserService userService;
 
-	@RequestMapping(value = { "/", "/login**" }, method = RequestMethod.GET)
+	@RequestMapping(value = {
+			"/", "/login**"
+	}, method = RequestMethod.GET)
 	public ModelAndView getLoginPage(HttpServletRequest request, HttpServletResponse response) {
+
 		try {
 			if (ServerUtil.checkUserSession(request, true)) {
 				RedirectView view = new RedirectView(ServerConstants.MAIN_ALIAS, true);
@@ -46,9 +49,12 @@ public class LoginController {
 		}
 	}
 
-	@RequestMapping(value = { "/login" }, method = RequestMethod.POST)
+	@RequestMapping(value = {
+			"/login"
+	}, method = RequestMethod.POST)
 	public ModelAndView logIn(HttpServletRequest request, @NotNull @ModelAttribute("email") String email,
 			@NotNull @ModelAttribute("pswd") String password) {
+
 		try {
 			ModelAndView modelAndView = new ModelAndView(ServerConstants.NEW_CLIENT_LOGIN_PAGE);
 			BigDecimal tokenByEmail = userService.getTokenByEmail(email);
@@ -76,5 +82,5 @@ public class LoginController {
 			throw new FtpServerException(e.getMessage());
 		}
 	}
-	
+
 }

@@ -53,7 +53,7 @@ public interface ServerConstants {
 
   public static final String PASSWORD_REPEATED_PARAMETER = "pswdRepeated";
 
-  public static final String SERVER_STORAGE_FOLDER_NAME = "/ServerFileStorage";
+	public static final String SERVER_STORAGE_FOLDER_NAME = "D:/ServerFileStorage";
 
   public static final String GO_TO_PARENT_FOLDER_COMMAND = "/..";
 

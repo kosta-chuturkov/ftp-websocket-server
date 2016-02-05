@@ -12,8 +12,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
  * Created by Kosta_Chuturkov on 2/3/2016.
  */
 @SpringBootApplication(scanBasePackages = "ftp.core", exclude = {
-		org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class,
-		org.springframework.boot.actuate.autoconfigure.ManagementWebSecurityAutoConfiguration.class
+		org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class
+
 })
 @ImportResource(value = "classpath:applicationContext.xml")
 @EnableWebMvc

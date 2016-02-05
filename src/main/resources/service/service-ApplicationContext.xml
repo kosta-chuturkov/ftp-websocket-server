@@ -20,7 +20,6 @@
 		
 
 	<mvc:resources mapping="/resources/**" location="classpath:/resources/" />
-
 	<!-- also add the following beans to get rid of some exceptions -->
 	<bean
 		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
@@ -31,5 +30,5 @@
 	<bean
 		class="ftp.core.config.ServerConfigurator" />
 
-	
+
 </beans>

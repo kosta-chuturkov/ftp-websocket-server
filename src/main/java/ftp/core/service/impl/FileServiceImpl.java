@@ -5,14 +5,17 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
 import ftp.core.common.model.AbstractEntity;
 import ftp.core.common.model.File;
 import ftp.core.common.model.File.FileType;
 import ftp.core.common.model.User;
+import ftp.core.common.util.ServerConstants;
 import ftp.core.persistance.face.dao.FileDao;
 import ftp.core.service.face.tx.FileService;
+import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
 
@@ -54,6 +57,9 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 			long fileSize, String deleteHash, String downloadHash) {
 		User currentUser = User.getCurrent();
 		long remainingStorage = currentUser.getRemainingStorage();
+		if (remainingStorage < fileSize) { throw new FtpServerException(
+				"You are exceeding your upload limit:" + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT)
+						+ ". You have: " + FileUtils.byteCountToDisplaySize(remainingStorage) + " remainig storage."); }
 		ftp.core.common.model.File file = new ftp.core.common.model.File();
 		file.setName(fileNameEscaped);
 		file.setTimestamp(new Date(timestamp));

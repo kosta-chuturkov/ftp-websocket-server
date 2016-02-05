@@ -38,13 +38,11 @@ import ftp.core.service.face.tx.UserService;
 @Controller
 public class UploadController {
 
+	private static final Logger logger = Logger.getLogger(UploadController.class);
     @Resource
-    private FileService fileService;
-
-    @Resource
+	private FileService fileService;
+	@Resource
     private UserService userService;
-
-    private static final Logger logger = Logger.getLogger(UploadController.class);
 
     @RequestMapping(value = {"/upload**"}, method = RequestMethod.GET)
     public ModelAndView getLoginPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -62,8 +60,9 @@ public class UploadController {
     }
 
     @RequestMapping(value = {"/upload**"}, method = RequestMethod.POST)
-    public String logIn(HttpServletRequest request, HttpServletResponse response, @RequestParam("file") MultipartFile file) throws IOException {
-        printHeaderNames(request);
+	public void logIn(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam("files[]") MultipartFile file, @RequestParam("modifier") String modifier,
+			@RequestParam("nickName") String nickName) throws IOException {
         String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
         String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
         User current = userService.findByEmailAndPassword(email, password);
@@ -73,14 +72,19 @@ public class UploadController {
             User.setCurrent(current);
             if (!file.isEmpty()) {
                 try {
+					int port = request.getServerPort();
+					String host = request.getServerName();
+					String contextPath = request.getContextPath();
+					String serverContextAddress = getProtocol(request) + host + ":" + port + contextPath
+							+ ServerConstants.FILES_ALIAS;
                     BigDecimal token = current.getToken();
-                    String fileName = StringEscapeUtils.escapeSql(file.getName());
+					String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
                     long currentTime = System.currentTimeMillis();
                     String tempFileName = new Long(currentTime).toString();
                     String serverFileName = tempFileName + "_" + fileName;
                     String deleteHash = ServerUtil.hash(ServerUtil.hash(serverFileName + token) + ServerConstants.DELETE_SALT);
                     String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
-                    fileService.createFileRecord(fileName, currentTime, 1, "mrkingrz", file.getSize(),
+					fileService.createFileRecord(fileName, currentTime, getModifier(modifier), nickName, file.getSize(),
                             deleteHash, downloadHash);
                     File userFolder = getUserFolder(current.getEmail());
                     final File targetFile = new File(userFolder, serverFileName);
@@ -91,16 +95,28 @@ public class UploadController {
                     }
 
                     file.transferTo(targetFile);
-                    return "You successfully uploaded " + file.getName() + "!";
+					Map<String, String> jsono = Maps.newHashMap();
+					jsono.put("name", StringEscapeUtils.escapeHtml(serverFileName));
+					jsono.put("size", Long.toString(file.getSize()));
+					jsono.put("url", (serverContextAddress + downloadHash));
+					jsono.put("thumbnail_url", "");
+					jsono.put("deleteUrl", (serverContextAddress + ServerConstants.DELETE_ALIAS + deleteHash));
+					jsono.put("deleteType", "GET");
+					ServerUtil.sendPropertiesAsJson(response, jsono);
+
                 } catch (Exception e) {
-                    return "You failed to upload " + file.getName() + " => " + e.getMessage();
+					if (e instanceof HibernateException) {
+						ServerUtil.sendJsonErrorResponce(response, "Unexpected error occured. Try again.");
+					} else {
+						ServerUtil.sendJsonErrorResponce(response, e.getMessage());
+					}
                 }
             } else {
-                return "You failed to upload " + file.getName() + " because the file was empty.";
+				ServerUtil.sendJsonErrorResponce(response,
+						"You failed to upload " + file.getName() + " because the file was empty.");
             }
             //uploadFile(request, response);
         }
-        return email;
     }
 
     private void printHeaderNames(HttpServletRequest request) {
@@ -111,71 +127,73 @@ public class UploadController {
         }
     }
 
-    public void uploadFile(HttpServletRequest request, HttpServletResponse response) {
-        printHeaderNames(request);
-        File tempFile = null;
-        User currentUser = User.getCurrent();
-        BigDecimal token = currentUser.getToken();
-        InputStream clientInputStream = null;
-        Hashtable<String, String> headers = new Hashtable<String, String>();
-        int port = request.getServerPort();
-        String host = request.getServerName();
-        String contextPath = request.getContextPath();
-        String serverContextAddress = getProtocol(request) + host + ":" + port + contextPath
-                + ServerConstants.FILES_ALIAS;
-        try {
-            clientInputStream = request.getInputStream();
-            String boundry = getBoundry(request.getContentType());
-            long multipartHeadersLength = readMultiPartHeaders(headers, clientInputStream, boundry);
-            String userToSendFilesTo = headers.get(ServerConstants.NICK_NAME_PARAMETER);
-            String fileNameEscaped = getFileName(headers);
-            int modifier = getModifier(headers);
-            long currentTime = System.currentTimeMillis();
-            String tempFileName = new Long(currentTime).toString();
-            String serverFileName = tempFileName + "_" + fileNameEscaped;
-
-            long contentLength = getContentLength(request.getHeader("Content-Length"), multipartHeadersLength);
-            long remainingBytes = currentUser.getRemainingStorage();
-
-            if ((remainingBytes - contentLength) < 0) {
-                IOUtils.closeQuietly(clientInputStream);
-                throw new FtpServerException("You are exceeding your upload limit:"
-                        + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT) + ". You have: "
-                        + FileUtils.byteCountToDisplaySize(remainingBytes) + " remainig storage.");
-            }
-            File userFolder = getUserFolder(currentUser.getEmail());
-            tempFile = new File(userFolder, tempFileName);
-            FileOutputStream outputStream = new FileOutputStream(tempFile);
-            long fileSize = readResponceContents(contentLength, outputStream, clientInputStream, boundry,
-                    remainingBytes);
-            contentLength -= boundry.length() + 32;
-            if (fileSize != contentLength) {
-                throw new FtpServerException("Sending:" + (contentLength) + ", but recived:" + fileSize);
-            }
-            String deleteHash = ServerUtil.hash(ServerUtil.hash(serverFileName + token) + ServerConstants.DELETE_SALT);
-            String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
-            fileService.createFileRecord(fileNameEscaped, currentTime, modifier, userToSendFilesTo, fileSize,
-                    deleteHash, downloadHash);
-            tempFile.renameTo(new File(userFolder, serverFileName));
-
-            Map<String, String> jsono = Maps.newHashMap();
-            jsono.put("name", StringEscapeUtils.escapeHtml(fileNameEscaped));
-            jsono.put("size", Long.toString(fileSize));
-            jsono.put("url", (serverContextAddress + downloadHash));
-            jsono.put("thumbnail_url", "");
-            jsono.put("deleteUrl", (serverContextAddress + ServerConstants.DELETE_ALIAS + deleteHash));
-            jsono.put("deleteType", "GET");
-            ServerUtil.sendPropertiesAsJson(response, jsono);
-        } catch (Exception e) {
-            logger.error("errror occured", e);
-            ServerUtil.deleteFile(tempFile);
-            if (e instanceof HibernateException) {
-                ServerUtil.sendJsonErrorResponce(response, "Unexpected error occured. Try again.");
-            } else {
-                ServerUtil.sendJsonErrorResponce(response, e.getMessage());
-            }
-        }
-    }
+	/*
+	 * public void uploadFile(HttpServletRequest request, HttpServletResponse response) {
+	 * printHeaderNames(request);
+	 * File tempFile = null;
+	 * User currentUser = User.getCurrent();
+	 * BigDecimal token = currentUser.getToken();
+	 * InputStream clientInputStream = null;
+	 * Hashtable<String, String> headers = new Hashtable<String, String>();
+	 * int port = request.getServerPort();
+	 * String host = request.getServerName();
+	 * String contextPath = request.getContextPath();
+	 * String serverContextAddress = getProtocol(request) + host + ":" + port + contextPath
+	 * + ServerConstants.FILES_ALIAS;
+	 * try {
+	 * clientInputStream = request.getInputStream();
+	 * String boundry = getBoundry(request.getContentType());
+	 * long multipartHeadersLength = readMultiPartHeaders(headers, clientInputStream, boundry);
+	 * String userToSendFilesTo = headers.get(ServerConstants.NICK_NAME_PARAMETER);
+	 * String fileNameEscaped = getFileName(headers);
+	 * int modifier = getModifier(headers);
+	 * long currentTime = System.currentTimeMillis();
+	 * String tempFileName = new Long(currentTime).toString();
+	 * String serverFileName = tempFileName + "_" + fileNameEscaped;
+	 * 
+	 * long contentLength = getContentLength(request.getHeader("Content-Length"), multipartHeadersLength);
+	 * long remainingBytes = currentUser.getRemainingStorage();
+	 * 
+	 * if ((remainingBytes - contentLength) < 0) {
+	 * IOUtils.closeQuietly(clientInputStream);
+	 * throw new FtpServerException("You are exceeding your upload limit:"
+	 * + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT) + ". You have: "
+	 * + FileUtils.byteCountToDisplaySize(remainingBytes) + " remainig storage.");
+	 * }
+	 * File userFolder = getUserFolder(currentUser.getEmail());
+	 * tempFile = new File(userFolder, tempFileName);
+	 * FileOutputStream outputStream = new FileOutputStream(tempFile);
+	 * long fileSize = readResponceContents(contentLength, outputStream, clientInputStream, boundry,
+	 * remainingBytes);
+	 * contentLength -= boundry.length() + 32;
+	 * if (fileSize != contentLength) {
+	 * throw new FtpServerException("Sending:" + (contentLength) + ", but recived:" + fileSize);
+	 * }
+	 * String deleteHash = ServerUtil.hash(ServerUtil.hash(serverFileName + token) + ServerConstants.DELETE_SALT);
+	 * String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
+	 * fileService.createFileRecord(fileNameEscaped, currentTime, modifier, userToSendFilesTo, fileSize,
+	 * deleteHash, downloadHash);
+	 * tempFile.renameTo(new File(userFolder, serverFileName));
+	 * 
+	 * Map<String, String> jsono = Maps.newHashMap();
+	 * jsono.put("name", StringEscapeUtils.escapeHtml(fileNameEscaped));
+	 * jsono.put("size", Long.toString(fileSize));
+	 * jsono.put("url", (serverContextAddress + downloadHash));
+	 * jsono.put("thumbnail_url", "");
+	 * jsono.put("deleteUrl", (serverContextAddress + ServerConstants.DELETE_ALIAS + deleteHash));
+	 * jsono.put("deleteType", "GET");
+	 * ServerUtil.sendPropertiesAsJson(response, jsono);
+	 * } catch (Exception e) {
+	 * logger.error("errror occured", e);
+	 * ServerUtil.deleteFile(tempFile);
+	 * if (e instanceof HibernateException) {
+	 * ServerUtil.sendJsonErrorResponce(response, "Unexpected error occured. Try again.");
+	 * } else {
+	 * ServerUtil.sendJsonErrorResponce(response, e.getMessage());
+	 * }
+	 * }
+	 * }
+	 */
 
     private String getFileName(Hashtable<String, String> headers) {
         String fileName = StringEscapeUtils.escapeSql(headers.get(ServerConstants.FILE_NAME_PARAMETER));
@@ -189,17 +207,17 @@ public class UploadController {
         return fileName;
     }
 
-    private int getModifier(Hashtable<String, String> headers) throws IOException {
+	private int getModifier(String modifierString) throws IOException {
         int modifier = -1;
         try {
-            modifier = Integer.parseInt(headers.get(ServerConstants.MODIFIER_PARAMETER));
+			modifier = Integer.parseInt(modifierString);
             if (checkModifier(modifier)) {
                 throw new FtpServerException(
-                        "Modifier parameter is incorrect:" + headers.get(ServerConstants.MODIFIER_PARAMETER) + ".");
+					"Modifier parameter is incorrect:" + modifierString + ".");
             }
         } catch (NumberFormatException e) {
             throw new FtpServerException(
-                    "Modifier parameter is incorrect:" + headers.get("modifier") + ":" + ".The supported type is int.");
+					"Modifier parameter is incorrect:" + modifierString + ":" + ".The supported type is int.");
         }
         return modifier;
     }

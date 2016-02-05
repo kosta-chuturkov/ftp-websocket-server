@@ -12,7 +12,7 @@
 	<beans>
 		<context:property-placeholder location="classpath:conf.properties"
 			ignore-unresolvable="true" system-properties-mode="OVERRIDE" />
-		
+
 
 		<tx:annotation-driven transaction-manager="transactionManager"
 			order="200" />
@@ -32,6 +32,7 @@
 					<prop key="hibernate.dialect">${hibernate.dialect}</prop>
 					<prop key="hibernate.generate_statistics">false</prop>
 					<prop key="hibernate.show_sql">true</prop>
+					
 				</props>
 			</property>
 			<property name="packagesToScan" value="ftp.**.common.model" />
