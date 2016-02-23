@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import org.apache.log4j.Logger;
+import org.apache.tomcat.util.net.jsse.openssl.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,7 +54,7 @@ public class LoginController {
 			"/login"
 	}, method = RequestMethod.POST)
 	public ModelAndView logIn(HttpServletRequest request, @NotNull @ModelAttribute("email") String email,
-			@NotNull @ModelAttribute("pswd") String password) {
+			@NotNull @ModelAttribute("pswd") String password, Authentication authentication) {
 
 		try {
 			ModelAndView modelAndView = new ModelAndView(ServerConstants.NEW_CLIENT_LOGIN_PAGE);

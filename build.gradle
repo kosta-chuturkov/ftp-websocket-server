@@ -1,0 +1,78 @@
+buildscript {
+    ext {
+        springBootVersion = '1.3.2.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        maven { url 'http://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.3.2.RELEASE'
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+        classpath 'io.spring.gradle:dependency-management-plugin:0.5.2.RELEASE'
+    }
+}
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+apply plugin: 'propdeps'
+apply plugin: 'propdeps-maven'
+apply plugin: 'propdeps-idea'
+apply plugin: 'propdeps-eclipse'
+group = 'ftp-websocket-server'
+version = '0.0.1-SNAPSHOT'
+
+
+springBoot {
+    mainClass = 'ftp.core.boot.BootLoader'
+}
+
+description = """ftp-websocket-server"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+
+repositories {
+
+    maven { url "http://repo.maven.apache.org/maven2" }
+}
+dependencies {
+    compile group: 'junit', name: 'junit', version: '4.11'
+    compile group: 'javax.transaction', name: 'jta', version: '1.1'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+    compile group: 'commons-validator', name: 'commons-validator', version: '1.4.0'
+    compile group: 'org.json', name: 'json', version: '20140107'
+    compile group: 'commons-io', name: 'commons-io', version: '2.4'
+    compile group: 'org.apache.commons', name: 'commons-io', version: '1.3.2'
+    compile group: 'c3p0', name: 'c3p0', version: '0.9.1.2'
+
+    compile group: 'org.springframework', name: 'spring-orm'
+
+    compile group: 'org.aspectj', name: 'aspectjrt'
+    compile group: 'org.aspectj', name: 'aspectjweaver'
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.6.Final'
+    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.6.Final'
+    compile group: 'org.hibernate', name: 'hibernate-c3p0', version: '5.0.6.Final'
+    compile group: 'org.hibernate', name: 'hibernate-validator', version: '5.0.3.Final'
+    compile group: 'javax', name: 'javaee-api', version: '7.0'
+    compile('javax.servlet:jstl')
+    compile('javax.servlet:javax.servlet-api:3.1.0')
+    compile('org.apache.tomcat.embed:tomcat-embed-jasper')
+    compile('taglibs:standard:1.1.2')
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-websocket")
+    compile("org.springframework:spring-messaging")
+    compile('com.google.guava:guava:19.0')
+    compile('net.coobird:thumbnailator:0.4.8')
+    compile('javax.el:el-api:2.2')
+    compile('org.glassfish.web:el-impl:2.2')
+    compile('com.thetransactioncompany:jsonrpc2-base:1.38')
+    compile('net.logstash.logback:logstash-logback-encoder:4.5.1')
+
+    compile files('lib/ojdbc14.jar ')
+}

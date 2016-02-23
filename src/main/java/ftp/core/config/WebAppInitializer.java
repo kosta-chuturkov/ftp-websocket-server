@@ -1,5 +1,7 @@
 package ftp.core.config;
 
+import java.util.UUID;
+
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
@@ -20,6 +22,8 @@ public class WebAppInitializer implements WebApplicationInitializer, Application
 
 	@Resource
 	private ApplicationContext appContext;
+
+
 
 	@Override
 	public void onStartup(ServletContext container) {

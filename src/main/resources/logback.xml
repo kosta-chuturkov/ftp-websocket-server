@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<!-- CONSOLE LOGGING -->
+	<!-- %d{dd-MM-yyyy HH:mm:ss} [%thread] %5p %logger{39} : %m%n -->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{HH:mm:ss} %-5p %class{0}.%method:%L - %m%n"/>
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <Target>System.out</Target>
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+    <logger name="com.epam.techtalks" additivity="false" level="TRACE">
+        <appender-ref ref="console"/>
+    </logger>
+    <root level="WARN">
+        <appender-ref ref="console"/>
+    </root>
+    
+    <!-- FILE LOGGING IN JSON FORMAT-->
+    <property name="PROJECT_ID" value="techtalks"/>
+    <appender name="jsonFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>logs/techtalks.json</File>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <maxIndex>1</maxIndex>
+            <FileNamePattern>logs/${PROJECT_ID}_%i.json</FileNamePattern>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>5MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+    <logger name="com.epam.techtalks" additivity="false" level="INFO">
+        <appender-ref ref="jsonFile"/>
+    </logger>
+    <root level="WARN">
+        <appender-ref ref="jsonFile"/>
+    </root>
+    
+    <!-- FILE LOGGING NORMAL -->
+	<appender name="logFile" class="ch.qos.logback.core.FileAppender">
+	    <file>techtalks.log</file>
+	    <encoder>
+	      <pattern>%d{HH:mm:ss} %-5p %class{0}.%method:%L - %m%n</pattern>
+	    </encoder>
+	</appender>
+	<logger name="com.epam.techtalks" level="INFO">
+        <appender-ref ref="logFile"/>
+    </logger>
+    <root level="INFO">
+        <appender-ref ref="logFile"/>
+    </root>
+    
+</configuration>
