@@ -31,27 +31,21 @@ public class JspPageRestController {
 	@Resource
 	private FileService fileService;
 
-	// @RequestMapping("/")
-	// String home() {
-	//
-	// return "Hello World!";
-	// }
-
 	@RequestMapping(value = { "/files/shared/*" }, method = RequestMethod.POST)
-	public List<FileDto> getSharedFiles(HttpServletRequest request, HttpServletResponse response,
-			@NotNull @ModelAttribute("firstResult") Integer firstResult,
-			@NotNull @ModelAttribute("maxResults") Integer maxResults) throws IOException {
-		String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
-		String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
-		User current = userService.findByEmailAndPassword(email, password);
-		List<FileDto> fileDtos = Lists.newArrayList();
+	public List<FileDto> getSharedFiles(final HttpServletRequest request, final HttpServletResponse response,
+										@NotNull @ModelAttribute("firstResult") final Integer firstResult,
+										@NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
+		final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
+		final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
+		final User current = this.userService.findByEmailAndPassword(email, password);
+		final List<FileDto> fileDtos = Lists.newArrayList();
 		if (current == null) {
 			ServerUtil.sendJsonErrorResponce(response, "You must login first.");
 		} else {
 			User.setCurrent(current);
-			List<File> files = fileService.getSharedFilesForUser(current.getNickName(), firstResult, maxResults);
-			for (File file : files) {
-				FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+			final List<File> files = this.fileService.getSharedFilesForUser(current.getNickName(), firstResult, maxResults);
+			for (final File file : files) {
+				final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
 						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
 				fileDtos.add(fileDto);
 			}
@@ -59,31 +53,22 @@ public class JspPageRestController {
 		return fileDtos;
 	}
 
-	@RequestMapping(value = {
-			"/files/shared/d/*"
-	}, method = RequestMethod.GET)
-	public Object dasdas(HttpServletRequest request, HttpServletResponse response,
-			@NotNull @ModelAttribute("firstResult") Integer firstResult,
-			@NotNull @ModelAttribute("maxResults") Integer maxResults) throws IOException {
-
-		throw new RuntimeException("dsadas");
-	}
 
 	@RequestMapping(value = { "/files/private/*" }, method = RequestMethod.POST)
-	public List<FileDto> getPrivateFiles(HttpServletRequest request, HttpServletResponse response,
-			@NotNull @ModelAttribute("firstResult") Integer firstResult,
-			@NotNull @ModelAttribute("maxResults") Integer maxResults) throws IOException {
-		String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
-		String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
-		User current = userService.findByEmailAndPassword(email, password);
-		List<FileDto> fileDtos = Lists.newArrayList();
+	public List<FileDto> getPrivateFiles(final HttpServletRequest request, final HttpServletResponse response,
+										 @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+										 @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
+		final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
+		final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
+		final User current = this.userService.findByEmailAndPassword(email, password);
+		final List<FileDto> fileDtos = Lists.newArrayList();
 		if (current == null) {
 			ServerUtil.sendJsonErrorResponce(response, "You must login first.");
 		} else {
 			User.setCurrent(current);
-			List<File> files = fileService.getPrivateFilesForUser(current.getNickName(), firstResult, maxResults);
-			for (File file : files) {
-				FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+			final List<File> files = this.fileService.getPrivateFilesForUser(current.getNickName(), firstResult, maxResults);
+			for (final File file : files) {
+				final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
 						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
 				fileDtos.add(fileDto);
 			}
@@ -92,20 +77,20 @@ public class JspPageRestController {
 	}
 	
 	@RequestMapping(value = { "/files/uploaded/*" }, method = RequestMethod.POST)
-	public List<FileDto> getUploadedFiles(HttpServletRequest request, HttpServletResponse response,
-			@NotNull @ModelAttribute("firstResult") Integer firstResult,
-			@NotNull @ModelAttribute("maxResults") Integer maxResults) throws IOException {
-		String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
-		String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
-		User current = userService.findByEmailAndPassword(email, password);
-		List<FileDto> fileDtos = Lists.newArrayList();
+	public List<FileDto> getUploadedFiles(final HttpServletRequest request, final HttpServletResponse response,
+										  @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+										  @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
+		final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
+		final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
+		final User current = this.userService.findByEmailAndPassword(email, password);
+		final List<FileDto> fileDtos = Lists.newArrayList();
 		if (current == null) {
 			ServerUtil.sendJsonErrorResponce(response, "You must login first.");
 		} else {
 			User.setCurrent(current);
-			List<File> files = fileService.getUploadedFilesForUser(current.getNickName(), firstResult, maxResults);
-			for (File file : files) {
-				FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+			final List<File> files = this.fileService.getUploadedFilesForUser(current.getNickName(), firstResult, maxResults);
+			for (final File file : files) {
+				final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
 						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
 				fileDtos.add(fileDto);
 			}
@@ -114,16 +99,16 @@ public class JspPageRestController {
 	}
 
 	@RequestMapping(value = { "/usr*" }, method = RequestMethod.GET)
-	public List<String> getUsersByNickName(HttpServletRequest request, HttpServletResponse response,
-			@NotNull @ModelAttribute("q") String userNickName) throws IOException {
-		String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
-		String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
-		User current = userService.findByEmailAndPassword(email, password);
+	public List<String> getUsersByNickName(final HttpServletRequest request, final HttpServletResponse response,
+										   @NotNull @ModelAttribute("q") final String userNickName) throws IOException {
+		final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
+		final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
+		final User current = this.userService.findByEmailAndPassword(email, password);
 		if (current == null) {
 			ServerUtil.sendJsonErrorResponce(response, "You must login first.");
 		} else {
 			User.setCurrent(current);
-			List<String> users = userService.getUserByNickLike(userNickName);
+			final List<String> users = this.userService.getUserByNickLike(userNickName);
 			return users;
 		}
 		return Lists.newArrayList();
@@ -136,15 +121,15 @@ public class JspPageRestController {
 			super();
 		}
 
-		public ResourceNotFoundException(String message, Throwable cause) {
+		public ResourceNotFoundException(final String message, final Throwable cause) {
 			super(message, cause);
 		}
 
-		public ResourceNotFoundException(String message) {
+		public ResourceNotFoundException(final String message) {
 			super(message);
 		}
 
-		public ResourceNotFoundException(Throwable cause) {
+		public ResourceNotFoundException(final Throwable cause) {
 			super(cause);
 		}
 	}

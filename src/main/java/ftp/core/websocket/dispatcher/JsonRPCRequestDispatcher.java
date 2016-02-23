@@ -15,8 +15,8 @@ import com.thetransactioncompany.jsonrpc2.JSONRPC2Response;
 
 import ftp.core.exception.JsonRPC2Exception;
 import ftp.core.listener.WebSocketSessionListener;
-import ftp.core.websocket.factory.JsonRPC2HandlerFactory;
 import ftp.core.websocket.api.JsonRPC2TypedHandler;
+import ftp.core.websocket.factory.JsonRPC2HandlerFactory;
 
 /**
  * Created by Kosta_Chuturkov on 2/23/2016.
@@ -59,6 +59,7 @@ public class JsonRPCRequestDispatcher extends TextWebSocketHandler {
            final String response = jsonrpc2Response.toJSONString();
            session.sendMessage(new TextMessage(response));
        }catch (final Exception e){
+           this.logger.error(e);
            final JSONRPC2Response jsonrpc2Response;
            if(jsonrpc2Request == null) {
                jsonrpc2Response = new JSONRPC2Response(JSONRPC2Error.PARSE_ERROR);

@@ -223,7 +223,7 @@ p,:focus {
 <link rel="stylesheet" type="text/css"
 	href="<c:url value="/resources/css/tabs.css" />" />
 <script src="<c:url value="/resources/js/tabs.js" />"></script>
-
+<script src="<c:url value="/resources/js/sockjs-0.3.min.js" />"></script>
 </head>
 
 <body>
@@ -278,6 +278,72 @@ p,:focus {
 		</div>
 	</div>
 	<script>
+
+	var ws = null;
+             var url = null;
+             var transports = [];
+
+             function setConnected(connected) {
+                console.log('connected!');
+             }
+
+             function connect() {
+                 if (!url) {
+                     alert('Select whether to use W3C WebSocket or SockJS');
+                     return;
+                 }
+
+                 ws = (url.indexOf('sockjs') != -1) ?
+                     new SockJS(url, undefined, {protocols_whitelist: transports}) : new WebSocket(url);
+
+                 ws.onopen = function () {
+                     setConnected(true);
+                     console.log('Info: connection opened.');
+                 };
+                 ws.onmessage = function (event) {
+                     console.log('Received: ' + event.data);
+                 };
+                 ws.onclose = function (event) {
+                     setConnected(false);
+                     console.log('Info: connection closed.');
+                     console.log(event);
+                 };
+             }
+
+             function disconnect() {
+                 if (ws != null) {
+                     ws.close();
+                     ws = null;
+                 }
+                 setConnected(false);
+             }
+
+             function echo() {
+                 if (ws != null) {
+                     ws.send('pong message');
+                 } else {
+                     alert('connection not established, please connect.');
+                 }
+             }
+
+             function updateUrl(urlPath) {
+                 if (urlPath.indexOf('sockjs') != -1) {
+                     url = urlPath;
+                 }
+             }
+
+             function updateTransport(transport) {
+               transports = (transport == 'all') ?  [] : [transport];
+             }
+
+             function establishConnection(){
+                updateUrl('/sockjs/echo');
+                updateTransport('websocket');
+                connect();
+                echo();
+             }
+
+
 	var timeout;
 	var type = 2;
 	var maxResults = 30;
@@ -451,6 +517,7 @@ p,:focus {
     		},writable:false,enumerable:false});
     	createEventListeners();
         startAjax1Pole();
+        establishConnection();
     };
 </script>
 </body>
