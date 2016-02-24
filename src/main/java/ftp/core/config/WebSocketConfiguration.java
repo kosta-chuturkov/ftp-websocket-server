@@ -11,7 +11,9 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 
-import ftp.core.websocket.dispatcher.JsonRPCRequestDispatcher;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import ftp.core.websocket.dispatcher.JsonRequestDispatcher;
 
 /**
  * Created by Kosta_Chuturkov on 2/10/2016.
@@ -28,7 +30,7 @@ public class WebSocketConfiguration extends WebMvcConfigurerAdapter implements W
 
     @Bean
     public WebSocketHandler echoWebSocketHandler() {
-        return new PerConnectionWebSocketHandler(JsonRPCRequestDispatcher.class);
+        return new PerConnectionWebSocketHandler(JsonRequestDispatcher.class);
     }
 
     // Allow serving HTML files through the default Servlet
@@ -36,5 +38,10 @@ public class WebSocketConfiguration extends WebMvcConfigurerAdapter implements W
     @Override
     public void configureDefaultServletHandling(final DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
+    }
+
+    @Bean
+    public Gson gson(){
+        return new GsonBuilder().create();
     }
 }

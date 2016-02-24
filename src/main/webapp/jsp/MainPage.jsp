@@ -279,71 +279,6 @@ p,:focus {
 	</div>
 	<script>
 
-	var ws = null;
-             var url = null;
-             var transports = [];
-
-             function setConnected(connected) {
-                console.log('connected!');
-             }
-
-             function connect() {
-                 if (!url) {
-                     alert('Select whether to use W3C WebSocket or SockJS');
-                     return;
-                 }
-
-                 ws = (url.indexOf('sockjs') != -1) ?
-                     new SockJS(url, undefined, {protocols_whitelist: transports}) : new WebSocket(url);
-
-                 ws.onopen = function () {
-                     setConnected(true);
-                     console.log('Info: connection opened.');
-                 };
-                 ws.onmessage = function (event) {
-                     console.log('Received: ' + event.data);
-                 };
-                 ws.onclose = function (event) {
-                     setConnected(false);
-                     console.log('Info: connection closed.');
-                     console.log(event);
-                 };
-             }
-
-             function disconnect() {
-                 if (ws != null) {
-                     ws.close();
-                     ws = null;
-                 }
-                 setConnected(false);
-             }
-
-             function echo() {
-                 if (ws != null) {
-                     ws.send('pong message');
-                 } else {
-                     alert('connection not established, please connect.');
-                 }
-             }
-
-             function updateUrl(urlPath) {
-                 if (urlPath.indexOf('sockjs') != -1) {
-                     url = urlPath;
-                 }
-             }
-
-             function updateTransport(transport) {
-               transports = (transport == 'all') ?  [] : [transport];
-             }
-
-             function establishConnection(){
-                updateUrl('/sockjs/echo');
-                updateTransport('websocket');
-                connect();
-                echo();
-             }
-
-
 	var timeout;
 	var type = 2;
 	var maxResults = 30;
@@ -357,7 +292,89 @@ p,:focus {
     var uploadedFilesUrl = serverAddress + "<c:url value="/files/uploaded/" />";
     var deleteUrl = serverAddress + "<c:url value="/files/delete/" />";
     var downloadUrl = serverAddress + "<c:url value="/files/" />";
-    
+    var requestCounter = 0;
+    var ws = null;
+    var getSharedFilesMethod = 'getSharedFiles';
+    var getPrivateFilesMethod = 'getPrivateFiles';
+    var url = null;
+    var transports = [];
+
+    function setConnected(connected) {
+        console.log('connected!');
+    }
+
+     function connect() {
+        if (!url) {
+         alert('Select whether to use W3C WebSocket or SockJS');
+         return;
+        }
+
+     ws = (url.indexOf('sockjs') != -1) ?
+         new SockJS(url, undefined, {protocols_whitelist: transports}) : new WebSocket(url);
+
+     ws.onopen = function () {
+         setConnected(true);
+         console.log('Info: connection opened.');
+     };
+     ws.onmessage = function (event) {
+        var result = event.params;
+        var responceId= event.id;
+        console.log('Received: ' + event.data);
+     };
+     ws.onclose = function (event) {
+        setConnected(false);
+        console.log('Info: connection closed.');
+        console.log(event);
+     };
+     }
+
+     function disconnect() {
+        if (ws != null) {
+        ws.close();
+        ws = null;
+        }
+        setConnected(false);
+     }
+
+     function callRemoteMethod(method, parameters) {
+        if (ws != null) {
+        var request = {};
+        request.method = method;
+        request.params = parameters;
+        ws.send(JSON.stringify(request));
+        } else {
+
+        alert('connection not established, please connect.');
+        }
+     }
+
+     function updateUrl(urlPath) {
+        if (urlPath.indexOf('sockjs') != -1) {
+            url = urlPath;
+        }
+     }
+
+     function updateTransport(transport) {
+        transports = (transport == 'all') ?  [] : [transport];
+     }
+
+     function establishConnection(){
+         updateUrl('/sockjs/echo');
+         updateTransport('websocket');
+         connect();
+         var params = {
+            firstResult: sharedRowCounter,
+            maxResults: maxResults
+         };
+         callRemoteMethod(getSharedFilesMethod, params);
+         params = {
+         firstResult: privateRowCounter,
+         maxResults: maxResults
+         };
+         callRemoteMethod(getPrivateFilesMethod, params);
+     }
+
+
     function createEventListeners(){
     	document.getElementById("privateTabLabel").addEventListener("click", onPrivateTabClick);
         document.getElementById("sharedTabLabel").addEventListener("click", onSharedTabClick);
