@@ -12,6 +12,7 @@ import ftp.core.service.face.tx.FileService;
 import ftp.core.websocket.api.JsonTypedHandler;
 import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
 /**
  * Created by Kosta_Chuturkov on 2/24/2016.
  */
+@Service
 public class PrivateFilesHandler implements JsonTypedHandler {
 
     @Resource
