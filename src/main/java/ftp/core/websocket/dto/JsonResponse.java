@@ -1,7 +1,5 @@
 package ftp.core.websocket.dto;
 
-import com.google.gson.JsonObject;
-
 /**
  * Created by Kosta_Chuturkov on 2/24/2016.
  */
@@ -9,7 +7,7 @@ public class JsonResponse {
 
     private String responseMethod;
 
-    private JsonObject result;
+    private String result;
 
     private String error;
 
@@ -17,12 +15,12 @@ public class JsonResponse {
 
     }
 
-    public JsonResponse(final String responseMethod, final JsonObject result) {
+    public JsonResponse(final String responseMethod, final String result) {
         this.responseMethod = responseMethod;
         this.result = result;
     }
 
-    public JsonResponse(final String responseMethod, final String error, final JsonObject result) {
+    public JsonResponse(final String responseMethod, final String error, final String result) {
         this.responseMethod = responseMethod;
         this.error = error;
         this.result = result;
@@ -36,11 +34,11 @@ public class JsonResponse {
         this.responseMethod = responseMethod;
     }
 
-    public JsonObject getResult() {
+    public String getResult() {
         return this.result;
     }
 
-    public void setResult(final JsonObject result) {
+    public void setResult(final String result) {
         this.result = result;
     }
 

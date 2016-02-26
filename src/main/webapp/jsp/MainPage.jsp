@@ -300,7 +300,7 @@ p,:focus {
     var transports = [];
 
     function setConnected(connected) {
-        console.log('connected!');
+        console.log('connected:'+connected);
     }
 
      function connect() {
@@ -533,7 +533,6 @@ p,:focus {
     		 +' '+(d?(a[1]+'MGTPEZY')[--d]+a[2]:'Bytes');
     		},writable:false,enumerable:false});
     	createEventListeners();
-        startAjax1Pole();
         establishConnection();
     };
 </script>

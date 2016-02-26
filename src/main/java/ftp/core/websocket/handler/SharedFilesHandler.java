@@ -47,7 +47,7 @@ public class SharedFilesHandler implements JsonTypedHandler {
         }
         final JsonResponse jsonResponse = new JsonResponse();
         jsonResponse.setResponseMethod(method);
-        jsonResponse.setResult(this.gson.toJsonTree(fileDtos).getAsJsonObject());
+        jsonResponse.setResult(this.gson.toJson(fileDtos));
         return jsonResponse;
     }
 

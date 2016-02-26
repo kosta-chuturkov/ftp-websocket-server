@@ -39,7 +39,14 @@ public class PrivateFilesHandler implements JsonTypedHandler {
         if (firstResult == null || maxResults == null) {
             throw new JsonException("Expected maxResult and firstResult parameters", method);
         }
-        final List<File> files = this.fileService.getPrivateFilesForUser(User.getCurrent().getNickName(), firstResult.getAsInt(), maxResults.getAsInt());
+        final User current = User.getCurrent();
+        if (current == null) {
+            throw new JsonException("Session has expired. Log in again....", method);
+        }
+        final String nickName = current.getNickName();
+        final Integer firstResultAsInt = firstResult.getAsInt();
+        final Integer maxResultsAsInt = maxResults.getAsInt();
+        final List<File> files = this.fileService.getPrivateFilesForUser(nickName, firstResultAsInt, maxResultsAsInt);
         for (final File file : files) {
             final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                     file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
@@ -47,7 +54,7 @@ public class PrivateFilesHandler implements JsonTypedHandler {
         }
         final JsonResponse jsonResponse = new JsonResponse();
         jsonResponse.setResponseMethod(method);
-        jsonResponse.setResult(this.gson.toJsonTree(fileDtos).getAsJsonObject());
+        jsonResponse.setResult(this.gson.toJson(fileDtos));
         return jsonResponse;
     }
 

@@ -51,6 +51,8 @@ public interface ServerConstants {
 
   public static final String PASSWORD = "PREFID";
 
+  final static String CURRENT_USER = "currentUser";
+
   public static final String PASSWORD_REPEATED_PARAMETER = "pswdRepeated";
 
 	public static final String SERVER_STORAGE_FOLDER_NAME = "D:/ServerFileStorage";
