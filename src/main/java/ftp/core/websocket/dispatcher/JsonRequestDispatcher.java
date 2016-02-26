@@ -3,7 +3,7 @@ package ftp.core.websocket.dispatcher;
 import com.google.gson.Gson;
 import ftp.core.common.model.User;
 import ftp.core.common.util.ServerConstants;
-import ftp.core.listener.WebSocketSessionListener;
+import ftp.core.reactor.NewFileSharedReciever;
 import ftp.core.websocket.api.JsonTypedHandler;
 import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
@@ -13,8 +13,11 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import reactor.bus.EventBus;
 
 import javax.annotation.Resource;
+
+import static reactor.bus.selector.Selectors.$;
 
 /**
  * Created by Kosta_Chuturkov on 2/23/2016.
@@ -22,27 +25,27 @@ import javax.annotation.Resource;
 public class JsonRequestDispatcher extends TextWebSocketHandler {
 
     private final Logger logger = Logger.getLogger(JsonRequestDispatcher.class);
-    @Resource
-    private WebSocketSessionListener webSocketSessionListener;
+
     @Resource
     private JsonHandlerFactory jsonHandlerFactory;
+
     @Resource
     private Gson gson;
 
+    @Resource
+    private EventBus eventBus;
+
     @Override
     public void afterConnectionEstablished(final WebSocketSession session) throws Exception {
-        if (this.webSocketSessionListener.addSession(session)) {
-            //   setCurrentUser(session);
-            this.logger.debug("Web Socket session added: " + session.toString());
-        } else {
-            this.logger.debug("Session with this id exists.Closing session: " + session.toString());
-            session.close(CloseStatus.NOT_ACCEPTABLE);
+        final Object currentUser = session.getAttributes().get(ServerConstants.CURRENT_USER);
+        if (currentUser != null) {
+            final NewFileSharedReciever newFileSharedReciever = new NewFileSharedReciever(session, this.gson);
+            this.eventBus.on($(((User) currentUser).getNickName()), newFileSharedReciever);
         }
     }
 
     @Override
     public void afterConnectionClosed(final WebSocketSession session, final CloseStatus status) throws Exception {
-        this.webSocketSessionListener.removeSession(session);
         this.logger.debug("Web Socket session removed: " + session.toString());
     }
 

@@ -323,6 +323,7 @@ p,:focus {
      };
      ws.onclose = function (event) {
         setConnected(false);
+        establishConnection();
         console.log('Info: connection closed.');
         console.log(event);
      };
@@ -366,11 +367,12 @@ p,:focus {
             firstResult: sharedRowCounter,
             maxResults: maxResults
          };
-         callRemoteMethod(getSharedFilesMethod, params);
+
          params = {
          firstResult: privateRowCounter,
          maxResults: maxResults
          };
+         callRemoteMethod(getSharedFilesMethod, params);
          callRemoteMethod(getPrivateFilesMethod, params);
      }
 

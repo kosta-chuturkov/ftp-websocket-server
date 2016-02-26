@@ -1,13 +1,13 @@
 package ftp.core.websocket.handler;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
 import ftp.core.exception.JsonException;
+import ftp.core.service.face.JsonService;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.websocket.api.JsonTypedHandler;
 import ftp.core.websocket.dto.JsonRequest;
@@ -21,13 +21,13 @@ import java.util.List;
  * Created by Kosta_Chuturkov on 2/24/2016.
  */
 @Service
-public class PrivateFilesHandler implements JsonTypedHandler {
+public class GetSharedFilesHandler implements JsonTypedHandler {
 
     @Resource
     private FileService fileService;
 
     @Resource
-    private Gson gson;
+    private JsonService jsonService;
 
     @Override
     public JsonResponse getJsonResponse(final JsonRequest jsonRequest) {
@@ -46,20 +46,17 @@ public class PrivateFilesHandler implements JsonTypedHandler {
         final String nickName = current.getNickName();
         final Integer firstResultAsInt = firstResult.getAsInt();
         final Integer maxResultsAsInt = maxResults.getAsInt();
-        final List<File> files = this.fileService.getPrivateFilesForUser(nickName, firstResultAsInt, maxResultsAsInt);
+        final List<File> files = this.fileService.getSharedFilesForUser(nickName, firstResultAsInt, maxResultsAsInt);
         for (final File file : files) {
             final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                     file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
             fileDtos.add(fileDto);
         }
-        final JsonResponse jsonResponse = new JsonResponse();
-        jsonResponse.setResponseMethod(method);
-        jsonResponse.setResult(this.gson.toJson(fileDtos));
-        return jsonResponse;
+        return this.jsonService.getJsonResponse(method, fileDtos);
     }
 
     @Override
     public String getHandlerType() {
-        return HandlerNames.PRIVATE_FILE_HANDLER;
+        return HandlerNames.SHARED_FILE_HANDLER;
     }
 }

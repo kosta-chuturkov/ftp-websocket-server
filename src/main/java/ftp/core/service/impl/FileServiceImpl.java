@@ -1,23 +1,24 @@
 package ftp.core.service.impl;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.io.FileUtils;
-import org.springframework.stereotype.Service;
-
 import ftp.core.common.model.AbstractEntity;
 import ftp.core.common.model.File;
 import ftp.core.common.model.File.FileType;
 import ftp.core.common.model.User;
+import ftp.core.common.model.dto.FileDto;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.persistance.face.dao.FileDao;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
+import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Service;
+import reactor.bus.Event;
+import reactor.bus.EventBus;
+
+import javax.annotation.Resource;
+import java.util.Date;
+import java.util.List;
 
 @Service("fileService")
 public class FileServiceImpl extends AbstractGenericService<File, Long> implements FileService {
@@ -28,39 +29,42 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 	@Resource
 	private UserService userService;
 
+	@Resource
+	private EventBus eventBus;
+
 	@Override
-	public File getFileByDownloadHash(String downloadHash) {
-		return fileDao.getFileByDownloadHash(downloadHash);
+	public File getFileByDownloadHash(final String downloadHash) {
+		return this.fileDao.getFileByDownloadHash(downloadHash);
 	}
 
 	@Override
-	public void deleteFile(String deleteHash, String creatorNickName) {
-		fileDao.deleteFile(deleteHash, creatorNickName);
+	public void deleteFile(final String deleteHash, final String creatorNickName) {
+		this.fileDao.deleteFile(deleteHash, creatorNickName);
 	}
 
 	@Override
-	public File findByDeleteHash(String deleteHash, String creatorNickName) {
-		return fileDao.findByDeleteHash(deleteHash, creatorNickName);
+	public File findByDeleteHash(final String deleteHash, final String creatorNickName) {
+		return this.fileDao.findByDeleteHash(deleteHash, creatorNickName);
 	}
 
 	@Override
-	public void addUserToFile(Number fileId, User userToAdd) {
-		AbstractEntity findOne = findOne(fileId);
+	public void addUserToFile(final Number fileId, final User userToAdd) {
+		final AbstractEntity findOne = findOne(fileId);
 		if (findOne != null) {
-			File file = (File) findOne;
+			final File file = (File) findOne;
 			file.addUser(userToAdd);
 			update(file);
 		}
 	}
 
-	public void createFileRecord(String fileNameEscaped, long timestamp, int modifier, String userToSendFilesTo,
-			long fileSize, String deleteHash, String downloadHash) {
-		User currentUser = User.getCurrent();
-		long remainingStorage = currentUser.getRemainingStorage();
+	public void createFileRecord(final String fileNameEscaped, final long timestamp, final int modifier, final String userToSendFilesTo,
+								 final long fileSize, final String deleteHash, final String downloadHash) {
+		final User currentUser = User.getCurrent();
+		final long remainingStorage = currentUser.getRemainingStorage();
 		if (remainingStorage < fileSize) { throw new FtpServerException(
 				"You are exceeding your upload limit:" + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT)
 						+ ". You have: " + FileUtils.byteCountToDisplaySize(remainingStorage) + " remainig storage."); }
-		ftp.core.common.model.File file = new ftp.core.common.model.File();
+		final ftp.core.common.model.File file = new ftp.core.common.model.File();
 		file.setName(fileNameEscaped);
 		file.setTimestamp(new Date(timestamp));
 		file.setDownloadHash(downloadHash);
@@ -68,52 +72,55 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 		file.setFileSize(fileSize);
 		file.setCreator(currentUser);
 		file.setFileType(ftp.core.common.model.File.FileType.getById(modifier));
-		Number savedFileId = save(file);
+		final Number savedFileId = save(file);
 		if (savedFileId != null) {
-			userService.updateRemainingStorageForUser(fileSize, currentUser.getId(), remainingStorage);
+			this.userService.updateRemainingStorageForUser(fileSize, currentUser.getId(), remainingStorage);
 			if (modifier == FileType.SHARED.getType()) {
-				User userToShareTheFileWith = userService.checkAndGetUserToSendFilesTo(userToSendFilesTo);
+				final User userToShareTheFileWith = this.userService.checkAndGetUserToSendFilesTo(userToSendFilesTo);
 				addUserToFile(savedFileId, userToShareTheFileWith);
+				final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
+				this.eventBus.notify(userToSendFilesTo, Event.wrap(fileDto));
 			}
 		} else {
 			throw new RuntimeException("Unable to add file!");
 		}
 	}
 
-	public boolean isUserFromFileSharedUsers(Number fileId, String nickName) {
-		AbstractEntity exists = findOne(fileId);
+	public boolean isUserFromFileSharedUsers(final Number fileId, final String nickName) {
+		final AbstractEntity exists = findOne(fileId);
 		if (exists == null) {
 			return false;
 		}
-		List<User> sharedWithUsers = ((File) exists).getSharedWithUsers();
-		User userByNickName = userService.getUserByNickName(nickName);
+		final List<User> sharedWithUsers = ((File) exists).getSharedWithUsers();
+		final User userByNickName = this.userService.getUserByNickName(nickName);
 		return sharedWithUsers.contains(userByNickName);
 	}
 
 	@Override
-	public boolean isFileCreator(Number fileId, String userNickName) {
-		AbstractEntity exists = findOne(fileId);
+	public boolean isFileCreator(final Number fileId, final String userNickName) {
+		final AbstractEntity exists = findOne(fileId);
 		if (exists == null) {
 			return false;
 		}
-		File file = ((File) exists);
-		User userByNickName = userService.getUserByNickName(userNickName);
+		final File file = ((File) exists);
+		final User userByNickName = this.userService.getUserByNickName(userNickName);
 		return file.getCreator().getNickName().equals(userByNickName.getNickName());
 	}
 
 	@Override
-	public List<File> getSharedFilesForUser(String userNickName, int firstResult, int maxResults) {
-		return fileDao.getSharedFilesForUser(userNickName, firstResult, maxResults);
+	public List<File> getSharedFilesForUser(final String userNickName, final int firstResult, final int maxResults) {
+		return this.fileDao.getSharedFilesForUser(userNickName, firstResult, maxResults);
 	}
 
 	@Override
-	public List<File> getPrivateFilesForUser(String userNickName, int firstResult, int maxResults) {
-		return fileDao.getPrivateFilesForUser(userNickName, firstResult, maxResults);
+	public List<File> getPrivateFilesForUser(final String userNickName, final int firstResult, final int maxResults) {
+		return this.fileDao.getPrivateFilesForUser(userNickName, firstResult, maxResults);
 	}
 
 	@Override
-	public List<File> getUploadedFilesForUser(String userNickName, int firstResult, int maxResults) {
-		return fileDao.getUploadedFilesForUser(userNickName, firstResult, maxResults);
+	public List<File> getUploadedFilesForUser(final String userNickName, final int firstResult, final int maxResults) {
+		return this.fileDao.getUploadedFilesForUser(userNickName, firstResult, maxResults);
 	}
 
 }
