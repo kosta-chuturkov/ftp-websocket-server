@@ -1,36 +1,50 @@
 package ftp.core.listener;
 
 import com.google.common.collect.Maps;
-import ftp.core.exception.JsonException;
+import org.springframework.stereotype.Service;
 import reactor.bus.EventBus;
-import reactor.fn.Consumer;
 
 import javax.annotation.Resource;
 import java.util.Map;
-
-import static reactor.bus.selector.Selectors.$;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by Kosta_Chuturkov on 2/23/2016.
  */
 
-//@Service("sessionToConsumerMapper")
+@Service("sessionToConsumerMapper")
 public class SessionToConsumerMapper {
 
-    private final Map<String, Consumer> sessionToConsumerMap = Maps.newConcurrentMap();
+    private final Map<String, AtomicInteger> sessionToConsumerMap = Maps.newConcurrentMap();
 
     @Resource
     private EventBus eventBus;
 
 
-    public final void addConsumer(final String sessionId, final Consumer consumer, final String topic) {
-        if (this.sessionToConsumerMap.get(sessionId) == null) {
-            this.sessionToConsumerMap.put(sessionId, consumer);
-            this.eventBus.on($(topic), consumer);
+    public final void addConsumer(final String topic) {
+        final AtomicInteger userSessionsCount = this.sessionToConsumerMap.get(topic);
+        if (userSessionsCount == null) {
+            this.sessionToConsumerMap.put(topic, new AtomicInteger(1));
         } else {
-            throw new JsonException("Unable to start Session.", "default");
+            final AtomicInteger atomicInteger = userSessionsCount;
+            synchronized (atomicInteger) {
+                if ((this.sessionToConsumerMap.get(topic)) != null)
+                    atomicInteger.incrementAndGet();
+            }
         }
 
+    }
+
+    public final void removeConsumer(final String topic) {
+        final AtomicInteger atomicInteger = this.sessionToConsumerMap.get(topic);
+        if (atomicInteger != null) {
+            synchronized (atomicInteger) {
+                if (atomicInteger.decrementAndGet() == 0) {
+                    this.eventBus.getConsumerRegistry().unregister(topic);
+                    this.sessionToConsumerMap.remove(topic);
+                }
+            }
+        }
     }
 
 }

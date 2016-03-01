@@ -1,5 +1,6 @@
 package ftp.core.service.impl;
 
+import com.google.gson.Gson;
 import ftp.core.common.model.AbstractEntity;
 import ftp.core.common.model.File;
 import ftp.core.common.model.File.FileType;
@@ -11,6 +12,8 @@ import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
+import ftp.core.websocket.dto.JsonResponse;
+import ftp.core.websocket.handler.HandlerNames;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import reactor.bus.Event;
@@ -31,6 +34,9 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 
 	@Resource
 	private EventBus eventBus;
+
+	@Resource
+	private Gson gson;
 
 	@Override
 	public File getFileByDownloadHash(final String downloadHash) {
@@ -80,7 +86,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 				addUserToFile(savedFileId, userToShareTheFileWith);
 				final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
 						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-				this.eventBus.notify(userToSendFilesTo, Event.wrap(fileDto));
+				this.eventBus.notify(userToSendFilesTo, Event.wrap(new JsonResponse(HandlerNames.SHARED_FILE_HANDLER, this.gson.toJson(fileDto))));
 			}
 		} else {
 			throw new RuntimeException("Unable to add file!");

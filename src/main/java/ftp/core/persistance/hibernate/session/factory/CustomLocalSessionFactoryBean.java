@@ -1,14 +1,13 @@
 package ftp.core.persistance.hibernate.session.factory;
 
-import java.net.URI;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 
-import com.google.common.collect.Lists;
+import java.net.URI;
+import java.util.List;
 
 public class CustomLocalSessionFactoryBean extends LocalSessionFactoryBean {
 
@@ -17,24 +16,24 @@ public class CustomLocalSessionFactoryBean extends LocalSessionFactoryBean {
 	private String hibernateQueriesTemplate;
 
 	@Override
-	public void setMappingResources(String... mappingResources) {
+	public void setMappingResources(final String... mappingResources) {
 		String resourcesPath = "";
 		Resource[] resources = null;
 		final List<String> result = Lists.newArrayList();
-		PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
+		final PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
 		try {
-			for (String mappingResource : mappingResources) {
+			for (final String mappingResource : mappingResources) {
 				if (mappingResource.endsWith("/")) {
-					resourcesPath = classpathPrefix + mappingResource + hibernateQueriesTemplate;
+					resourcesPath = this.classpathPrefix + mappingResource + this.hibernateQueriesTemplate;
 					resources = pathMatchingResourcePatternResolver.getResources(resourcesPath);
 					if (resources == null || resources.length == 0) {
-						String errorMessage = "No resources found on path:" + resourcesPath;
+						final String errorMessage = "No resources found on path:" + resourcesPath;
 						logger.error(errorMessage);
 						throw new Exception(errorMessage);
 					}
 					URI resourceUri = null;
 					String fileClasspathPath = null;
-					for (Resource resource : resources) {
+					for (final Resource resource : resources) {
 						resourceUri = resource.getURI();
 						fileClasspathPath = resourceUri.toString();
 						// Parse the file back to reletive classpath path.
@@ -46,13 +45,13 @@ public class CustomLocalSessionFactoryBean extends LocalSessionFactoryBean {
 					result.add(mappingResource);
 				}
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
 		super.setMappingResources(result.toArray(new String[0]));
 	}
 
-	public void setHibernateQueriesTemplate(String hibernateQueriesTemplate) {
+	public void setHibernateQueriesTemplate(final String hibernateQueriesTemplate) {
 		this.hibernateQueriesTemplate = hibernateQueriesTemplate;
 	}
 }

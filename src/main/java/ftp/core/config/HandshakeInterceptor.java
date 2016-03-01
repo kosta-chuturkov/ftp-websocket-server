@@ -3,6 +3,7 @@ package ftp.core.config;
 import ftp.core.common.model.User;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
+import ftp.core.listener.SessionToConsumerMapper;
 import ftp.core.service.face.tx.UserService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
@@ -20,8 +21,12 @@ import java.util.Map;
  */
 @Configuration
 public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
+
     @Resource
     private UserService userService;
+
+    @Resource
+    private SessionToConsumerMapper sessionToConsumerMapper;
 
     @Override
     public boolean beforeHandshake(final ServerHttpRequest request,
@@ -31,7 +36,11 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
         final String email = ServerUtil.getSessionParam(servletRequest, ServerConstants.EMAIL_PARAMETER);
         final String password = ServerUtil.getSessionParam(servletRequest, ServerConstants.PASSWORD);
         final User current = this.userService.findByEmailAndPassword(email, password);
+        if (current == null) {
+            throw new RuntimeException("Invalid username or password.");
+        }
         attributes.put(ServerConstants.CURRENT_USER, current);
+        this.sessionToConsumerMapper.addConsumer(current.getNickName());
         return super.beforeHandshake(request, response, wsHandler, attributes);
     }
 

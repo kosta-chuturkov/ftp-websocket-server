@@ -3,7 +3,8 @@ package ftp.core.websocket.dispatcher;
 import com.google.gson.Gson;
 import ftp.core.common.model.User;
 import ftp.core.common.util.ServerConstants;
-import ftp.core.reactor.NewFileSharedReciever;
+import ftp.core.listener.SessionToConsumerMapper;
+import ftp.core.reactor.NewFileSharedReciver;
 import ftp.core.websocket.api.JsonTypedHandler;
 import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
@@ -35,18 +36,25 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
     @Resource
     private EventBus eventBus;
 
+    @Resource
+    private SessionToConsumerMapper sessionToConsumerMapper;
+
     @Override
     public void afterConnectionEstablished(final WebSocketSession session) throws Exception {
         final Object currentUser = session.getAttributes().get(ServerConstants.CURRENT_USER);
         if (currentUser != null) {
-            final NewFileSharedReciever newFileSharedReciever = new NewFileSharedReciever(session, this.gson);
-            this.eventBus.on($(((User) currentUser).getNickName()), newFileSharedReciever);
+            final NewFileSharedReciver newFileSharedReciver = new NewFileSharedReciver(session, this.gson);
+            this.eventBus.on($(((User) currentUser).getNickName()), newFileSharedReciver);
         }
     }
 
     @Override
     public void afterConnectionClosed(final WebSocketSession session, final CloseStatus status) throws Exception {
-        this.logger.debug("Web Socket session removed: " + session.toString());
+        final Object currentUser = session.getAttributes().get(ServerConstants.CURRENT_USER);
+        if (currentUser != null) {
+            this.sessionToConsumerMapper.removeConsumer(((User) currentUser).getNickName());
+            this.logger.debug("Web Socket session removed: " + session.toString());
+        }
     }
 
     @Override

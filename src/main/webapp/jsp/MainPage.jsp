@@ -9,11 +9,11 @@
 <%
         int port = 0;
 		String user = (String) session.getAttribute("email");
-		String hash = (String) session.getAttribute("PREFID");
-	    String host = (String) session.getAttribute("host");
-	    String storage = (String) session.getAttribute("storage");
-	    String maxStorage = (String) session.getAttribute("maxStorage");
-	    Object portObj = session.getAttribute("port");
+	final String hash = (String) session.getAttribute("PREFID");
+	final String host = (String) session.getAttribute("host");
+	final String storage = (String) session.getAttribute("storage");
+	final String maxStorage = (String) session.getAttribute("maxStorage");
+	final Object portObj = session.getAttribute("port");
 
 	    if (user == null || hash == null || host== null || portObj == null) {
 	      user = "";
@@ -286,13 +286,9 @@ p,:focus {
     var currentSharedID = 0;
     var privateRowCounter = 0;
     var sharedRowCounter = 0;
-    var interval = 3000;
     var serverAddress = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>';
-    var sharedFilesUrl = serverAddress + "<c:url value="/files/shared/" />";
-    var uploadedFilesUrl = serverAddress + "<c:url value="/files/uploaded/" />";
     var deleteUrl = serverAddress + "<c:url value="/files/delete/" />";
     var downloadUrl = serverAddress + "<c:url value="/files/" />";
-    var requestCounter = 0;
     var ws = null;
     var getSharedFilesMethod = 'getSharedFiles';
     var getPrivateFilesMethod = 'getPrivateFiles';
@@ -314,11 +310,11 @@ p,:focus {
 
      ws.onopen = function () {
          setConnected(true);
+		 onPrivateTabClick();
          console.log('Info: connection opened.');
      };
      ws.onmessage = function (event) {
-        var result = event.params;
-        var responceId= event.id;
+		 getDataFromJSON(event.data);
         console.log('Received: ' + event.data);
      };
      ws.onclose = function (event) {
@@ -344,7 +340,6 @@ p,:focus {
         request.params = parameters;
         ws.send(JSON.stringify(request));
         } else {
-
         alert('connection not established, please connect.');
         }
      }
@@ -363,17 +358,6 @@ p,:focus {
          updateUrl('/sockjs/echo');
          updateTransport('websocket');
          connect();
-         var params = {
-            firstResult: sharedRowCounter,
-            maxResults: maxResults
-         };
-
-         params = {
-         firstResult: privateRowCounter,
-         maxResults: maxResults
-         };
-         callRemoteMethod(getSharedFilesMethod, params);
-         callRemoteMethod(getPrivateFilesMethod, params);
      }
 
 
@@ -383,48 +367,55 @@ p,:focus {
     }
 
     function onPrivateTabClick() {
-        stopAjaxPole();
-        startAjax1Pole();
+		var params = {
+			firstResult: currentPrivateID,
+			maxResults: maxResults
+		};
+		callRemoteMethod(getPrivateFilesMethod, params);
     }
     
     function onSharedTabClick() {
-    	stopAjaxPole();
-        startAjax2Pole();
+		var params = {
+			firstResult: currentSharedID,
+			maxResults: maxResults
+		};
+		callRemoteMethod(getSharedFilesMethod, params);
     }
 
-    function addRow(entry) {
-    	var tableName = "uploadedFilesTable";
-        var table1 = document.getElementById(tableName);
-        var rowCount1 = table1.rows.length;
-        var row1 = table1.insertRow(rowCount1);
-        var size = parseInt(entry.size);
-        var downloadLinkURL = downloadUrl + entry.downloadHash;
-        var deleteLinkURL1 = deleteUrl + entry.deleteHash;
-           if (type == 2) {
-            row1.insertCell(0).innerHTML = privateRowCounter;
-            row1.insertCell(1).innerHTML = entry.name;
-            row1.insertCell(2).innerHTML = entry.timestamp;
-            row1.insertCell(3).innerHTML = size.fileSize(1);
-            row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
-            row1.insertCell(5).innerHTML = '<input type="button" class="deleteBtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName + '\')">';
-            row1.insertCell(6).innerHTML = entry.fileType;
-            privateRowCounter++;
-        }else if (type == 3) {
-            var tableName2 = "sharedFilesTable";
-            var table2 = document.getElementById(tableName2);
-            var rowCount2 = table2.rows.length;
-            var size2 = parseInt(entry.size);
-            var row1 = table2.insertRow(rowCount2);
-            var downloadLinkURL2 = downloadLinkURL;
-            row1.insertCell(0).innerHTML = sharedRowCounter;
-            row1.insertCell(1).innerHTML = entry.name;
-            row1.insertCell(2).innerHTML = entry.timestamp;
-            row1.insertCell(3).innerHTML = size2.fileSize(1);
-            row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL2 + '" download="' + entry.name + '">download</a>';
-            row1.insertCell(5).innerHTML = entry.sharingUserName;
-            sharedRowCounter++;
-        }
+	function addSharedFileRow(entry) {
+		var downloadLinkURL = downloadUrl + entry.downloadHash;
+		var tableName2 = "sharedFilesTable";
+		var table2 = document.getElementById(tableName2);
+		var rowCount2 = table2.rows.length;
+		var size2 = parseInt(entry.size);
+		var row1 = table2.insertRow(rowCount2);
+		row1.insertCell(0).innerHTML = sharedRowCounter;
+		row1.insertCell(1).innerHTML = entry.name;
+		row1.insertCell(2).innerHTML = entry.timestamp;
+		row1.insertCell(3).innerHTML = size2.fileSize(1);
+		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
+		row1.insertCell(5).innerHTML = entry.sharingUserName;
+		sharedRowCounter++;
+
     }
+
+	function addPrivateFileRow(entry) {
+		var tableName = "uploadedFilesTable";
+		var table1 = document.getElementById(tableName);
+		var rowCount1 = table1.rows.length;
+		var row1 = table1.insertRow(rowCount1);
+		var size = parseInt(entry.size);
+		var downloadLinkURL = downloadUrl + entry.downloadHash;
+		var deleteLinkURL1 = deleteUrl + entry.deleteHash;
+		row1.insertCell(0).innerHTML = privateRowCounter;
+		row1.insertCell(1).innerHTML = entry.name;
+		row1.insertCell(2).innerHTML = entry.timestamp;
+		row1.insertCell(3).innerHTML = size.fileSize(1);
+		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
+		row1.insertCell(5).innerHTML = '<input type="button" class="deleteBtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName + '\')">';
+		row1.insertCell(6).innerHTML = entry.fileType;
+		privateRowCounter++;
+	}
 
     function deleteRow(obj,name) {
         var index = obj.parentNode.parentNode.rowIndex;
@@ -433,26 +424,32 @@ p,:focus {
 
     }
 
-    function getDataFromJSON(data) {
+	function addRowToTables(responseMethod, arrayLen, array) {
+		if (responseMethod === getPrivateFilesMethod) {
+			currentPrivateID += arrayLen;
+			addPrivateFileRow(array);
+		} else if (responseMethod === getSharedFilesMethod) {
+			currentSharedID += arrayLen;
+			addSharedFileRow(array);
+		}
+	}
+	function getDataFromJSON(response) {
+		var data = JSON.parse(response);
         var array;
         if (data == null) {
             return;
         }
-        array = data;
-        for (var i = 0; i < array.length; i++) {
-            var entry = array[i];
-            var entryId = parseInt(entry.id);
-             if (type == 2) {
-            	 if (currentPrivateID < entryId ) {
-                     currentPrivateID = entryId;
-                 }
-            } else  if (type == 3) {
-            	if (currentSharedID < entryId) {
-                	currentSharedID = entryId;
-                }
-            }
-            addRow(entry);
-        }
+		array = JSON.parse(data.result);
+		var responseMethod = data.responseMethod;
+		if (array.constructor === Array) {
+			var arrayLen = array.length;
+			for (var i = 0; i < array.length; i++) {
+				var entry = array[i];
+				addRowToTables(responseMethod, arrayLen, entry);
+			}
+		} else {
+			addRowToTables(responseMethod, 1, array);
+		}
     }
    
 
@@ -473,59 +470,6 @@ p,:focus {
             	privateRowCounter--;
             }
         });
-    }
-    
-    function ajaxForSharedFiles() {
-        $.ajax({
-            type: 'POST',
-            url: sharedFilesUrl,
-            data: "firstResult="+sharedRowCounter+"&maxResults="+maxResults+"&email="+ '<%=user%>' +"&PREFID="+ '<%=hash%>',
-            dataType: 'json',
-            success: function(data) {
-                getDataFromJSON(data);
-                timeout = setTimeout(ajaxForSharedFiles, interval);
-            },
-            complete: function(data) {              	
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-            	stopAjaxPole();
-            	alert("Server offline, please reload the page!");
-            }
-        });
-    }
-
-    function ajax1ForUserFiles() {
-        $.ajax({
-            type: 'POST',
-            url: uploadedFilesUrl,
-            data: "firstResult="+privateRowCounter+"&maxResults="+maxResults+"&email="+ '<%=user%>' +"&PREFID="+ '<%=hash%>',
-            dataType: 'json',
-            success: function(data) {
-                getDataFromJSON(data);
-                timeout = setTimeout(ajax1ForUserFiles, interval);
-            },
-            complete: function(data) {             	
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-            	stopAjaxPole();
-            	alert("Server offline, please reload the page!");
-            }
-        });
-    }
-
-
-    function startAjax1Pole() {
-    	type = 2;
-        ajax1ForUserFiles();
-    }
-    
-    function startAjax2Pole() {
-    	type = 3;
-        ajaxForSharedFiles();
-    }
-    
-    function stopAjaxPole() {
-    	clearTimeout(timeout);
     }
 
     window.onload = function() {
