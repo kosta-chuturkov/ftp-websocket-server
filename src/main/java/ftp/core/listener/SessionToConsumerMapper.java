@@ -26,10 +26,9 @@ public class SessionToConsumerMapper {
         if (userSessionsCount == null) {
             this.sessionToConsumerMap.put(topic, new AtomicInteger(1));
         } else {
-            final AtomicInteger atomicInteger = userSessionsCount;
-            synchronized (atomicInteger) {
+            synchronized (userSessionsCount) {
                 if ((this.sessionToConsumerMap.get(topic)) != null)
-                    atomicInteger.incrementAndGet();
+                    userSessionsCount.incrementAndGet();
             }
         }
 

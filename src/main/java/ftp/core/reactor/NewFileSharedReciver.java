@@ -25,14 +25,17 @@ public class NewFileSharedReciver implements Consumer<Event<JsonResponse>> {
 
     @Override
     public void accept(final Event<JsonResponse> event) {
-
-        final JsonResponse fileDto = event.getData();
-        try {
-            if (this.webSocketSession != null && this.webSocketSession.isOpen()) {
-                this.webSocketSession.sendMessage(new TextMessage(this.gson.toJson(fileDto)));
+        if (this.webSocketSession != null) {
+            synchronized (this.webSocketSession) {
+                final JsonResponse fileDto = event.getData();
+                try {
+                    if (this.webSocketSession.isOpen()) {
+                        this.webSocketSession.sendMessage(new TextMessage(this.gson.toJson(fileDto)));
+                    }
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
         }
     }
 }
