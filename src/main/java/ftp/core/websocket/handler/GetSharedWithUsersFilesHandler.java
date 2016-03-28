@@ -21,7 +21,7 @@ import java.util.List;
  * Created by Kosta_Chuturkov on 2/24/2016.
  */
 @Service
-public class GetUploadedFilesHandler implements JsonTypedHandler {
+public class GetSharedWithUsersFilesHandler implements JsonTypedHandler {
 
     @Resource
     private FileService fileService;
@@ -43,10 +43,10 @@ public class GetUploadedFilesHandler implements JsonTypedHandler {
         if (current == null) {
             throw new JsonException("Session has expired. Log in again....", method);
         }
-        final String nickName = current.getNickName();
+        final Long userId = current.getId();
         final Integer firstResultAsInt = firstResult.getAsInt();
         final Integer maxResultsAsInt = maxResults.getAsInt();
-        final List<File> files = this.fileService.getUploadedFilesForUser(nickName, firstResultAsInt, maxResultsAsInt);
+        final List<File> files = this.fileService.getSharedFilesWithUsers(userId, firstResultAsInt, maxResultsAsInt);
         for (final File file : files) {
             final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                     file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
@@ -57,6 +57,6 @@ public class GetUploadedFilesHandler implements JsonTypedHandler {
 
     @Override
     public String getHandlerType() {
-        return HandlerNames.UPLOADED_FILE_HANDLER;
+        return HandlerNames.SHARED_FILES_WITH_USERS;
     }
 }

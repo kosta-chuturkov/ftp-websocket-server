@@ -1,13 +1,13 @@
 package ftp.core.common.model;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -32,7 +32,7 @@ public class User extends AbstractEntity<Long> {
     private BigDecimal token;
     @OneToMany
     @JoinColumn(name = "user_id")
-    private List<File> uploadedFiles = Lists.newArrayList();
+    private Set<File> uploadedFiles = Sets.newHashSet();
 
     public User() {
 
@@ -95,12 +95,19 @@ public class User extends AbstractEntity<Long> {
         this.token = token;
     }
 
-    public List<File> getUploadedFiles() {
+    public Set<File> getUploadedFiles() {
         return this.uploadedFiles;
     }
 
-    public void setUploadedFiles(final List<File> uploadedFiles) {
+    public void setUploadedFiles(final Set<File> uploadedFiles) {
         this.uploadedFiles = uploadedFiles;
+    }
+
+    public boolean addUploadedFile(final File file) {
+        if (!this.uploadedFiles.contains(file)) {
+            return this.uploadedFiles.add(file);
+        }
+        return false;
     }
 
     @Override

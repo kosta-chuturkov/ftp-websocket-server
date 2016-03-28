@@ -88,7 +88,7 @@ public class JspPageRestController {
 			ServerUtil.sendJsonErrorResponce(response, "You must login first.");
 		} else {
 			User.setCurrent(current);
-			final List<File> files = this.fileService.getUploadedFilesForUser(current.getNickName(), firstResult, maxResults);
+			final List<File> files = this.fileService.getSharedFilesWithUsers(current.getId(), firstResult, maxResults);
 			for (final File file : files) {
 				final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
 						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());

@@ -1,84 +1,81 @@
 package ftp.core.service.generic;
 
-import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
-
-
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-
 import ftp.core.common.model.AbstractEntity;
 import ftp.core.persistance.face.generic.dao.GenericDao;
 import ftp.core.persistance.face.generic.service.GenericService;
 import ftp.core.service.face.tx.FtpServerException;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
-public class AbstractGenericService<T extends AbstractEntity, ID extends Number>
-		implements GenericService<AbstractEntity, Number>, ApplicationContextAware {
+import java.lang.reflect.ParameterizedType;
+import java.util.Collection;
 
-	private ApplicationContext applicationContext;
+public class AbstractGenericService<T extends AbstractEntity, ID>
+		implements GenericService<T, ID>, ApplicationContextAware {
+
 	private final Class<T> persistentClass;
+	private ApplicationContext applicationContext;
 
 
-	@SuppressWarnings("unchecked")
 	public AbstractGenericService() {
 		this.persistentClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass())
 				.getActualTypeArguments()[0];
 	}
 
 	@Override
-	public ID save(AbstractEntity entity) {		
-		return getDao().save((T) entity);
+	public ID save(final T entity) {
+		return getDao().save(entity);
 	}
 
 	@Override
-	public void save(Iterable<AbstractEntity> entity) {
+	public void save(final Iterable<T> entity) {
 		getDao().save((Iterable<T>) entity);
 	}
 
 	@Override
-	public AbstractEntity findOne(Number id) {
-		return getDao().findOne((ID) id);
+	public T findOne(final ID id) {
+		return getDao().findOne(id);
 	}
 
 	@Override
-	public void update(AbstractEntity entity) {
+	public void update(final T entity) {
 		getDao().update((T) entity);
 	}
 
 	@Override
-	public void delete(AbstractEntity entity) {
+	public void delete(final T entity) {
 		getDao().delete((T) entity);
 	}
 
 	@Override
-	public void delete(Number id) {
-		getDao().delete((ID) id);
+	public void delete(final ID id) {
+		getDao().delete(id);
 	}
 
 	@Override
-	public Iterable<AbstractEntity> findAll() {
-		return (Iterable<AbstractEntity>) getDao().findAll();
+	public Iterable<T> findAll() {
+		return (Iterable<T>) getDao().findAll();
 	}
 
 	@Override
-	public void saveOrUpdate(AbstractEntity entity) {
+	public void saveOrUpdate(final T entity) {
 		getDao().saveOrUpdate((T) entity);
 	}
 
 	@Override
-	public AbstractEntity merge(AbstractEntity entity) {
+	public T merge(final T entity) {
 		return getDao().merge((T) entity);
 	}
 
 	@Override
-	public AbstractEntity unproxy(Number id) {
+	public T unproxy(final ID id) {
 		throw new FtpServerException("Not Supported");
 	}
 
 	@Override
-	public boolean exists(Number id) {
-		return getDao().exists((ID) id);
+	public boolean exists(final ID id) {
+		return getDao().exists(id);
 	}
 
 	@Override
@@ -87,31 +84,30 @@ public class AbstractGenericService<T extends AbstractEntity, ID extends Number>
 	}
 
 	@Override
-	public Iterable<AbstractEntity> findByIds(Collection<Number> ids) {
-		return (Iterable<AbstractEntity>) getDao().findByIds((Collection<ID>) ids);
+	public Iterable<T> findByIds(final Collection<ID> ids) {
+		return getDao().findByIds(ids);
 	}
 
 	@Override
-	public Iterable<AbstractEntity> findAllOrderById() {
-		return (Iterable<AbstractEntity>) getDao().findAllOrderById();
+	public Iterable<T> findAllOrderById() {
+		return getDao().findAllOrderById();
 	}
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+	public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private GenericDao<T, ID> getDao() {
-		return applicationContext.getBean(getDaoName(persistentClass), GenericDao.class);
+		return this.applicationContext.getBean(getDaoName(this.persistentClass), GenericDao.class);
 	}
-	
-	private String getDaoName(Class<T> entityClass) {
-		String calssName = getUnqualifiedClassName(entityClass);
+
+	private String getDaoName(final Class<T> entityClass) {
+		final String calssName = getUnqualifiedClassName(entityClass);
 		return (calssName.substring(0, 1)).toLowerCase() + calssName.substring(1) + "Dao";
 	}
 
-	private String getUnqualifiedClassName(Class<T> entityClass) {
+	private String getUnqualifiedClassName(final Class<T> entityClass) {
 		return entityClass.getName().substring(entityClass.getPackage().getName().length() + 1);
 	}
 

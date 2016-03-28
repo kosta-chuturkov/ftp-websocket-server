@@ -242,14 +242,15 @@ p,:focus {
 			<div id="siteContent">
 				<div class="tabs">
 					<ul class="tab-links">
-						<li id="privateTabLabel" class="active"><a href="#PrivateTab">Uploaded Files</a></li>
+						<li id="privateTabLabel" class="active"><a href="#PrivateTab">Private Files</a></li>
+						<li id="sharedToUsersLabel"><a href="#SharedWithUsersTab">Shared files to users</a></li>
 						<li id="sharedTabLabel"><a href="#SharedTab">Shared files with you</a></li>
 					</ul>
 
 					<div class="tab-content">
 						<div id="PrivateTab" class="tab active">
 							<table id="uploadedFilesTable" border="1" cellpadding="2" width="1200">
-							<tr>
+							 <tr>
 								<td><b>Id</b></td>
 								<td><b>Name</b></td>
 								<td><b>Date</b></td>
@@ -257,9 +258,22 @@ p,:focus {
 								<td><b>Download link</b></td>
 								<td><b>Delete</b></td>
 								<td><b>Type</b></td>
-							</tr>
-						</table>
+							 </tr>
+						   </table>
 						</div>
+						<div id="SharedWithUsersTab" class="tab">
+                        	<table id="sharedWithUsersTable" border="1" cellpadding="2" width="1200">
+                        	  <tr>
+                        			<td><b>Id</b></td>
+                        			<td><b>Name</b></td>
+                        			<td><b>Date</b></td>
+                        			<td><b>Size</b></td>
+                        			<td><b>Download link</b></td>
+                        			<td><b>Delete</b></td>
+                        			<td><b>Type</b></td>
+                        	  </tr>
+                        	</table>
+                        </div>
 						<div id="SharedTab" class="tab">
 							<table id="sharedFilesTable" border="1" cellpadding="2" width="1200">
 								<tr>
@@ -284,6 +298,7 @@ p,:focus {
 	var maxResults = 30;
     var currentPrivateID = 0;
     var currentSharedID = 0;
+    var currentSharedToUsersID = 0;
     var privateRowCounter = 0;
     var sharedRowCounter = 0;
     var serverAddress = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>';
@@ -291,6 +306,7 @@ p,:focus {
     var downloadUrl = serverAddress + "<c:url value="/files/" />";
     var ws = null;
     var getSharedFilesMethod = 'getSharedFiles';
+    var getSharedWithUsersMethod = 'getSharedWithUsersFiles';
     var getPrivateFilesMethod = 'getPrivateFiles';
     var url = null;
     var transports = [];
@@ -363,6 +379,7 @@ p,:focus {
 
     function createEventListeners(){
     	document.getElementById("privateTabLabel").addEventListener("click", onPrivateTabClick);
+    	document.getElementById("sharedToUsersLabel").addEventListener("click", onSharedWithUsersClick);
         document.getElementById("sharedTabLabel").addEventListener("click", onSharedTabClick);
     }
 
@@ -373,6 +390,14 @@ p,:focus {
 		};
 		callRemoteMethod(getPrivateFilesMethod, params);
     }
+
+     function onSharedWithUsersClick() {
+    		var params = {
+    			firstResult: currentSharedToUsersID,
+    			maxResults: maxResults
+    		};
+    		callRemoteMethod(getSharedWithUsersMethod, params);
+        }
     
     function onSharedTabClick() {
 		var params = {
@@ -398,6 +423,24 @@ p,:focus {
 		sharedRowCounter++;
 
     }
+
+    function addSharedWithUsersRow(entry) {
+    		var downloadLinkURL = downloadUrl + entry.downloadHash;
+    		var tableName2 = "sharedWithUsersTable";
+    		var table2 = document.getElementById(tableName2);
+    		var rowCount2 = table2.rows.length;
+    		var size2 = parseInt(entry.size);
+    		var row1 = table2.insertRow(rowCount2);
+    		row1.insertCell(0).innerHTML = sharedRowCounter;
+    		row1.insertCell(1).innerHTML = entry.name;
+    		row1.insertCell(2).innerHTML = entry.timestamp;
+    		row1.insertCell(3).innerHTML = size2.fileSize(1);
+    		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
+    		row1.insertCell(5).innerHTML = entry.sharingUserName;
+    		row1.insertCell(6).innerHTML = entry.fileType;
+    		sharedRowCounter++;
+
+        }
 
 	function addPrivateFileRow(entry) {
 		var tableName = "uploadedFilesTable";
@@ -431,7 +474,10 @@ p,:focus {
 		} else if (responseMethod === getSharedFilesMethod) {
 			currentSharedID += arrayLen;
 			addSharedFileRow(array);
-		}
+		}else if (responseMethod === getSharedWithUsersMethod) {
+        	currentSharedToUsersID += arrayLen;
+        	addSharedWithUsersRow(array);
+        }
 	}
 	function getDataFromJSON(response) {
 		var data = JSON.parse(response);

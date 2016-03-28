@@ -46,7 +46,7 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 		return this.userDao.getUserByEmail(email);
 	}
 
-	public void updateRemainingStorageForUser(final long fileSize, final Number userId, long remainingStorage) {
+	public void updateRemainingStorageForUser(final long fileSize, final Long userId, long remainingStorage) {
 		remainingStorage -= fileSize;
 		final User userById = (User) findOne(userId);
 		userById.setRemainingStorage(remainingStorage);
@@ -75,8 +75,8 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 	}
 
 	@Override
-	public Number registerUser(final String email, final String password, final String nickName, final String password_repeated,
-							   final ModelAndView modelAndView) throws IllegalArgumentException {
+	public Long registerUser(final String email, final String password, final String nickName, final String password_repeated,
+							 final ModelAndView modelAndView) throws IllegalArgumentException {
 		validateUserCredentials(email, password, nickName, password_repeated, modelAndView);
 		final BigDecimal randomTokenFromDB = getRandomTokenFromDB();
 		final String encodedPassword = ServerUtil.digestRawPassword(password, ServerUtil.SALT,

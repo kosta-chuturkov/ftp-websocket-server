@@ -1,13 +1,12 @@
 package ftp.core.persistance.face.generic.dao;
 
-import java.util.Collection;
-
+import ftp.core.common.model.AbstractEntity;
 import org.springframework.stereotype.Repository;
 
-import ftp.core.common.model.AbstractEntity;
+import java.util.Collection;
 
 @Repository
-public interface GenericDao<T extends AbstractEntity, ID extends Number> {
+public interface GenericDao<T extends AbstractEntity, ID> {
 
 	ID save(T entity);
 

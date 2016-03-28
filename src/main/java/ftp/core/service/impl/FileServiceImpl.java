@@ -54,12 +54,22 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 	}
 
 	@Override
-	public void addUserToFile(final Number fileId, final User userToAdd) {
+	public void addUserToFile(final Long fileId, final User userToAdd) {
 		final AbstractEntity findOne = findOne(fileId);
 		if (findOne != null) {
 			final File file = (File) findOne;
 			file.addUser(userToAdd);
 			update(file);
+		}
+	}
+
+	@Override
+	public void addFileToUser(final Long fileId, final Long userId) {
+		final File file = findOne(fileId);
+		if (file != null) {
+			final User user = this.userService.findOne(userId);
+			user.addUploadedFile(file);
+			this.userService.update(user);
 		}
 	}
 
@@ -78,12 +88,13 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 		file.setFileSize(fileSize);
 		file.setCreator(currentUser);
 		file.setFileType(ftp.core.common.model.File.FileType.getById(modifier));
-		final Number savedFileId = save(file);
+		final Long savedFileId = save(file);
 		if (savedFileId != null) {
 			this.userService.updateRemainingStorageForUser(fileSize, currentUser.getId(), remainingStorage);
 			if (modifier == FileType.SHARED.getType()) {
 				final User userToShareTheFileWith = this.userService.checkAndGetUserToSendFilesTo(userToSendFilesTo);
 				addUserToFile(savedFileId, userToShareTheFileWith);
+				addFileToUser(savedFileId, currentUser.getId());
 				final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
 						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
 				this.eventBus.notify(userToSendFilesTo, Event.wrap(new JsonResponse(HandlerNames.SHARED_FILE_HANDLER, this.gson.toJson(fileDto))));
@@ -93,7 +104,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 		}
 	}
 
-	public boolean isUserFromFileSharedUsers(final Number fileId, final String nickName) {
+	public boolean isUserFromFileSharedUsers(final Long fileId, final String nickName) {
 		final AbstractEntity exists = findOne(fileId);
 		if (exists == null) {
 			return false;
@@ -104,7 +115,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 	}
 
 	@Override
-	public boolean isFileCreator(final Number fileId, final String userNickName) {
+	public boolean isFileCreator(final Long fileId, final String userNickName) {
 		final AbstractEntity exists = findOne(fileId);
 		if (exists == null) {
 			return false;
@@ -125,8 +136,8 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 	}
 
 	@Override
-	public List<File> getUploadedFilesForUser(final String userNickName, final int firstResult, final int maxResults) {
-		return this.fileDao.getUploadedFilesForUser(userNickName, firstResult, maxResults);
+	public List<File> getSharedFilesWithUsers(final Long userId, final int firstResult, final int maxResults) {
+		return this.fileDao.getSharedFilesWithUsers(userId, firstResult, maxResults);
 	}
 
 }

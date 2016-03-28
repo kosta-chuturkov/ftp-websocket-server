@@ -21,6 +21,7 @@ public class File extends AbstractEntity<Long> {
 	public static final int PRIVATE_FILE = 2;
 
 	public static final int SHARED_FILE = 3;
+
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "files_to_users", joinColumns = @JoinColumn(name = "fileID"), inverseJoinColumns = @JoinColumn(name = "userId"))
 	private final List<User> sharedWithUsers = Lists.newArrayList();
@@ -158,5 +159,37 @@ public class File extends AbstractEntity<Long> {
 			this.type = type;
 		}
 
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		File file = (File) o;
+
+		if (fileSize != file.fileSize) return false;
+		if (sharedWithUsers != null ? !sharedWithUsers.equals(file.sharedWithUsers) : file.sharedWithUsers != null)
+			return false;
+		if (creator != null ? !creator.equals(file.creator) : file.creator != null) return false;
+		if (name != null ? !name.equals(file.name) : file.name != null) return false;
+		if (downloadHash != null ? !downloadHash.equals(file.downloadHash) : file.downloadHash != null) return false;
+		if (deleteHash != null ? !deleteHash.equals(file.deleteHash) : file.deleteHash != null) return false;
+		if (timestamp != null ? !timestamp.equals(file.timestamp) : file.timestamp != null) return false;
+		return fileType == file.fileType;
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = sharedWithUsers != null ? sharedWithUsers.hashCode() : 0;
+		result = 31 * result + (creator != null ? creator.hashCode() : 0);
+		result = 31 * result + (name != null ? name.hashCode() : 0);
+		result = 31 * result + (downloadHash != null ? downloadHash.hashCode() : 0);
+		result = 31 * result + (deleteHash != null ? deleteHash.hashCode() : 0);
+		result = 31 * result + (int) (fileSize ^ (fileSize >>> 32));
+		result = 31 * result + (timestamp != null ? timestamp.hashCode() : 0);
+		result = 31 * result + (fileType != null ? fileType.hashCode() : 0);
+		return result;
 	}
 }

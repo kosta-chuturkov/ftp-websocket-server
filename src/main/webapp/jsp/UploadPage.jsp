@@ -6,7 +6,7 @@
 	<title>Server File Upload Page</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<%
-		String user = (String) session.getAttribute("username");
+		String user = (String) session.getAttribute("email");
 		String hash = (String) session.getAttribute("PREFID");
 		if (user == null || hash == null) {
 			user = "";
@@ -102,7 +102,7 @@
 		</div>
 		<div class="navbar-collapse collapse">
 			<ul class="nav navbar-nav">
-				<li><a href="<c:url value="/main" />"><strong><%=user%>
+				<li><a href="<c:url value="/main/" />"><strong><%=user%>
 				</strong></a></li>
 				<li><a href="<c:url value="/logout" />"><b>Logout</b></a></li>
 			</ul>
@@ -316,7 +316,7 @@
 <script src="<c:url value="/resources/js/main.js" />"></script>
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
 <!--[if (gte IE 8)&(lt IE 10)]>
-<script src="js/cors/jquery.xdr-transport.js"></script>
+<script src="<c:url value="/js/cors/jquery.xdr-transport.js" /></script>
 <![endif]-->
 <script>
 	function clearOtherFields(){

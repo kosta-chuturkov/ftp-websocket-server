@@ -1,15 +1,13 @@
 package ftp.core.service.face.tx;
 
+import ftp.core.common.model.User;
+import ftp.core.persistance.face.generic.service.GenericService;
+import org.springframework.web.servlet.ModelAndView;
+
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.springframework.web.servlet.ModelAndView;
-
-import ftp.core.common.model.AbstractEntity;
-import ftp.core.common.model.User;
-import ftp.core.persistance.face.generic.service.GenericService;
-
-public interface UserService extends GenericService<AbstractEntity, Number> {
+public interface UserService extends GenericService<User, Long> {
 
 	User findByEmailAndPassword(String email, String password);
 
@@ -20,8 +18,8 @@ public interface UserService extends GenericService<AbstractEntity, Number> {
 	User getUserByNickName(String nickName);
 
 	User getUserByEmail(String email);
-	
-	void updateRemainingStorageForUser(long fileSize, Number userId, long remainingStorage);
+
+	void updateRemainingStorageForUser(long fileSize, Long userId, long remainingStorage);
 	
 	User checkAndGetUserToSendFilesTo(String userToSendFilesToNickName);
 	
@@ -30,6 +28,6 @@ public interface UserService extends GenericService<AbstractEntity, Number> {
 	void validateUserCredentials(String email, String password, String nickName, String password_repeated,
 			ModelAndView modelAndView) throws IllegalArgumentException;
 
-	Number registerUser(String email, String password, String nickName, String password_repeated,
-			ModelAndView modelAndView)throws IllegalArgumentException;
+	Long registerUser(String email, String password, String nickName, String password_repeated,
+					  ModelAndView modelAndView) throws IllegalArgumentException;
 }
