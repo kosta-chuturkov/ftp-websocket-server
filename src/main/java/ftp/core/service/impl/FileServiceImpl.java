@@ -63,15 +63,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 		}
 	}
 
-	@Override
-	public void addFileToUser(final Long fileId, final Long userId) {
-		final File file = findOne(fileId);
-		if (file != null) {
-			final User user = this.userService.findOne(userId);
-			user.addUploadedFile(file);
-			this.userService.update(user);
-		}
-	}
+
 
 	public void createFileRecord(final String fileNameEscaped, final long timestamp, final int modifier, final String userToSendFilesTo,
 								 final long fileSize, final String deleteHash, final String downloadHash) {
@@ -94,7 +86,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 			if (modifier == FileType.SHARED.getType()) {
 				final User userToShareTheFileWith = this.userService.checkAndGetUserToSendFilesTo(userToSendFilesTo);
 				addUserToFile(savedFileId, userToShareTheFileWith);
-				addFileToUser(savedFileId, currentUser.getId());
+				this.userService.addFileToUser(savedFileId, currentUser.getId());
 				final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
 						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
 				this.eventBus.notify(userToSendFilesTo, Event.wrap(new JsonResponse(HandlerNames.SHARED_FILE_HANDLER, this.gson.toJson(fileDto))));

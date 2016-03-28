@@ -1,5 +1,6 @@
 package ftp.core.service.face.tx;
 
+import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.persistance.face.generic.service.GenericService;
 import org.springframework.web.servlet.ModelAndView;
@@ -30,4 +31,7 @@ public interface UserService extends GenericService<User, Long> {
 
 	Long registerUser(String email, String password, String nickName, String password_repeated,
 					  ModelAndView modelAndView) throws IllegalArgumentException;
+
+	File addFileToUser(final Long fileId, final Long userId);
+
 }

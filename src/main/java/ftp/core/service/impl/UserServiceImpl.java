@@ -1,8 +1,10 @@
 package ftp.core.service.impl;
 
+import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
+import ftp.core.persistance.face.dao.FileDao;
 import ftp.core.persistance.face.dao.UserDao;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
@@ -20,6 +22,21 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 
 	@Resource
 	private UserDao userDao;
+
+	@Resource
+	private FileDao fileDao;
+
+	@Override
+	public File addFileToUser(final Long fileId, final Long userId) {
+		final File file = this.fileDao.findOne(fileId);
+		if (file != null) {
+			final User user = findOne(userId);
+			user.addUploadedFile(file);
+			update(user);
+		}
+		return file;
+	}
+
 
 	@Override
 	public User findByEmailAndPassword(final String email, final String password) {

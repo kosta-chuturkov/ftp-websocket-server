@@ -25,26 +25,33 @@ public class File extends AbstractEntity<Long> {
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "files_to_users", joinColumns = @JoinColumn(name = "fileID"), inverseJoinColumns = @JoinColumn(name = "userId"))
 	private final List<User> sharedWithUsers = Lists.newArrayList();
+
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id")
 	private User creator;
+
 	@NotNull
 	@NotEmpty
 	@Column(name = "name")
 	private String name;
+
 	@NotNull
 	@NotEmpty
 	@Column(name = "download_hash", unique = true)
 	private String downloadHash;
+
 	@NotNull
 	@NotEmpty
 	@Column(name = "delete_hash", unique = true)
 	private String deleteHash;
+
 	@Column(name = "file_size")
 	private long fileSize;
+
 	@Column(name = "timestamp")
 	@Type(type = "timestamp")
 	private Date timestamp;
+
 	@NotNull
 	@Enumerated(EnumType.ORDINAL)
 	@Column(name = "filetype")
@@ -128,6 +135,39 @@ public class File extends AbstractEntity<Long> {
 		}
 	}
 
+	@Override
+	public boolean equals(final Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		final File file = (File) o;
+
+		if (this.fileSize != file.fileSize) return false;
+		if (this.sharedWithUsers != null ? !this.sharedWithUsers.equals(file.sharedWithUsers) : file.sharedWithUsers != null)
+			return false;
+		if (this.creator != null ? !this.creator.equals(file.creator) : file.creator != null) return false;
+		if (this.name != null ? !this.name.equals(file.name) : file.name != null) return false;
+		if (this.downloadHash != null ? !this.downloadHash.equals(file.downloadHash) : file.downloadHash != null)
+			return false;
+		if (this.deleteHash != null ? !this.deleteHash.equals(file.deleteHash) : file.deleteHash != null) return false;
+		if (this.timestamp != null ? !this.timestamp.equals(file.timestamp) : file.timestamp != null) return false;
+		return this.fileType == file.fileType;
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = this.sharedWithUsers != null ? this.sharedWithUsers.hashCode() : 0;
+		result = 31 * result + (this.creator != null ? this.creator.hashCode() : 0);
+		result = 31 * result + (this.name != null ? this.name.hashCode() : 0);
+		result = 31 * result + (this.downloadHash != null ? this.downloadHash.hashCode() : 0);
+		result = 31 * result + (this.deleteHash != null ? this.deleteHash.hashCode() : 0);
+		result = 31 * result + (int) (this.fileSize ^ (this.fileSize >>> 32));
+		result = 31 * result + (this.timestamp != null ? this.timestamp.hashCode() : 0);
+		result = 31 * result + (this.fileType != null ? this.fileType.hashCode() : 0);
+		return result;
+	}
+
 	public enum FileType {
 		SHARED(SHARED_FILE), PRIVATE(PRIVATE_FILE), PUBLIC(PUBLIC_FILE);
 
@@ -159,37 +199,5 @@ public class File extends AbstractEntity<Long> {
 			this.type = type;
 		}
 
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		File file = (File) o;
-
-		if (fileSize != file.fileSize) return false;
-		if (sharedWithUsers != null ? !sharedWithUsers.equals(file.sharedWithUsers) : file.sharedWithUsers != null)
-			return false;
-		if (creator != null ? !creator.equals(file.creator) : file.creator != null) return false;
-		if (name != null ? !name.equals(file.name) : file.name != null) return false;
-		if (downloadHash != null ? !downloadHash.equals(file.downloadHash) : file.downloadHash != null) return false;
-		if (deleteHash != null ? !deleteHash.equals(file.deleteHash) : file.deleteHash != null) return false;
-		if (timestamp != null ? !timestamp.equals(file.timestamp) : file.timestamp != null) return false;
-		return fileType == file.fileType;
-
-	}
-
-	@Override
-	public int hashCode() {
-		int result = sharedWithUsers != null ? sharedWithUsers.hashCode() : 0;
-		result = 31 * result + (creator != null ? creator.hashCode() : 0);
-		result = 31 * result + (name != null ? name.hashCode() : 0);
-		result = 31 * result + (downloadHash != null ? downloadHash.hashCode() : 0);
-		result = 31 * result + (deleteHash != null ? deleteHash.hashCode() : 0);
-		result = 31 * result + (int) (fileSize ^ (fileSize >>> 32));
-		result = 31 * result + (timestamp != null ? timestamp.hashCode() : 0);
-		result = 31 * result + (fileType != null ? fileType.hashCode() : 0);
-		return result;
 	}
 }

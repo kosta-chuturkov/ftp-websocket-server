@@ -15,8 +15,6 @@ public interface FileService extends GenericService<File, Long> {
 
 	void addUserToFile(Long fileId, User userToAdd);
 
-	void addFileToUser(Long fileId, Long userId);
-
 	void createFileRecord(String fileNameEscaped, long timestamp, int modifier, String userToSendFilesTo, long fileSize,
 			String deleteHash, String downloadHash);
 
