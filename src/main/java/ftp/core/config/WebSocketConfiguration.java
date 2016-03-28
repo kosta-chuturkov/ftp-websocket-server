@@ -46,6 +46,6 @@ public class WebSocketConfiguration extends WebMvcConfigurerAdapter implements W
 
     @Bean
     public Gson gson(){
-        return new GsonBuilder().create();
+        return new GsonBuilder().serializeNulls().create();
     }
 }

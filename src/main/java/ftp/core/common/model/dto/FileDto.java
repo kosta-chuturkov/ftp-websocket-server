@@ -1,7 +1,5 @@
 package ftp.core.common.model.dto;
 
-import java.util.Date;
-
 import ftp.core.common.model.File.FileType;
 
 public class FileDto {
@@ -24,8 +22,8 @@ public class FileDto {
 		
 	}
 
-	public FileDto(String sharingUserName, String name, String downloadHash, String deleteHash, long size,
-			String timestamp, FileType modifier) {
+	public FileDto(final String sharingUserName, final String name, final String downloadHash, final String deleteHash, final long size,
+				   final String timestamp, final FileType modifier) {
 		this.sharingUserName = sharingUserName;
 		this.name = name;
 		this.downloadHash = downloadHash;
@@ -38,58 +36,58 @@ public class FileDto {
 
 
 	public String getSharingUserName() {
-		return sharingUserName;
+		return this.sharingUserName;
 	}
 
-	public void setSharingUserName(String sharingUserName) {
+	public void setSharingUserName(final String sharingUserName) {
 		this.sharingUserName = sharingUserName;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
 	public String getDownloadHash() {
-		return downloadHash;
+		return this.downloadHash;
 	}
 
-	public void setDownloadHash(String downloadHash) {
+	public void setDownloadHash(final String downloadHash) {
 		this.downloadHash = downloadHash;
 	}
 
 	public String getDeleteHash() {
-		return deleteHash;
+		return this.deleteHash;
 	}
 
-	public void setDeleteHash(String deleteHash) {
+	public void setDeleteHash(final String deleteHash) {
 		this.deleteHash = deleteHash;
 	}
 
 	public long getSize() {
-		return size;
+		return this.size;
 	}
 
-	public void setSize(long size) {
+	public void setSize(final long size) {
 		this.size = size;
 	}
 
 	public String getTimestamp() {
-		return timestamp;
+		return this.timestamp;
 	}
 
-	public void setTimestamp(String timestamp) {
+	public void setTimestamp(final String timestamp) {
 		this.timestamp = timestamp;
 	}
 
 	public FileType getFileType() {
-		return fileType;
+		return this.fileType;
 	}
 
-	public void setFileType(FileType modifier) {
+	public void setFileType(final FileType modifier) {
 		this.fileType = modifier;
 	}
 

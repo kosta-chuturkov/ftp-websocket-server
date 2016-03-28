@@ -1,7 +1,7 @@
 package ftp.core.common.model;
 
-public interface Entity {
+public interface Entity<T> {
 
-	long getId();
+	T getId();
 
 }

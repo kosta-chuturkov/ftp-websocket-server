@@ -11,7 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User extends AbstractEntity {
+public class User extends AbstractEntity<Long> {
 
     private static final ThreadLocal<User> current = new ThreadLocal<>();
     @NotNull

@@ -1,29 +1,27 @@
 package ftp.core.common.model;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 
 
 @MappedSuperclass
-public abstract class AbstractEntity implements Entity {
+public abstract class AbstractEntity<T> implements Entity<T> {
 
+	private static final long serialVersionUID = 1L;
 	@Id
-	@SequenceGenerator(sequenceName="HIBERNATE_SEQUENCE", name = "HIBERNATE_SEQUENCE")
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="HIBERNATE_SEQUENCE")
-	@Access(AccessType.PROPERTY)
-	@Column(name = "id", nullable = false)
-	private long id;
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
+	@GeneratedValue
+	@Column(name = "id", unique = true, nullable = false)
+	private T id;
 
 	@Override
-	public String toString() {
-		return super.toString() + "id=" + getId();
+	public T getId() {
+		return this.id;
+	}
+
+	public void setId(final T id) {
+		this.id = id;
 	}
 
 }

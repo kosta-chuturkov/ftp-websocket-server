@@ -17,8 +17,8 @@ public class CustomLocalSessionFactoryBean extends LocalSessionFactoryBean {
 
 	@Override
 	public void setMappingResources(final String... mappingResources) {
-		String resourcesPath = "";
-		Resource[] resources = null;
+		String resourcesPath;
+		Resource[] resources;
 		final List<String> result = Lists.newArrayList();
 		final PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
 		try {

@@ -77,14 +77,6 @@ public class DownloadController {
 		}
 	}
 
-	private void printHeaderNames(final HttpServletRequest request) {
-		final Enumeration<String> headerNames = request.getHeaderNames();
-		while (headerNames.hasMoreElements()) {
-			final String nextElement = headerNames.nextElement();
-			System.out.println(nextElement + ":" + request.getHeader(nextElement));
-		}
-	}
-
 	private String getFolderNameByFileType(final String nickName, final File fileByDownloadHash, final FileType fileType) {
 		String locationFolderName = "";
 		switch (fileType) {
