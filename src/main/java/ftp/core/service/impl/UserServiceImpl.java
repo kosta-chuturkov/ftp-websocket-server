@@ -1,17 +1,5 @@
 package ftp.core.service.impl;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.ModelAndView;
-
-import ftp.core.common.model.AbstractEntity;
-import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
@@ -19,6 +7,13 @@ import ftp.core.persistance.face.dao.UserDao;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.List;
 
 @Service("userService")
 public class UserServiceImpl extends AbstractGenericService<User, Long> implements UserService {
@@ -27,46 +22,46 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 	private UserDao userDao;
 
 	@Override
-	public User findByEmailAndPassword(String email, String password) {
-		return userDao.findByEmailAndPassword(email, password);
+	public User findByEmailAndPassword(final String email, final String password) {
+		return this.userDao.findByEmailAndPassword(email, password);
 	}
 
 	@Override
-	public BigDecimal getTokenByEmail(String email) {
-		return userDao.getTokenByEmail(email);
+	public BigDecimal getTokenByEmail(final String email) {
+		return this.userDao.getTokenByEmail(email);
 	}
 
 	@Override
 	public BigDecimal getRandomTokenFromDB() {
-		return userDao.getRandomTokenFromDB();
+		return this.userDao.getRandomTokenFromDB();
 	}
 
 	@Override
-	public User getUserByNickName(String nickName) {
-		return userDao.getUserByNickName(nickName);
+	public User getUserByNickName(final String nickName) {
+		return this.userDao.getUserByNickName(nickName);
 	}
 
 	@Override
-	public User getUserByEmail(String email) {
-		return userDao.getUserByEmail(email);
+	public User getUserByEmail(final String email) {
+		return this.userDao.getUserByEmail(email);
 	}
 
-	public void updateRemainingStorageForUser(long fileSize, Number userId, long remainingStorage) {
+	public void updateRemainingStorageForUser(final long fileSize, final Number userId, long remainingStorage) {
 		remainingStorage -= fileSize;
-		User userById = (User) findOne(userId);
+		final User userById = (User) findOne(userId);
 		userById.setRemainingStorage(remainingStorage);
 		update(userById);
 	}
 
-	public User checkAndGetUserToSendFilesTo(String userToSendFilesToNickName) {
-		String escapedUserName = StringEscapeUtils.escapeSql(userToSendFilesToNickName);
+	public User checkAndGetUserToSendFilesTo(final String userToSendFilesToNickName) {
+		final String escapedUserName = StringEscapeUtils.escapeSql(userToSendFilesToNickName);
 		if (!ServerUtil.isNickNameValid(escapedUserName)) {
 			throw new FtpServerException("Provided user to share files to is invalid!");
 		}
 		if (User.getCurrent().getNickName().equals(escapedUserName)) {
 			throw new FtpServerException("You cant share files with yourself!");
 		}
-		User userByNickName = getUserByNickName(escapedUserName);
+		final User userByNickName = getUserByNickName(escapedUserName);
 		if (userByNickName == null) {
 			throw new FtpServerException(
 					"Unable to share file with user:" + escapedUserName + ".This user does not exist!");
@@ -75,29 +70,29 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 	}
 
 	@Override
-	public List<String> getUserByNickLike(String userNickName) {
-		return userDao.getUserByNickLike(userNickName);
+	public List<String> getUserByNickLike(final String userNickName) {
+		return this.userDao.getUserByNickLike(userNickName);
 	}
 
 	@Override
-	public Number registerUser(String email, String password, String nickName, String password_repeated,
-			ModelAndView modelAndView) throws IllegalArgumentException {
+	public Number registerUser(final String email, final String password, final String nickName, final String password_repeated,
+							   final ModelAndView modelAndView) throws IllegalArgumentException {
 		validateUserCredentials(email, password, nickName, password_repeated, modelAndView);
-		BigDecimal randomTokenFromDB = getRandomTokenFromDB();
-		String encodedPassword = ServerUtil.digestRawPassword(password, ServerUtil.SALT,
+		final BigDecimal randomTokenFromDB = getRandomTokenFromDB();
+		final String encodedPassword = ServerUtil.digestRawPassword(password, ServerUtil.SALT,
 				randomTokenFromDB.toPlainString());
-		User user = new User(nickName, email, encodedPassword, ServerConstants.USER_MAX_UPLOAD_IN_BYTES,
+		final User user = new User(nickName, email, encodedPassword, ServerConstants.USER_MAX_UPLOAD_IN_BYTES,
 				randomTokenFromDB);
 		return save(user);
 	}
 
 	@Override
-	public void validateUserCredentials(String email, String password, String nickName, String password_repeated,
-			ModelAndView modelAndView) throws IllegalArgumentException{
+	public void validateUserCredentials(final String email, final String password, final String nickName, final String password_repeated,
+										final ModelAndView modelAndView) throws IllegalArgumentException {
 		if (!ServerUtil.isEmailValid(email)) {
 			throw new IllegalArgumentException("Wrong email format");
 		}
-		User userByEmail = getUserByEmail(email);
+		final User userByEmail = getUserByEmail(email);
 		if (userByEmail != null) {
 			throw new IllegalArgumentException("User with this email already exists.");
 		}
@@ -105,7 +100,7 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 		if (!ServerUtil.isNickNameValid(nickName)) {
 			throw new IllegalArgumentException("Wrong nickname format.");
 		}
-		User userByNickName = getUserByNickName(nickName);
+		final User userByNickName = getUserByNickName(nickName);
 		if (userByNickName != null) {
 			throw new IllegalArgumentException("User with this nickname already exists.");
 		}
