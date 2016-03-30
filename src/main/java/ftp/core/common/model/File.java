@@ -2,6 +2,7 @@ package ftp.core.common.model;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Entity
 @Table(name = "files")
@@ -24,7 +26,7 @@ public class File extends AbstractEntity<Long> {
 
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "files_to_users", joinColumns = @JoinColumn(name = "fileID"), inverseJoinColumns = @JoinColumn(name = "userId"))
-	private final List<User> sharedWithUsers = Lists.newArrayList();
+	private final Set<User> sharedWithUsers = Sets.newHashSet();
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id")
@@ -124,7 +126,7 @@ public class File extends AbstractEntity<Long> {
 		this.fileType = fileType;
 	}
 
-	public List<User> getSharedWithUsers() {
+	public Set<User> getSharedWithUsers() {
 		return this.sharedWithUsers;
 	}
 

@@ -22,6 +22,15 @@
 	    port =((Integer)portObj).intValue();
 %>
 <script src="<c:url value="/resources/js/jquery-2.1.1.js" />"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script>
+  $(function() {
+    $( "#menu" ).menu();
+  });
+  </script>
+  <style>
 <style type="text/css">
 .deleteBtn {
 	-moz-box-shadow:inset 0px 1px 0px 0px #f5978e;
@@ -436,10 +445,13 @@ p,:focus {
     		row1.insertCell(2).innerHTML = entry.timestamp;
     		row1.insertCell(3).innerHTML = size2.fileSize(1);
     		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
-    		row1.insertCell(5).innerHTML = entry.sharingUserName;
-    		row1.insertCell(6).innerHTML = entry.fileType;
+    		row1.insertCell(5).innerHTML = '<input type="button" class="deleteBtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName + '\')">';
+    		row1.insertCell(6).innerHTML = func(entry);
     		sharedRowCounter++;
+        }
 
+        function getUl(entry){
+           return '';
         }
 
 	function addPrivateFileRow(entry) {

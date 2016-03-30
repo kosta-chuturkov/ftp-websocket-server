@@ -17,5 +17,7 @@ public interface FileDao extends GenericDao<File, Long> {
 	
 	List<File> getPrivateFilesForUser(String userNickName, int firstResult, int maxResults);
 
-	List<File> getSharedFilesWithUsers(Long userId, int firstResult, int maxResults);
+	List<Long> getSharedFilesWithUsers(Long userId, int firstResult, int maxResults);
+
+	File findWithSharedUsers(Long fileId);
 }

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
+import ftp.core.common.model.dto.FileWithSharedUsersDto;
 import ftp.core.exception.JsonException;
 import ftp.core.service.face.JsonService;
 import ftp.core.service.face.tx.FileService;
@@ -16,12 +17,13 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Kosta_Chuturkov on 2/24/2016.
  */
 @Service
-public class GetPrivateFilesHandler implements JsonTypedHandler {
+public class SharedWithUsersFilesHandler implements JsonTypedHandler {
 
     @Resource
     private FileService fileService;
@@ -43,21 +45,27 @@ public class GetPrivateFilesHandler implements JsonTypedHandler {
         if (current == null) {
             throw new JsonException("Session has expired. Log in again....", method);
         }
-        final String nickName = current.getNickName();
+        final Long userId = current.getId();
         final Integer firstResultAsInt = firstResult.getAsInt();
         final Integer maxResultsAsInt = maxResults.getAsInt();
-        final List<File> files = this.fileService.getPrivateFilesForUser(nickName, firstResultAsInt, maxResultsAsInt);
-        for (final File file : files) {
-            final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+        final List<Long> files = this.fileService.getSharedFilesWithUsersIds(userId, firstResultAsInt, maxResultsAsInt);
+        for (final Long fileId : files) {
+            final File file = this.fileService.findWithSharedUsers(fileId);
+            final FileWithSharedUsersDto fileDto = new FileWithSharedUsersDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                     file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
+            final Set<User> sharedWithUsers = file.getSharedWithUsers();
+            if (sharedWithUsers != null && !sharedWithUsers.isEmpty()) {
+                for (final User user : sharedWithUsers) {
+                    fileDto.addSharedUser(user.getNickName());
+                }
+            }
             fileDtos.add(fileDto);
         }
         return this.jsonService.getJsonResponse(method, fileDtos);
     }
 
-
     @Override
     public String getHandlerType() {
-        return HandlerNames.PRIVATE_FILE_HANDLER;
+        return HandlerNames.SHARED_FILES_WITH_USERS;
     }
 }

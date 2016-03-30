@@ -15,6 +15,17 @@
 			]]>
 		</query>
 	</named-query>
+
+	<named-query name="File.getSharedWithUsers">
+		<query>
+			<![CDATA[
+				select file
+				from File file
+				left join fetch file.sharedWithUsers
+				where file.id=:fileId
+			]]>
+		</query>
+	</named-query>
 	
 	
 	<named-query name="File.deleteFile">
@@ -66,7 +77,7 @@
 	<named-query name="File.getSharedFilesWithUsers">
 		<query>
 			<![CDATA[
-			    select fls
+			    select fls.id
 			    from User usr
 			    left outer join usr.uploadedFiles fls
 			    where fls.fileType = ftp.core.common.model.File$FileType.SHARED

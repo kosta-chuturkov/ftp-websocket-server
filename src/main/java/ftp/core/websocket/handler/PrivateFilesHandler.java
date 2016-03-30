@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
+import ftp.core.common.model.dto.MainPageFileDto;
 import ftp.core.exception.JsonException;
 import ftp.core.service.face.JsonService;
 import ftp.core.service.face.tx.FileService;
@@ -21,7 +22,7 @@ import java.util.List;
  * Created by Kosta_Chuturkov on 2/24/2016.
  */
 @Service
-public class GetSharedWithUsersFilesHandler implements JsonTypedHandler {
+public class PrivateFilesHandler implements JsonTypedHandler {
 
     @Resource
     private FileService fileService;
@@ -43,20 +44,21 @@ public class GetSharedWithUsersFilesHandler implements JsonTypedHandler {
         if (current == null) {
             throw new JsonException("Session has expired. Log in again....", method);
         }
-        final Long userId = current.getId();
+        final String nickName = current.getNickName();
         final Integer firstResultAsInt = firstResult.getAsInt();
         final Integer maxResultsAsInt = maxResults.getAsInt();
-        final List<File> files = this.fileService.getSharedFilesWithUsers(userId, firstResultAsInt, maxResultsAsInt);
+        final List<File> files = this.fileService.getPrivateFilesForUser(nickName, firstResultAsInt, maxResultsAsInt);
         for (final File file : files) {
-            final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+            final FileDto fileDto = new MainPageFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                     file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
             fileDtos.add(fileDto);
         }
         return this.jsonService.getJsonResponse(method, fileDtos);
     }
 
+
     @Override
     public String getHandlerType() {
-        return HandlerNames.SHARED_FILES_WITH_USERS;
+        return HandlerNames.PRIVATE_FILE_HANDLER;
     }
 }

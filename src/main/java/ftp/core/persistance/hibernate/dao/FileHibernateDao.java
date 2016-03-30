@@ -52,12 +52,19 @@ public class FileHibernateDao extends GenericHibernateDao<File, Long> implements
 	}
 
 	@Override
-	public List<File> getSharedFilesWithUsers(final Long userId, final int firstResult, final int maxResults) {
+	public List<Long> getSharedFilesWithUsers(final Long userId, final int firstResult, final int maxResults) {
 		final Query query = getCurrentSession().getNamedQuery("File.getSharedFilesWithUsers");
 		query.setParameter("userId", userId);
 		query.setFirstResult(firstResult);
 		query.setMaxResults(maxResults);
-		return (List<File>)query.list();
+		return (List<Long>) query.list();
+	}
+
+	@Override
+	public File findWithSharedUsers(final Long fileId) {
+		final Query query = getCurrentSession().getNamedQuery("File.getSharedWithUsers");
+		query.setParameter("fileId", fileId);
+		return (File) query.uniqueResult();
 	}
 
 }

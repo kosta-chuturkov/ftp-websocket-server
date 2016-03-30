@@ -26,5 +26,7 @@ public interface FileService extends GenericService<File, Long> {
 	
 	List<File> getPrivateFilesForUser(String userNickName, int firstResult, int maxResults);
 
-	List<File> getSharedFilesWithUsers(Long userId, int firstResult, int maxResults);
+	List<Long> getSharedFilesWithUsersIds(Long userId, int firstResult, int maxResults);
+
+	File findWithSharedUsers(Long fileId);
 }

@@ -1,26 +1,24 @@
 package ftp.core.controller;
 
-import java.io.IOException;
-import java.util.List;
+import com.google.common.collect.Lists;
+import ftp.core.common.model.File;
+import ftp.core.common.model.User;
+import ftp.core.common.model.dto.FileDto;
+import ftp.core.common.model.dto.MainPageFileDto;
+import ftp.core.common.util.ServerConstants;
+import ftp.core.common.util.ServerUtil;
+import ftp.core.service.face.tx.FileService;
+import ftp.core.service.face.tx.UserService;
+import org.apache.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-
-import org.apache.log4j.Logger;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
-import com.google.common.collect.Lists;
-
-import ftp.core.common.model.File;
-import ftp.core.common.model.User;
-import ftp.core.common.model.dto.FileDto;
-import ftp.core.common.util.ServerConstants;
-import ftp.core.common.util.ServerUtil;
-import ftp.core.service.face.tx.FileService;
-import ftp.core.service.face.tx.UserService;
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 public class JspPageRestController {
@@ -45,7 +43,7 @@ public class JspPageRestController {
 			User.setCurrent(current);
 			final List<File> files = this.fileService.getSharedFilesForUser(current.getNickName(), firstResult, maxResults);
 			for (final File file : files) {
-				final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+				final FileDto fileDto = new MainPageFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
 						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
 				fileDtos.add(fileDto);
 			}
@@ -68,7 +66,7 @@ public class JspPageRestController {
 			User.setCurrent(current);
 			final List<File> files = this.fileService.getPrivateFilesForUser(current.getNickName(), firstResult, maxResults);
 			for (final File file : files) {
-				final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+				final FileDto fileDto = new MainPageFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
 						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
 				fileDtos.add(fileDto);
 			}
@@ -88,9 +86,10 @@ public class JspPageRestController {
 			ServerUtil.sendJsonErrorResponce(response, "You must login first.");
 		} else {
 			User.setCurrent(current);
-			final List<File> files = this.fileService.getSharedFilesWithUsers(current.getId(), firstResult, maxResults);
-			for (final File file : files) {
-				final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+			final List<Long> files = this.fileService.getSharedFilesWithUsersIds(current.getId(), firstResult, maxResults);
+			for (final Long fileId : files) {
+				final File file = this.fileService.findWithSharedUsers(fileId);
+				final FileDto fileDto = new MainPageFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
 						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
 				fileDtos.add(fileDto);
 			}

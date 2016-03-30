@@ -6,6 +6,7 @@ import ftp.core.common.model.File;
 import ftp.core.common.model.File.FileType;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
+import ftp.core.common.model.dto.MainPageFileDto;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.persistance.face.dao.FileDao;
 import ftp.core.service.face.tx.FileService;
@@ -22,6 +23,7 @@ import reactor.bus.EventBus;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Service("fileService")
 public class FileServiceImpl extends AbstractGenericService<File, Long> implements FileService {
@@ -87,7 +89,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 				final User userToShareTheFileWith = this.userService.checkAndGetUserToSendFilesTo(userToSendFilesTo);
 				addUserToFile(savedFileId, userToShareTheFileWith);
 				this.userService.addFileToUser(savedFileId, currentUser.getId());
-				final FileDto fileDto = new FileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+				final FileDto fileDto = new MainPageFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
 						file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
 				this.eventBus.notify(userToSendFilesTo, Event.wrap(new JsonResponse(HandlerNames.SHARED_FILE_HANDLER, this.gson.toJson(fileDto))));
 			}
@@ -101,7 +103,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 		if (exists == null) {
 			return false;
 		}
-		final List<User> sharedWithUsers = ((File) exists).getSharedWithUsers();
+		final Set<User> sharedWithUsers = ((File) exists).getSharedWithUsers();
 		final User userByNickName = this.userService.getUserByNickName(nickName);
 		return sharedWithUsers.contains(userByNickName);
 	}
@@ -128,8 +130,13 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 	}
 
 	@Override
-	public List<File> getSharedFilesWithUsers(final Long userId, final int firstResult, final int maxResults) {
+	public List<Long> getSharedFilesWithUsersIds(final Long userId, final int firstResult, final int maxResults) {
 		return this.fileDao.getSharedFilesWithUsers(userId, firstResult, maxResults);
+	}
+
+	@Override
+	public File findWithSharedUsers(final Long fileId) {
+		return this.fileDao.findWithSharedUsers(fileId);
 	}
 
 }
