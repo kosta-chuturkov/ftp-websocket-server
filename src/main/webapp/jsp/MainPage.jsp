@@ -340,7 +340,7 @@ p,:focus {
      };
      ws.onmessage = function (event) {
 		 getDataFromJSON(event.data);
-        console.log('Received: ' + event.data);
+         console.log('Received: ' + event.data);
      };
      ws.onclose = function (event) {
         setConnected(false);
@@ -440,19 +440,17 @@ p,:focus {
     		var rowCount2 = table2.rows.length;
     		var size2 = parseInt(entry.size);
     		var row1 = table2.insertRow(rowCount2);
+    		var deleteLinkURL1 = deleteUrl + entry.deleteHash;
     		row1.insertCell(0).innerHTML = sharedRowCounter;
     		row1.insertCell(1).innerHTML = entry.name;
     		row1.insertCell(2).innerHTML = entry.timestamp;
     		row1.insertCell(3).innerHTML = size2.fileSize(1);
     		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
-    		row1.insertCell(5).innerHTML = '<input type="button" class="deleteBtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName + '\')">';
-    		row1.insertCell(6).innerHTML = func(entry);
+    		row1.insertCell(5).innerHTML = '<input type="button" class="deleteBtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName2 + '\')">';
+    		row1.insertCell(6).innerHTML = entry.fileType;
     		sharedRowCounter++;
         }
 
-        function getUl(entry){
-           return '';
-        }
 
 	function addPrivateFileRow(entry) {
 		var tableName = "uploadedFilesTable";
