@@ -30,8 +30,8 @@ public class UserHibernateDao extends GenericHibernateDao<User, Long> implements
 
 	@Override
 	public BigDecimal getRandomTokenFromDB() {
-		final SQLQuery query = getCurrentSession().createSQLQuery("select dbms_random.random from dual");
-		return (BigDecimal) query.uniqueResult();
+		final SQLQuery query = getCurrentSession().createSQLQuery("SELECT random()* 10000000");
+		return new BigDecimal((Double) query.uniqueResult());
 	}
 
 	@Override
