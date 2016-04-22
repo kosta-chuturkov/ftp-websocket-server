@@ -57,7 +57,7 @@ public class RegistrationController {
 			if (id == null) {
 				modelAndView.addObject("errorMsg", "Unable to register with this credentials. Please try again.");
 			} else {
-				final User user = (User) this.userService.findOne(id);
+				final User user = this.userService.findOne(id);
 				User.setCurrent(user);
 				ServerUtil.startUserSession(request, email, user.getPassword(), user.getRemainingStorage());
 				final RedirectView view = new RedirectView(ServerConstants.MAIN_ALIAS, true);

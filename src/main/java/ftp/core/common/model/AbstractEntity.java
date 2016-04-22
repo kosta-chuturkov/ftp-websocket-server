@@ -4,10 +4,11 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import java.io.Serializable;
 
 
 @MappedSuperclass
-public abstract class AbstractEntity<T> implements Entity<T> {
+public abstract class AbstractEntity<T extends Serializable> implements Entity<T> {
 
 	private static final long serialVersionUID = 1L;
 	@Id

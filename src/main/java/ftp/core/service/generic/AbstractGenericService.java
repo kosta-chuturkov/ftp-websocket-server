@@ -8,10 +8,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 
-public class AbstractGenericService<T extends AbstractEntity, ID>
+public class AbstractGenericService<T extends AbstractEntity, ID extends Serializable>
 		implements GenericService<T, ID>, ApplicationContextAware {
 
 	private final Class<T> persistentClass;

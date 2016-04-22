@@ -77,5 +77,6 @@ dependencies {
     compile('com.google.code.gson:gson:2.6.1')
     compile('org.springframework.session:spring-session:1.1.0.RELEASE')
     compile("io.projectreactor:reactor-bus")
+    compile('org.springframework.retry:spring-retry')
 
 }
