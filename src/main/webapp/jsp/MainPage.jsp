@@ -22,9 +22,17 @@
 	    port =((Integer)portObj).intValue();
 %>
 <script src="<c:url value="/resources/js/jquery-2.1.1.js" />"></script>
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="<c:url value="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" />">
+<script src="<c:url value="http://code.jquery.com/jquery-1.10.2.js" />"></script>
+<script src="<c:url value="http://code.jquery.com/ui/1.11.4/jquery-ui.js" />"></script>
+<script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/jquery.min.js" />"></script>
+      <script type="text/javascript" src="<c:url value="https://select2.github.io/dist/js/select2.full.js" />"></script>
+      <script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/bootstrap.min.js" />"></script>
+      <script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/prettify.min.js" />"></script>
+      <script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/anchor.min.js" />"></script>
+      <style class="anchorjs"></style>
+      <link href="<c:url value="https://select2.github.io/css/bootstrap.css" />" type="text/css" rel="stylesheet">
+      <link href="<c:url value="https://select2.github.io/dist/css/select2.min.css" />" type="text/css" rel="stylesheet">
 <script>
   $(function() {
     $( "#menu" ).menu();
@@ -304,6 +312,31 @@ p,:focus {
 		</div>
 	</div>
 	<script>
+	$.fn.select2.amd.require([
+                       "select2/core",
+                       "select2/utils",
+                       "select2/compat/matcher"
+                     ], function (Select2, Utils, oldMatcher) {
+
+
+                       var $dataArray = $(".js-example-data-array");
+
+                       var data = [
+                         { id: 0, text: 'ala balas' },
+                         { id: 1, text: 'debug' },
+                         { id: 2, text: 'duplicate' },
+                         { id: 3, text: 'deadaeeda' },
+                         { id: 4, text: 'sasead' }
+                       ];
+
+                       $.fn.select2.defaults.set("width", "100%");
+
+                       $dataArray.select2({
+                         data: data
+                       });
+                     });
+	</script>
+	<script>
 
 	var timeout;
 	var type = 2;
@@ -450,7 +483,7 @@ p,:focus {
     		row1.insertCell(3).innerHTML = size2.fileSize(1);
     		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
     		row1.insertCell(5).innerHTML = '<input type="button" class="deleteBtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName2 + '\')">';
-    		row1.insertCell(6).innerHTML = '<div class="dropdown"></div>';
+    		row1.insertCell(6).innerHTML = '<div class="s2-example"><p><select class="js-example-data-array" tabindex="-1" aria-hidden="true"><option value="0">2e3</option><option value="1">bug</option><option value="2">duplicate</option><option value="3">invalid</option><option value="4">wontfix</option></select><span class="select2 select2-container select2-container--default" dir="ltr" style="width: 100%;"><span class="selection"></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span></p></div>'
     		sharedRowCounter++;
         }
 
@@ -529,6 +562,7 @@ p,:focus {
             	privateRowCounter--;
             }
         });
+
     }
 
     window.onload = function() {
@@ -541,5 +575,6 @@ p,:focus {
         establishConnection();
     };
 </script>
+
 </body>
 </html>
