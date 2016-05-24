@@ -6,7 +6,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Set;
 
 @Entity
@@ -29,7 +28,7 @@ public class User extends AbstractEntity<Long> {
     @Column(name = "remaining_storage")
     private long remainingStorage;
     @Column(name = "token")
-    private BigDecimal token;
+    private Long token;
     @OneToMany
     @JoinColumn(name = "user_id")
     private Set<File> uploadedFiles = Sets.newHashSet();
@@ -38,7 +37,7 @@ public class User extends AbstractEntity<Long> {
 
     }
 
-    public User(final String nickName, final String email, final String password, final long remainingStorage, final BigDecimal token) {
+    public User(final String nickName, final String email, final String password, final long remainingStorage, final Long token) {
         super();
         this.nickName = nickName;
         this.email = email;
@@ -87,11 +86,11 @@ public class User extends AbstractEntity<Long> {
         this.remainingStorage = remainingStorage;
     }
 
-    public BigDecimal getToken() {
+    public Long getToken() {
         return this.token;
     }
 
-    public void setToken(final BigDecimal token) {
+    public void setToken(final Long token) {
         this.token = token;
     }
 

@@ -5,33 +5,32 @@ import ftp.core.common.model.User;
 import ftp.core.persistance.face.generic.service.GenericService;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface UserService extends GenericService<User, Long> {
 
-	User findByEmailAndPassword(String email, String password);
+    User findByEmailAndPassword(String email, String password);
 
-	BigDecimal getTokenByEmail(String email);
+    Long getTokenByEmail(String email);
 
-	BigDecimal getRandomTokenFromDB();
+    Long getRandomTokenFromDB();
 
-	User getUserByNickName(String nickName);
+    User getUserByNickName(String nickName);
 
-	User getUserByEmail(String email);
+    User getUserByEmail(String email);
 
-	void updateRemainingStorageForUser(long fileSize, Long userId, long remainingStorage);
-	
-	User checkAndGetUserToSendFilesTo(String userToSendFilesToNickName);
-	
-	List<String> getUserByNickLike(String userNickName);
+    void updateRemainingStorageForUser(long fileSize, Long userId, long remainingStorage);
 
-	void validateUserCredentials(String email, String password, String nickName, String password_repeated,
-			ModelAndView modelAndView) throws IllegalArgumentException;
+    User checkAndGetUserToSendFilesTo(String userToSendFilesToNickName);
 
-	Long registerUser(String email, String password, String nickName, String password_repeated,
-					  ModelAndView modelAndView) throws IllegalArgumentException;
+    List<String> getUserByNickLike(String userNickName);
 
-	File addFileToUser(final Long fileId, final Long userId);
+    void validateUserCredentials(String email, String password, String nickName, String password_repeated,
+                                 ModelAndView modelAndView) throws IllegalArgumentException;
+
+    Long registerUser(String email, String password, String nickName, String password_repeated,
+                      ModelAndView modelAndView) throws IllegalArgumentException;
+
+    File addFileToUser(final Long fileId, final Long userId);
 
 }

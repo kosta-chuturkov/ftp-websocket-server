@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 
 @RestController
 public class UploadController {
@@ -74,7 +73,7 @@ public class UploadController {
                     final String contextPath = request.getContextPath();
                     final String serverContextAddress = getProtocol(request) + host + ":" + port + contextPath
                             + ServerConstants.FILES_ALIAS;
-                    final BigDecimal token = current.getToken();
+                    final Long token = current.getToken();
                     final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
                     final long currentTime = System.currentTimeMillis();
                     final String tempFileName = new Long(currentTime).toString();
