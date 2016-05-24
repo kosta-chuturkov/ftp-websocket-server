@@ -244,7 +244,10 @@ p,:focus {
 					<strong>Cloud Server Main Page</strong> &nbsp;|&nbsp; <a
 						href="<c:url value="/upload" />"><strong>Upload Files</strong></a>&nbsp;|&nbsp;
 						<strong><%=user%></strong>&nbsp;|&nbsp;
-						<a href="<c:url value="/logout" />">Logout</a>&nbsp;|&nbsp;<label id="storageInfo"><%=storage%> left from <%=maxStorage%>.</label>
+						&nbsp;|&nbsp;<label id="storageInfo"><%=storage%> left from <%=maxStorage%>.</label>
+				</div>
+				<div class="right">
+				<a href="<c:url value="/logout" />"><h4>Logout</h4></a>
 				</div>
 				
 			</div>
@@ -279,7 +282,7 @@ p,:focus {
                         			<td><b>Size</b></td>
                         			<td><b>Download link</b></td>
                         			<td><b>Delete</b></td>
-                        			<td><b>Type</b></td>
+                        			<td><b>Shared to Users</b></td>
                         	  </tr>
                         	</table>
                         </div>
@@ -447,7 +450,7 @@ p,:focus {
     		row1.insertCell(3).innerHTML = size2.fileSize(1);
     		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
     		row1.insertCell(5).innerHTML = '<input type="button" class="deleteBtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName2 + '\')">';
-    		row1.insertCell(6).innerHTML = entry.fileType;
+    		row1.insertCell(6).innerHTML = '<div class="dropdown"></div>';
     		sharedRowCounter++;
         }
 
