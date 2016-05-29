@@ -21,22 +21,19 @@
 	    }
 	    port =((Integer)portObj).intValue();
 %>
-<script src="<c:url value="/resources/js/jquery-2.1.1.js" />"></script>
 <link rel="stylesheet" href="<c:url value="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" />">
-<script src="<c:url value="http://code.jquery.com/jquery-1.10.2.js" />"></script>
-<script src="<c:url value="http://code.jquery.com/ui/1.11.4/jquery-ui.js" />"></script>
 <script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/jquery.min.js" />"></script>
       <script type="text/javascript" src="<c:url value="https://select2.github.io/dist/js/select2.full.js" />"></script>
       <script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/bootstrap.min.js" />"></script>
-      <script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/prettify.min.js" />"></script>
-      <script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/anchor.min.js" />"></script>
-      <style class="anchorjs"></style>
+      <script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/prettify.min.js"/>"></script>
+      <script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/anchor.min.js"/>"></script>
       <link href="<c:url value="https://select2.github.io/css/bootstrap.css" />" type="text/css" rel="stylesheet">
       <link href="<c:url value="https://select2.github.io/dist/css/select2.min.css" />" type="text/css" rel="stylesheet">
-<script>
-  $(function() {
-    $( "#menu" ).menu();
-  });
+
+      <link href="<c:url value="https://select2.github.io/css/font-awesome.css"/>"  type="text/css" rel="stylesheet" />
+            <link href="<c:url value="https://select2.github.io/css/s2-docs.css"/>"  type="text/css" rel="stylesheet" >
+  <script type="text/javascript">
+  $(".js-example-basic-multiple").select2();
   </script>
   <style>
 <style type="text/css">
@@ -232,9 +229,11 @@ a,:focus {
 p,:focus {
 	outline: 0;
 }
+.js-data-example-ajax {
+		position: absolute;
+		width:400px;
+}
 </style>
-
-<script src="<c:url value="/resources/js/jquery.min.js" />"></script>
 <link rel="stylesheet" type="text/css"
 	href="<c:url value="/resources/css/main.css" />" />
 <link rel="stylesheet" type="text/css"
@@ -311,31 +310,7 @@ p,:focus {
 			</div>
 		</div>
 	</div>
-	<script>
-	$.fn.select2.amd.require([
-                       "select2/core",
-                       "select2/utils",
-                       "select2/compat/matcher"
-                     ], function (Select2, Utils, oldMatcher) {
 
-
-                       var $dataArray = $(".js-example-data-array");
-
-                       var data = [
-                         { id: 0, text: 'ala balas' },
-                         { id: 1, text: 'debug' },
-                         { id: 2, text: 'duplicate' },
-                         { id: 3, text: 'deadaeeda' },
-                         { id: 4, text: 'sasead' }
-                       ];
-
-                       $.fn.select2.defaults.set("width", "100%");
-
-                       $dataArray.select2({
-                         data: data
-                       });
-                     });
-	</script>
 	<script>
 
 	var timeout;
@@ -376,6 +351,7 @@ p,:focus {
      };
      ws.onmessage = function (event) {
 		 getDataFromJSON(event.data);
+		 applySelect2();
          console.log('Received: ' + event.data);
      };
      ws.onclose = function (event) {
@@ -452,6 +428,10 @@ p,:focus {
 		callRemoteMethod(getSharedFilesMethod, params);
     }
 
+    function Clear(element) {
+    		element.value = "";
+    }
+
 	function addSharedFileRow(entry) {
 		var downloadLinkURL = downloadUrl + entry.downloadHash;
 		var tableName2 = "sharedFilesTable";
@@ -468,8 +448,16 @@ p,:focus {
 		sharedRowCounter++;
 
     }
-
+     function getSelect(elements){
+        var markup = '<select class="js-data-example-ajax" multiple="multiple" tabindex="-1" aria-hidden="true">'
+        for(var i=0;i<elements.length;i++){
+            markup+='<option selected="selected">'+elements[i]+'</option>';
+        }
+        markup +="</select>";
+        return markup;
+     }
     function addSharedWithUsersRow(entry) {
+            var usersSharingFile = entry.sharedToUsers;
     		var downloadLinkURL = downloadUrl + entry.downloadHash;
     		var tableName2 = "sharedWithUsersTable";
     		var table2 = document.getElementById(tableName2);
@@ -483,9 +471,11 @@ p,:focus {
     		row1.insertCell(3).innerHTML = size2.fileSize(1);
     		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
     		row1.insertCell(5).innerHTML = '<input type="button" class="deleteBtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName2 + '\')">';
-    		row1.insertCell(6).innerHTML = '<div class="s2-example"><p><select class="js-example-data-array" tabindex="-1" aria-hidden="true"><option value="0">2e3</option><option value="1">bug</option><option value="2">duplicate</option><option value="3">invalid</option><option value="4">wontfix</option></select><span class="select2 select2-container select2-container--default" dir="ltr" style="width: 100%;"><span class="selection"></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span></p></div>'
+    		row1.insertCell(6).innerHTML = getSelect(usersSharingFile);
     		sharedRowCounter++;
         }
+
+
 
 
 	function addPrivateFileRow(entry) {
@@ -565,6 +555,53 @@ p,:focus {
 
     }
 
+function formatRepo (repo) {
+      if (repo.loading) return repo.text;
+
+      var markup = "<div class='select2-result-repository__title'>" + repo.full_name + "</div>";
+
+      return markup;
+    }
+
+        function formatRepoSelection (repo) {
+          return repo.full_name || repo.text;
+        }
+
+     function applySelect2(){
+    	$(".js-data-example-ajax").select2({
+        ajax: {
+        url: "<c:url value="/users" />",
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+          return {
+            q: params.term, // search term
+            page: params.page
+          };
+        },
+        processResults: function (data, params) {
+          // parse the results into the format expected by Select2
+          // since we are using custom formatting functions we do not need to
+          // alter the remote JSON data, except to indicate that infinite
+          // scrolling can be used
+
+           params.page = params.page || 1;
+
+           return {
+              results: data.items,
+                 pagination: {
+                    more: (params.page * 30) < data.total_count
+                 }
+          };
+        },
+        cache: true
+      },
+      escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+      minimumInputLength: 1,
+      templateResult: formatRepo, // omitted for brevity, see the source of this page
+      templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+    });
+    }
     window.onload = function() {
     	Object.defineProperty(Number.prototype,'fileSize',{value:function(a,b,c,d){
     		 return (a=a?[1e3,'k','B']:[1024,'K','iB'],b=Math,c=b.log,
@@ -574,6 +611,29 @@ p,:focus {
     	createEventListeners();
         establishConnection();
     };
+</script>
+<script>
+	function doAjax(query,obj) {
+		if (query == null || query == "") {
+			return;
+		}
+		$.ajax({
+			type: 'GET',
+			url: "<c:url value="https://api.github.com/search/repositories" />" + "?q=" + query,
+			dataType: 'json',
+			success: function (data) {
+				$(obj).autocomplete({
+					source: data
+				});
+			},
+			complete: function (data) {
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+
+			}
+		});
+	}
+
 </script>
 
 </body>
