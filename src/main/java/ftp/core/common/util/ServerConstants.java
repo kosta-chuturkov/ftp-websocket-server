@@ -21,6 +21,8 @@ public interface ServerConstants {
 
     public static final String DELETE_ALIAS = "delete/";
 
+    public static final String UPDATE_ALIAS = "updateUsers/";
+
     public static final String RESOURCE_FOLDER_NAME = "resources";
 
     public static final String QUERY_PARAMETER = "q";

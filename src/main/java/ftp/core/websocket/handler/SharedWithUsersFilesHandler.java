@@ -53,10 +53,10 @@ public class SharedWithUsersFilesHandler implements JsonTypedHandler {
             final File file = this.fileService.findWithSharedUsers(fileId);
             final FileWithSharedUsersDto fileDto = new FileWithSharedUsersDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                     file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-            final Set<User> sharedWithUsers = file.getSharedWithUsers();
+            final Set<String> sharedWithUsers = file.getSharedWithUsers();
             if (sharedWithUsers != null && !sharedWithUsers.isEmpty()) {
-                for (final User user : sharedWithUsers) {
-                    fileDto.addSharedUser(user.getNickName());
+                for (final String user : sharedWithUsers) {
+                    fileDto.addSharedUser(user);
                 }
             }
             fileDtos.add(fileDto);

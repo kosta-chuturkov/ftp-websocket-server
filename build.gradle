@@ -78,5 +78,10 @@ dependencies {
     compile('org.springframework.session:spring-session:1.1.0.RELEASE')
     compile("io.projectreactor:reactor-bus")
     compile('org.springframework.retry:spring-retry')
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.5.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.5.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.5.0'
+
+
 
 }

@@ -1,91 +1,91 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <entity-mappings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-				 xmlns="http://java.sun.com/xml/ns/persistence/orm"
-				 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
-				 version="2.0">
-	<package>ftp.core.common.model</package>
+                 xmlns="http://java.sun.com/xml/ns/persistence/orm"
+                 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+                 version="2.0">
+    <package>ftp.core.common.model</package>
 
-	<named-query name="File.getFileByDownloadHash">
-		<query>
-			<![CDATA[
+    <named-query name="File.getFileByDownloadHash">
+        <query>
+            <![CDATA[
 				select file
 				from File file
 				join fetch file.creator
 				where file.downloadHash=:downloadHash
 			]]>
-		</query>
-	</named-query>
+        </query>
+    </named-query>
 
-	<named-query name="File.getSharedWithUsers">
-		<query>
-			<![CDATA[
+    <named-query name="File.getSharedWithUsers">
+        <query>
+            <![CDATA[
 				select file
 				from File file
 				left join fetch file.sharedWithUsers
 				where file.id=:fileId
 			]]>
-		</query>
-	</named-query>
-	
-	
-	<named-query name="File.deleteFile">
-		<query>
-			<![CDATA[
+        </query>
+    </named-query>
+
+
+    <named-query name="File.deleteFile">
+        <query>
+            <![CDATA[
 				delete 
 				from File file
 				where file.deleteHash=:deleteHash
 				and file.creator.nickName=:creatorNickName
 			]]>
-		</query>
-	</named-query>
-	
-	
-	<named-query name="File.findByDeleteHash">
-		<query>
-			<![CDATA[
+        </query>
+    </named-query>
+
+
+    <named-query name="File.findByDeleteHash">
+        <query>
+            <![CDATA[
 				select file 
 				from File file
 				where file.deleteHash=:deleteHash
+				and file.creator.nickName = :creatorNickName
 			]]>
-		</query>
-	</named-query>
-	
-	<named-query name="File.getSharedFilesForUser">
-		<query>
-			<![CDATA[
+        </query>
+    </named-query>
+
+    <named-query name="File.getSharedFilesForUser">
+        <query>
+            <![CDATA[
 				select file 
 				from File file
 				left outer join fetch file.sharedWithUsers swu
-				where swu.nickName=:userNickName
+				where :userNickName in(swu)
 				and file.fileType = ftp.core.common.model.File$FileType.SHARED
 			]]>
-		</query>
-	</named-query>
-	
-	<named-query name="File.getPrivateFilesForUser">
-		<query>
-			<![CDATA[
+        </query>
+    </named-query>
+
+    <named-query name="File.getPrivateFilesForUser">
+        <query>
+            <![CDATA[
 			    select file 
 				from File file
 			    left join file.creator crtr
 			    where crtr.nickName=:userNickName
 				and file.fileType = ftp.core.common.model.File$FileType.PRIVATE
 			]]>
-		</query>
-	</named-query>
+        </query>
+    </named-query>
 
-	<named-query name="File.getSharedFilesWithUsers">
-		<query>
-			<![CDATA[
+    <named-query name="File.getSharedFilesWithUsers">
+        <query>
+            <![CDATA[
 			    select fls.id
 			    from User usr
 			    left outer join usr.uploadedFiles fls
 			    where fls.fileType = ftp.core.common.model.File$FileType.SHARED
 			    and usr.id=:userId
 			]]>
-		</query>
-	</named-query>
+        </query>
+    </named-query>
 
-	
 
 </entity-mappings>

@@ -1,16 +1,20 @@
 package ftp.core.controller;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
 import ftp.core.common.model.dto.MainPageFileDto;
+import ftp.core.common.model.dto.ModifiedUsersDto;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
 import ftp.core.service.face.tx.FileService;
+import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 public class JspPageRestController {
@@ -121,25 +126,66 @@ public class JspPageRestController {
         final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
         final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
         final User current = this.userService.findByEmailAndPassword(email, password);
-        final JsonObject jsonObject = new JsonObject();
+        final JsonObject jsonResponse = new JsonObject();
         if (current == null) {
             ServerUtil.sendJsonErrorResponce(response, "You must login first.");
         } else {
             User.setCurrent(current);
             final List<String> users = this.userService.getUserByNickLike(userNickName);
 
-            final JsonArray jsonElements = new JsonArray();
+            final JsonArray jsonArrayWrapper = new JsonArray();
             for (final String user : users) {
-                final JsonObject userPair = new JsonObject();
-                userPair.addProperty("full_name", user);
-                userPair.addProperty("loading", Boolean.FALSE);
-                jsonElements.add(userPair);
+                final JsonObject userObject = new JsonObject();
+                userObject.addProperty("id", user);
+                userObject.addProperty("full_name", user);
+                jsonArrayWrapper.add(userObject);
             }
-            jsonObject.addProperty("total_count", users.size());
-            jsonObject.addProperty("incomplete_results", Boolean.FALSE);
-            jsonObject.add("items", jsonElements);
+            jsonResponse.addProperty("total_count", users.size());
+            jsonResponse.addProperty("incomplete_results", Boolean.FALSE);
+            jsonResponse.add("items", jsonArrayWrapper);
         }
-        return jsonObject.toString();
+        return jsonResponse.toString();
+    }
+
+    @RequestMapping(value = {
+            ServerConstants.FILES_ALIAS + ServerConstants.UPDATE_ALIAS + "/{fileHash}"}, method = RequestMethod.POST, consumes = "application/json")
+    public void updateUsers(final HttpServletRequest request, final HttpServletResponse response, @PathVariable final String fileHash, @RequestBody final Set<ModifiedUsersDto> modifiedUsersDto) {
+        try {
+            final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
+            final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
+            final User current = this.userService.findByEmailAndPassword(email, password);
+            if (current == null) {
+                ServerUtil.sendJsonErrorResponce(response, "You must login first.");
+            } else {
+                User.setCurrent(current);
+                updateUsers0(fileHash, modifiedUsersDto);
+            }
+        } catch (final Exception e) {
+            logger.error("errror occured", e);
+            ServerUtil.sendJsonErrorResponce(response, e.getMessage());
+        }
+    }
+
+    private void updateUsers0(final String fileHash, final Set<ModifiedUsersDto> modifiedUsersDto) {
+        final Set<String> userNickNames = Sets.newHashSet();
+        if (modifiedUsersDto.size() == 1 && modifiedUsersDto.iterator().next().getName() == null) {
+            this.fileService.updateUsersForFile(fileHash, userNickNames);
+        } else {
+            for (final ModifiedUsersDto usersDto : modifiedUsersDto) {
+                final String name = usersDto.getName();
+                final String escapedUserName = StringEscapeUtils.escapeSql(name);
+                final User userByNickName = this.userService.getUserByNickName(escapedUserName);
+                if (userByNickName == null) {
+                    throw new FtpServerException("Wrong parameters");
+                }
+                if (escapedUserName.equals(User.getCurrent().getNickName())) {
+                    throw new FtpServerException("Cant share file with yourself.");
+                }
+                userNickNames.add(escapedUserName);
+            }
+
+            this.fileService.updateUsersForFile(fileHash, userNickNames);
+        }
     }
 
 

@@ -21,44 +21,22 @@
 	    }
 	    port =((Integer)portObj).intValue();
 %>
-<link rel="stylesheet" href="<c:url value="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" />">
-<script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/jquery.min.js" />"></script>
-      <script type="text/javascript" src="<c:url value="https://select2.github.io/dist/js/select2.full.js" />"></script>
-      <script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/bootstrap.min.js" />"></script>
-      <script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/prettify.min.js"/>"></script>
-      <script type="text/javascript" src="<c:url value="https://select2.github.io/vendor/js/anchor.min.js"/>"></script>
-      <link href="<c:url value="https://select2.github.io/css/bootstrap.css" />" type="text/css" rel="stylesheet">
-      <link href="<c:url value="https://select2.github.io/dist/css/select2.min.css" />" type="text/css" rel="stylesheet">
-
-      <link href="<c:url value="https://select2.github.io/css/font-awesome.css"/>"  type="text/css" rel="stylesheet" />
-            <link href="<c:url value="https://select2.github.io/css/s2-docs.css"/>"  type="text/css" rel="stylesheet" >
+<link rel="stylesheet" href="<c:url value="/resources/css/jquery-ui.css" />">
+<script type="text/javascript" src="<c:url value="/resources/js/jquery.min.js" />"></script>
+      <script type="text/javascript" src="<c:url value="/resources/js/select2.full.js" />"></script>
+      <script type="text/javascript" src="<c:url value="/resources/js/bootstrap.min.js" />"></script>
+      <script type="text/javascript" src="<c:url value="/resources/js/prettify.min.js"/>"></script>
+      <script type="text/javascript" src="<c:url value="/resources/js/anchor.min.js"/>"></script>
+      <link href="<c:url value="/resources/css/bootstrap.css" />" type="text/css" rel="stylesheet">
+      <link href="<c:url value="/resources/css/select2.min.css" />" type="text/css" rel="stylesheet">
   <script type="text/javascript">
   $(".js-example-basic-multiple").select2();
   </script>
   <style>
 <style type="text/css">
 .deleteBtn {
-	-moz-box-shadow:inset 0px 1px 0px 0px #f5978e;
-	-webkit-box-shadow:inset 0px 1px 0px 0px #f5978e;
-	box-shadow:inset 0px 1px 0px 0px #f5978e;
-	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #FA5858), color-stop(1, #FA5858) );
-	background:-moz-linear-gradient( center top, #FA5858 5%, #c62d1f 100% );
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f24537', endColorstr='#c62d1f');
-	background-color:#f24537;
-	-webkit-border-top-left-radius:5px;
-	-moz-border-radius-topleft:5px;
-	border-top-left-radius:5px;
-	-webkit-border-top-right-radius:5px;
-	-moz-border-radius-topright:5px;
-	border-top-right-radius:5px;
-	-webkit-border-bottom-right-radius:5px;
-	-moz-border-radius-bottomright:5px;
-	border-bottom-right-radius:5px;
-	-webkit-border-bottom-left-radius:5px;
-	-moz-border-radius-bottomleft:5px;
-	border-bottom-left-radius:5px;
-	text-indent:0;
-	border:1px solid #d02718;
+	background-color: #4CAF50;
+	border:1px solid #84bbf3;
 	display:inline-block;
 	color:#ffffff;
 	font-family:Arial;
@@ -70,18 +48,17 @@
 	width:87px;
 	text-decoration:none;
 	text-align:center;
-	text-shadow:1px 1px 0px #810e05;
+	text-shadow:1px 1px 0px #528ecc;
 }
-.downloadBtn:hover {
-	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #c62d1f), color-stop(1, #f24537) );
-	background:-moz-linear-gradient( center top, #c62d1f 5%, #f24537 100% );
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#c62d1f', endColorstr='#f24537');
-	background-color:#c62d1f;
-}.downloadBtn:active {
+.deleteBtn:hover {
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #378de5), color-stop(1, #79bbff) );
+	background:-moz-linear-gradient( center top, #378de5 5%, #79bbff 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#378de5', endColorstr='#79bbff');
+	background-color:#378de5;
+}.deleteBtn:active {
 	position:relative;
 	top:1px;
-}</style>
-<style type="text/css">
+}
 .downloadBtn {
 	-moz-box-shadow:inset 0px 1px 0px 0px #bbdaf7;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #bbdaf7;
@@ -110,7 +87,7 @@
 	font-size:15px;
 	font-weight:bold;
 	font-style:normal;
-	height:21px;
+	height:23px;
 	line-height:21px;
 	width:87px;
 	text-decoration:none;
@@ -125,8 +102,9 @@
 }.downloadBtn:active {
 	position:relative;
 	top:1px;
-}</style>
-<style>
+}
+
+
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td
 	{
 	border: 0;
@@ -234,6 +212,88 @@ p,:focus {
 		width:400px;
 }
 </style>
+<style>
+.updateBtn {
+	-moz-box-shadow:inset 0px 1px 0px 0px #339933;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #339933;
+	box-shadow:inset 0px 1px 0px 0px #339933;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #339933), color-stop(1, #339933) );
+	background:-moz-linear-gradient( center top, #339933 5%, #339933 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#339933', endColorstr='#339933');
+	background-color:#339933;
+	-webkit-border-top-left-radius:5px;
+	-moz-border-radius-topleft:5px;
+	border-top-left-radius:5px;
+	-webkit-border-top-right-radius:5px;
+	-moz-border-radius-topright:5px;
+	border-top-right-radius:5px;
+	-webkit-border-bottom-right-radius:5px;
+	-moz-border-radius-bottomright:5px;
+	border-bottom-right-radius:5px;
+	-webkit-border-bottom-left-radius:5px;
+	-moz-border-radius-bottomleft:5px;
+	border-bottom-left-radius:5px;
+	text-indent:0;
+	border:1px solid #84bbf3;
+	display:inline-block;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:15px;
+	font-weight:bold;
+	font-style:normal;
+	height:27px;
+	line-height:21px;
+	width:87px;
+	text-decoration:none;
+	text-align:center;
+	text-shadow:1px 1px 0px #528ecc;
+}
+.updateBtn:active {
+	position:relative;
+	top:1px;
+}
+</style>
+<style>
+.delbtn {
+	-moz-box-shadow:inset 0px 1px 0px 0px #e05252;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #e05252;
+	box-shadow:inset 0px 1px 0px 0px #e05252;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #e05252), color-stop(1, #e05252) );
+	background:-moz-linear-gradient( center top, #e05252 5%, #e05252 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#e05252', endColorstr='#e05252');
+	background-color:#e05252;
+	-webkit-border-top-left-radius:5px;
+	-moz-border-radius-topleft:5px;
+	border-top-left-radius:5px;
+	-webkit-border-top-right-radius:5px;
+	-moz-border-radius-topright:5px;
+	border-top-right-radius:5px;
+	-webkit-border-bottom-right-radius:5px;
+	-moz-border-radius-bottomright:5px;
+	border-bottom-right-radius:5px;
+	-webkit-border-bottom-left-radius:5px;
+	-moz-border-radius-bottomleft:5px;
+	border-bottom-left-radius:5px;
+	text-indent:0;
+	border:1px solid #84bbf3;
+	display:inline-block;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:15px;
+	font-weight:bold;
+	font-style:normal;
+	height:25px;
+	line-height:21px;
+	width:87px;
+	text-decoration:none;
+	text-align:center;
+	text-shadow:1px 1px 0px #528ecc;
+}
+.delbtn:active {
+	position:relative;
+	top:1px;
+}
+</style>
 <link rel="stylesheet" type="text/css"
 	href="<c:url value="/resources/css/main.css" />" />
 <link rel="stylesheet" type="text/css"
@@ -281,7 +341,7 @@ p,:focus {
 						   </table>
 						</div>
 						<div id="SharedWithUsersTab" class="tab">
-                        	<table id="sharedWithUsersTable" border="1" cellpadding="2" width="1200">
+                        	<table id="sharedWithUsersTable" border="1" cellpadding="2" width="1400">
                         	  <tr>
                         			<td><b>Id</b></td>
                         			<td><b>Name</b></td>
@@ -290,6 +350,7 @@ p,:focus {
                         			<td><b>Download link</b></td>
                         			<td><b>Delete</b></td>
                         			<td><b>Shared to Users</b></td>
+                        			<td><b>Update Users</b></td>
                         	  </tr>
                         	</table>
                         </div>
@@ -323,6 +384,7 @@ p,:focus {
     var sharedRowCounter = 0;
     var serverAddress = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>';
     var deleteUrl = serverAddress + "<c:url value="/files/delete/" />";
+    var updateUsersUrl = serverAddress + "<c:url value="/files/updateUsers/" />";
     var downloadUrl = serverAddress + "<c:url value="/files/" />";
     var ws = null;
     var getSharedFilesMethod = 'getSharedFiles';
@@ -448,15 +510,15 @@ p,:focus {
 		sharedRowCounter++;
 
     }
-     function getSelect(elements){
-        var markup = '<select class="js-data-example-ajax" multiple="multiple" tabindex="-1" aria-hidden="true">'
+     function getSelect(elements, currentItteration){
+        var markup = '<select id="sharedSelect'+currentItteration+'" class="js-data-example-ajax" multiple="multiple" tabindex="-1" aria-hidden="true">'
         for(var i=0;i<elements.length;i++){
-            markup+='<option selected="selected">'+elements[i]+'</option>';
+            markup+='<option selected="selected" value="'+elements[i]+'">'+elements[i]+'</option>';
         }
         markup +="</select>";
         return markup;
      }
-    function addSharedWithUsersRow(entry) {
+    function addSharedWithUsersRow(entry, currentItteration) {
             var usersSharingFile = entry.sharedToUsers;
     		var downloadLinkURL = downloadUrl + entry.downloadHash;
     		var tableName2 = "sharedWithUsersTable";
@@ -465,13 +527,16 @@ p,:focus {
     		var size2 = parseInt(entry.size);
     		var row1 = table2.insertRow(rowCount2);
     		var deleteLinkURL1 = deleteUrl + entry.deleteHash;
+    		var updateUrl = updateUsersUrl + entry.deleteHash;
+    		var selectName = 'sharedSelect'+currentItteration;
     		row1.insertCell(0).innerHTML = sharedRowCounter;
     		row1.insertCell(1).innerHTML = entry.name;
     		row1.insertCell(2).innerHTML = entry.timestamp;
     		row1.insertCell(3).innerHTML = size2.fileSize(1);
     		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
-    		row1.insertCell(5).innerHTML = '<input type="button" class="deleteBtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName2 + '\')">';
-    		row1.insertCell(6).innerHTML = getSelect(usersSharingFile);
+    		row1.insertCell(5).innerHTML = '<input type="button" class="delbtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName2 + '\')">';
+    		row1.insertCell(6).innerHTML = getSelect(usersSharingFile, currentItteration);
+    		row1.insertCell(7).innerHTML = '<input type="button" class="updateBtn" value = "update" onClick="updateUsers(\'' + selectName +'\',\''+updateUrl+ '\')">';
     		sharedRowCounter++;
         }
 
@@ -491,7 +556,7 @@ p,:focus {
 		row1.insertCell(2).innerHTML = entry.timestamp;
 		row1.insertCell(3).innerHTML = size.fileSize(1);
 		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
-		row1.insertCell(5).innerHTML = '<input type="button" class="deleteBtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName + '\')">';
+		row1.insertCell(5).innerHTML = '<input type="button" class="delbtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName + '\')">';
 		row1.insertCell(6).innerHTML = entry.fileType;
 		privateRowCounter++;
 	}
@@ -503,7 +568,7 @@ p,:focus {
 
     }
 
-	function addRowToTables(responseMethod, arrayLen, array) {
+	function addRowToTables(responseMethod, arrayLen, array, currentItteration) {
 		if (responseMethod === getPrivateFilesMethod) {
 			currentPrivateID += arrayLen;
 			addPrivateFileRow(array);
@@ -512,7 +577,7 @@ p,:focus {
 			addSharedFileRow(array);
 		}else if (responseMethod === getSharedWithUsersMethod) {
         	currentSharedToUsersID += arrayLen;
-        	addSharedWithUsersRow(array);
+        	addSharedWithUsersRow(array, currentItteration);
         }
 	}
 	function getDataFromJSON(response) {
@@ -527,10 +592,10 @@ p,:focus {
 			var arrayLen = array.length;
 			for (var i = 0; i < array.length; i++) {
 				var entry = array[i];
-				addRowToTables(responseMethod, arrayLen, entry);
+				addRowToTables(responseMethod, arrayLen, entry, i);
 			}
 		} else {
-			addRowToTables(responseMethod, 1, array);
+			addRowToTables(responseMethod, 1, array, i);
 		}
     }
    
@@ -554,6 +619,35 @@ p,:focus {
         });
 
     }
+
+    function updateUsers(name,path) {
+    var options = $('#'+name).select2("val");
+    var values = [];
+    for(var i = 0; i < options.length; i++){
+    var usr = {};
+    usr.name = options[i];
+      values.push(usr);
+    }
+
+            $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                type: 'POST',
+                url: ''+path,
+                data: JSON.stringify(values),
+                dataType: 'json',
+                error: function(data) {
+                if(data.status==200){
+                   return;
+                }
+                  console.log(data.responseText);
+                  alert(data.responseText);
+                }
+            });
+
+        }
 
 function formatRepo (repo) {
       if (repo.loading) return repo.text;
@@ -612,29 +706,5 @@ function formatRepo (repo) {
         establishConnection();
     };
 </script>
-<script>
-	function doAjax(query,obj) {
-		if (query == null || query == "") {
-			return;
-		}
-		$.ajax({
-			type: 'GET',
-			url: "<c:url value="https://api.github.com/search/repositories" />" + "?q=" + query,
-			dataType: 'json',
-			success: function (data) {
-				$(obj).autocomplete({
-					source: data
-				});
-			},
-			complete: function (data) {
-			},
-			error: function (xhr, ajaxOptions, thrownError) {
-
-			}
-		});
-	}
-
-</script>
-
 </body>
 </html>

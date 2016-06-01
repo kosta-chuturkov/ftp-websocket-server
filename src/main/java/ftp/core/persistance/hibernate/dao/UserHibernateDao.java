@@ -49,8 +49,9 @@ public class UserHibernateDao extends GenericHibernateDao<User, Long> implements
 
     @Override
     public List<String> getUserByNickLike(final String userNickName) {
+        final String currentUserNickName = User.getCurrent().getNickName();
         final Query query = getCurrentSession()
-                .createSQLQuery("select users.nickname from users where nickname like '%" + userNickName + "%'");
+                .createSQLQuery("select users.nickname from users where nickname!='" + currentUserNickName + "' and nickname like '%" + userNickName + "%'");
         return query.list();
     }
 
