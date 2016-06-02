@@ -1,5 +1,7 @@
 package ftp.core.websocket.dto;
 
+import ftp.core.websocket.handler.Handlers;
+
 /**
  * Created by Kosta_Chuturkov on 2/24/2016.
  */
@@ -11,12 +13,12 @@ public class JsonResponse {
 
     private String error;
 
-    public JsonResponse(){
+    public JsonResponse() {
 
     }
 
-    public JsonResponse(final String responseMethod, final String result) {
-        this.responseMethod = responseMethod;
+    public JsonResponse(final Handlers handlers, final String result) {
+        this.responseMethod = handlers.getHandlerName();
         this.result = result;
     }
 

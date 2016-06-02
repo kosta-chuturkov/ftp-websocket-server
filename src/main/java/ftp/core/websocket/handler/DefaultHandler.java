@@ -17,11 +17,11 @@ public class DefaultHandler implements JsonTypedHandler {
     public JsonResponse getJsonResponse(final JsonRequest jsonRequest) {
         final JsonObject response = new JsonObject();
         response.addProperty("error", "Method not supported.");
-        return new JsonResponse(jsonRequest.getMethod(), response.toString());
+        return new JsonResponse(Handlers.DEFAULT_HANDLER, response.toString());
     }
 
     @Override
-    public String getHandlerType() {
-        return HandlerNames.DEFAULT_HANDLER_NAME;
+    public Handlers getHandlerType() {
+        return Handlers.DEFAULT_HANDLER;
     }
 }

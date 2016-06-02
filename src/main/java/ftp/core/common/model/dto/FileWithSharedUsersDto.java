@@ -8,7 +8,7 @@ import java.util.TreeSet;
 /**
  * Created by Kosta_Chuturkov on 3/30/2016.
  */
-public class FileWithSharedUsersDto extends MainPageFileDto {
+public class FileWithSharedUsersDto extends UploadedFileDto {
 
     private final Set<String> sharedToUsers = new TreeSet<>();
 

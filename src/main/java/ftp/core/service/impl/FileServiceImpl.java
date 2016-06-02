@@ -1,24 +1,20 @@
 package ftp.core.service.impl;
 
-import com.google.gson.Gson;
 import ftp.core.common.model.AbstractEntity;
 import ftp.core.common.model.File;
 import ftp.core.common.model.File.FileType;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
-import ftp.core.common.model.dto.MainPageFileDto;
+import ftp.core.common.model.dto.SharedFileDto;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.persistance.face.dao.FileDao;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
-import ftp.core.websocket.dto.JsonResponse;
-import ftp.core.websocket.handler.HandlerNames;
+import ftp.core.websocket.handler.Handlers;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
-import reactor.bus.Event;
-import reactor.bus.EventBus;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -35,10 +31,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     private UserService userService;
 
     @Resource
-    private EventBus eventBus;
-
-    @Resource
-    private Gson gson;
+    private EventService eventService;
 
     @Override
     public File getFileByDownloadHash(final String downloadHash) {
@@ -90,9 +83,9 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
                 final User userToShareTheFileWith = this.userService.checkAndGetUserToSendFilesTo(userToSendFilesTo);
                 addUserToFile(savedFileId, userToShareTheFileWith.getNickName());
                 this.userService.addFileToUser(savedFileId, currentUser.getId());
-                final FileDto fileDto = new MainPageFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
-                        file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-                this.eventBus.notify(userToSendFilesTo, Event.wrap(new JsonResponse(HandlerNames.SHARED_FILE_HANDLER, this.gson.toJson(fileDto))));
+                final FileDto fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                        file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
+                this.eventService.fireSharedFileEvent(userToSendFilesTo, fileDto, Handlers.SHARED_FILE_HANDLER);
             }
         } else {
             throw new RuntimeException("Unable to add file!");
@@ -140,10 +133,11 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     }
 
     @Override
-    public void updateUsersForFile(final String fileHash, final Set<String> userNickNames) {
-        final File byDeleteHash = findByDeleteHash(fileHash, User.getCurrent().getNickName());
-        byDeleteHash.setSharedWithUsers(userNickNames);
-        update(byDeleteHash);
+    public File updateUsersForFile(final String fileHash, final Set<String> userNickNames) {
+        final File file = findByDeleteHash(fileHash, User.getCurrent().getNickName());
+        file.setSharedWithUsers(userNickNames);
+        update(file);
+        return file;
     }
 
 }

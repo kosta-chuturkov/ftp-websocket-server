@@ -30,5 +30,5 @@ public interface FileService extends GenericService<File, Long> {
 
     File findWithSharedUsers(Long fileId);
 
-    void updateUsersForFile(final String fileHash, final Set<String> userNickNames);
+    File updateUsersForFile(final String fileHash, final Set<String> userNickNames);
 }

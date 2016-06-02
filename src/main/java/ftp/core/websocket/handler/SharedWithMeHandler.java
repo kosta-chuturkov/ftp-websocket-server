@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
-import ftp.core.common.model.dto.MainPageFileDto;
+import ftp.core.common.model.dto.SharedFileDto;
 import ftp.core.exception.JsonException;
 import ftp.core.service.face.JsonService;
 import ftp.core.service.face.tx.FileService;
@@ -49,15 +49,15 @@ public class SharedWithMeHandler implements JsonTypedHandler {
         final Integer maxResultsAsInt = maxResults.getAsInt();
         final List<File> files = this.fileService.getSharedFilesForUser(nickName, firstResultAsInt, maxResultsAsInt);
         for (final File file : files) {
-            final FileDto fileDto = new MainPageFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
-                    file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
+            final FileDto fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                    file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
             fileDtos.add(fileDto);
         }
         return this.jsonService.getJsonResponse(method, fileDtos);
     }
 
     @Override
-    public String getHandlerType() {
-        return HandlerNames.SHARED_FILE_HANDLER;
+    public Handlers getHandlerType() {
+        return Handlers.SHARED_FILE_HANDLER;
     }
 }

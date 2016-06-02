@@ -65,7 +65,7 @@ public class SharedWithUsersFilesHandler implements JsonTypedHandler {
     }
 
     @Override
-    public String getHandlerType() {
-        return HandlerNames.SHARED_FILES_WITH_USERS;
+    public Handlers getHandlerType() {
+        return Handlers.SHARED_FILES_WITH_USERS_HANDLER;
     }
 }

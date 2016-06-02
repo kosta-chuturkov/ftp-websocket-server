@@ -1,6 +1,5 @@
 package ftp.core.service.face;
 
-import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
 
 /**
@@ -9,6 +8,4 @@ import ftp.core.websocket.dto.JsonResponse;
 public interface JsonService {
 
     JsonResponse getJsonResponse(final String method, final Object data);
-
-    JsonResponse getPagedDataByRange(final JsonRequest jsonRequest, final Object data);
 }

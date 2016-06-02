@@ -7,13 +7,16 @@ import com.google.gson.JsonObject;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
-import ftp.core.common.model.dto.MainPageFileDto;
 import ftp.core.common.model.dto.ModifiedUsersDto;
+import ftp.core.common.model.dto.SharedFileDto;
+import ftp.core.common.model.dto.UploadedFileDto;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
+import ftp.core.service.impl.EventService;
+import ftp.core.websocket.handler.Handlers;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -35,6 +38,8 @@ public class JspPageRestController {
     private UserService userService;
     @Resource
     private FileService fileService;
+    @Resource
+    private EventService eventService;
 
     @RequestMapping(value = {"/files/shared/*"}, method = RequestMethod.POST)
     public List<FileDto> getSharedFiles(final HttpServletRequest request, final HttpServletResponse response,
@@ -50,7 +55,7 @@ public class JspPageRestController {
             User.setCurrent(current);
             final List<File> files = this.fileService.getSharedFilesForUser(current.getNickName(), firstResult, maxResults);
             for (final File file : files) {
-                final FileDto fileDto = new MainPageFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                final FileDto fileDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                         file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
                 fileDtos.add(fileDto);
             }
@@ -73,7 +78,7 @@ public class JspPageRestController {
             User.setCurrent(current);
             final List<File> files = this.fileService.getPrivateFilesForUser(current.getNickName(), firstResult, maxResults);
             for (final File file : files) {
-                final FileDto fileDto = new MainPageFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                final FileDto fileDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                         file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
                 fileDtos.add(fileDto);
             }
@@ -96,7 +101,7 @@ public class JspPageRestController {
             final List<Long> files = this.fileService.getSharedFilesWithUsersIds(current.getId(), firstResult, maxResults);
             for (final Long fileId : files) {
                 final File file = this.fileService.findWithSharedUsers(fileId);
-                final FileDto fileDto = new MainPageFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                final FileDto fileDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                         file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
                 fileDtos.add(fileDto);
             }
@@ -184,7 +189,12 @@ public class JspPageRestController {
                 userNickNames.add(escapedUserName);
             }
 
-            this.fileService.updateUsersForFile(fileHash, userNickNames);
+            final File file = this.fileService.updateUsersForFile(fileHash, userNickNames);
+            final FileDto fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                    file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
+            for (final String userNickName : userNickNames) {
+                this.eventService.fireSharedFileEvent(userNickName, fileDto, Handlers.SHARED_FILE_HANDLER);
+            }
         }
     }
 

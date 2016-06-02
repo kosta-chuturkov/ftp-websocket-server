@@ -5,6 +5,7 @@ import ftp.core.common.model.User;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.listener.SessionToConsumerMapper;
 import ftp.core.reactor.NewFileSharedReciver;
+import ftp.core.service.impl.EventService;
 import ftp.core.websocket.api.JsonTypedHandler;
 import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
@@ -14,11 +15,8 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import reactor.bus.EventBus;
 
 import javax.annotation.Resource;
-
-import static reactor.bus.selector.Selectors.$;
 
 /**
  * Created by Kosta_Chuturkov on 2/23/2016.
@@ -34,7 +32,7 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
     private Gson gson;
 
     @Resource
-    private EventBus eventBus;
+    private EventService eventService;
 
     @Resource
     private SessionToConsumerMapper sessionToConsumerMapper;
@@ -44,7 +42,8 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
         final Object currentUser = session.getAttributes().get(ServerConstants.CURRENT_USER);
         if (currentUser != null) {
             final NewFileSharedReciver newFileSharedReciver = new NewFileSharedReciver(session, this.gson);
-            this.eventBus.on($(((User) currentUser).getNickName()), newFileSharedReciver);
+            final String currentUserNickName = ((User) currentUser).getNickName();
+            this.eventService.listen(currentUserNickName, newFileSharedReciver);
         }
     }
 

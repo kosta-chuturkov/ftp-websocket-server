@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
-import ftp.core.common.model.dto.MainPageFileDto;
+import ftp.core.common.model.dto.UploadedFileDto;
 import ftp.core.exception.JsonException;
 import ftp.core.service.face.JsonService;
 import ftp.core.service.face.tx.FileService;
@@ -49,7 +49,7 @@ public class PrivateFilesHandler implements JsonTypedHandler {
         final Integer maxResultsAsInt = maxResults.getAsInt();
         final List<File> files = this.fileService.getPrivateFilesForUser(nickName, firstResultAsInt, maxResultsAsInt);
         for (final File file : files) {
-            final FileDto fileDto = new MainPageFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+            final FileDto fileDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                     file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
             fileDtos.add(fileDto);
         }
@@ -58,7 +58,7 @@ public class PrivateFilesHandler implements JsonTypedHandler {
 
 
     @Override
-    public String getHandlerType() {
-        return HandlerNames.PRIVATE_FILE_HANDLER;
+    public Handlers getHandlerType() {
+        return Handlers.PRIVATE_FILE_HANDLER;
     }
 }
