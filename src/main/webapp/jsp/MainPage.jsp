@@ -13,6 +13,7 @@
 	final String host = (String) session.getAttribute("host");
 	final String storage = (String) session.getAttribute("storage");
 	final String maxStorage = (String) session.getAttribute("maxStorage");
+	final String profilePictureAddress = (String) session.getAttribute("profilePictureAddress");
 	final Object portObj = session.getAttribute("port");
 
 	    if (user == null || hash == null || host== null || portObj == null) {
@@ -29,6 +30,9 @@
       <script type="text/javascript" src="<c:url value="/resources/js/anchor.min.js"/>"></script>
       <link href="<c:url value="/resources/css/bootstrap.css" />" type="text/css" rel="stylesheet">
       <link href="<c:url value="/resources/css/select2.min.css" />" type="text/css" rel="stylesheet">
+
+      <link href="<c:url value="/resources/css/font-awesome.css" />" type="text/css" rel="stylesheet">
+      <link href="<c:url value="/resources/css/s2-docs.css" />" type="text/css" rel="stylesheet">
   <script type="text/javascript">
   $(".js-example-basic-multiple").select2();
   </script>
@@ -110,14 +114,14 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 	border: 0;
 	outline: 0;
 	font-size: 100%;
-	vertical-align: baseline;
+	vertical-align: bottom;
 	background: transparent;
 	margin: 0;
 	padding: 0;
 }
 
 body {
-	line-height: 1;
+	line-height: 1.5;
 	background-color: #D8D8D8;
 	text-align: center;
 	font-family: Tahoma, sans-serif;
@@ -165,10 +169,11 @@ table {
 
 .right {
 	float: right;
+	overflow: hidden; /* will contain if #first is longer than #second */
 }
 
 #toplinks {
-	height: 34px;
+	height: 51px;
 	background: #FFFFFF;
 	text-align: left;
 	position: relative;
@@ -197,7 +202,8 @@ table {
 }
 
 #toplinks .right {
-	padding-right: 20px;
+	padding-right: 15px;
+	overflow: hidden; /* will contain if #first is longer than #second */
 }
 
 a,:focus {
@@ -211,6 +217,7 @@ p,:focus {
 		position: absolute;
 		width:400px;
 }
+
 </style>
 <style>
 .updateBtn {
@@ -308,15 +315,16 @@ p,:focus {
 			<!--TOP LINKS-->
 			<div id="toplinks">
 				<div class="left">
-					<strong>Cloud Server Main Page</strong> &nbsp;|&nbsp; <a
+					<strong>Cloud Server Main Page</strong> &nbsp;|&nbsp; <a class="uploadButton"
 						href="<c:url value="/upload" />"><strong>Upload Files</strong></a>&nbsp;|&nbsp;
 						<strong><%=user%></strong>&nbsp;|&nbsp;
 						&nbsp;|&nbsp;<label id="storageInfo"><%=storage%> left from <%=maxStorage%>.</label>
 				</div>
 				<div class="right">
-				<a href="<c:url value="/logout" />"><h4>Logout</h4></a>
+				<img id="profilePicImageElement" src="<%=profilePictureAddress%>" style="width:50px;height:50px;" onclick="openUploadDialog(this)">
+				<img src="<c:url value="/resources/images/logout.png" />" onclick="logout()" style="width:50px;height:50px;float:right;">
 				</div>
-				
+				<form id="imageUploadForm" method="POST" enctype="multipart/form-data" action="<c:url value="/profilePicUpdate" />"><input id="fileInputEl" type="file" name="files[]" style="visibility: hidden;" /></form>
 			</div>
 			<div id="siteContent">
 				<div class="tabs">
@@ -386,6 +394,7 @@ p,:focus {
     var deleteUrl = serverAddress + "<c:url value="/files/delete/" />";
     var updateUsersUrl = serverAddress + "<c:url value="/files/updateUsers/" />";
     var downloadUrl = serverAddress + "<c:url value="/files/" />";
+    var profilePicUpdateUrl = serverAddress + "<c:url value="/profilePicUpdate/" />";
     var ws = null;
     var getSharedFilesMethod = 'getSharedFiles';
     var getSharedWithUsersMethod = 'getSharedWithUsersFiles';
@@ -649,16 +658,54 @@ p,:focus {
 
         }
 
-function formatRepo (repo) {
+        function logout(){
+          var req = new XMLHttpRequest();
+          req.open("GET","<c:url value="/logout"/>", true);
+          req.withCredentials = true;
+          req.send();
+          window.location.replace("<c:url value="/login"/>");
+        }
+
+        function openUploadDialog(obj){
+            $('input[type=file]').click();
+        }
+
+        function submitForm() {
+            uploadProfPic();
+         }
+
+
+     function formatRepo (repo) {
       if (repo.loading) return repo.text;
-
-      var markup = "<div class='select2-result-repository__title'>" + repo.full_name + "</div>";
-
+      var markup = "<div class='select2-result-repository clearfix'>" +
+        "<div class='select2-result-repository__avatar'><img src='" + repo.owner.avatar_url + "' /></div>" +
+        "<div class='select2-result-repository__meta'>" +
+          "<div class='select2-result-repository__title'>" + repo.full_name + "</div></div></div>";
       return markup;
     }
 
         function formatRepoSelection (repo) {
           return repo.full_name || repo.text;
+        }
+
+        function uploadProfPic(){
+        var formData = new FormData();
+        var fileInputElement = $('input[type=file]')[0].files[0];
+        formData.append("files[]", fileInputElement);
+
+        var request = new XMLHttpRequest();
+         request.onreadystatechange = function()
+            {
+                if (request.readyState == 4 && request.status == 200)
+                {
+                    var newImageUrl = JSON.parse(request.responseText);
+                    var imageUrl = newImageUrl.imageUrl;
+                    $("#profilePicImageElement").attr("src", imageUrl);
+                }
+            };
+        request.open("POST", profilePicUpdateUrl);
+        request.send(formData);
+
         }
 
      function applySelect2(){
@@ -704,6 +751,11 @@ function formatRepo (repo) {
     		},writable:false,enumerable:false});
     	createEventListeners();
         establishConnection();
+
+        $('input[type=file]').change(function(ev) {
+          submitForm();
+        });
+
     };
 </script>
 </body>

@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import static ftp.core.common.util.ServerUtil.getAvatarUrl;
+
 @RestController
 public class JspPageRestController {
 
@@ -128,6 +130,11 @@ public class JspPageRestController {
     @RequestMapping(value = {"/users*"}, method = RequestMethod.GET)
     public String usrs(final HttpServletRequest request, final HttpServletResponse response,
                        @NotNull @ModelAttribute("q") final String userNickName) throws IOException {
+        final int port = request.getServerPort();
+        final String host = request.getServerName();
+        final String serverContextAddress = ServerUtil.getProtocol(request) + host + ":" + port;
+
+        final String profilePicAddress = serverContextAddress + ServerConstants.PROFILE_PIC_ALIAS;
         final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
         final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
         final User current = this.userService.findByEmailAndPassword(email, password);
@@ -143,6 +150,10 @@ public class JspPageRestController {
                 final JsonObject userObject = new JsonObject();
                 userObject.addProperty("id", user);
                 userObject.addProperty("full_name", user);
+                final JsonObject owner = new JsonObject();
+                owner.addProperty("id", Math.random());
+                owner.addProperty("avatar_url", getAvatarUrl(serverContextAddress, profilePicAddress, user));
+                userObject.add("owner", owner);
                 jsonArrayWrapper.add(userObject);
             }
             jsonResponse.addProperty("total_count", users.size());
@@ -151,6 +162,7 @@ public class JspPageRestController {
         }
         return jsonResponse.toString();
     }
+
 
     @RequestMapping(value = {
             ServerConstants.FILES_ALIAS + ServerConstants.UPDATE_ALIAS + "/{fileHash}"}, method = RequestMethod.POST, consumes = "application/json")

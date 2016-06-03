@@ -82,6 +82,10 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.5.0'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.5.0'
 
+    // http://mvnrepository.com/artifact/net.coobird/thumbnailator
+    compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
+
+
 
 
 }

@@ -13,6 +13,8 @@ public class ServerConfigurator {
 
     public static Map<String, String> CONTENT_TYPES;
 
+    private static File profilePicsFolder;
+
     private static File serverStorageFile;
 
     private ServerConfigurator() {
@@ -26,6 +28,18 @@ public class ServerConfigurator {
         TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
         createServerStorage();
         fillContentTypeTable();
+        createImagesFolder();
+    }
+
+    private void createImagesFolder() {
+        profilePicsFolder = new File(serverStorageFile, ServerConstants.PROFILE_PIC_FOLDER);
+        createUserDirIfNotExist(profilePicsFolder);
+    }
+
+    private void createUserDirIfNotExist(final File clientDir) {
+        if (!clientDir.exists()) {
+            clientDir.mkdir();
+        }
     }
 
     private void createServerStorage() {
@@ -33,6 +47,10 @@ public class ServerConfigurator {
         if (!serverStorageFile.exists()) {
             serverStorageFile.mkdir();
         }
+    }
+
+    public static File getProfilePicsFolder() {
+        return profilePicsFolder;
     }
 
     private void fillContentTypeTable() {

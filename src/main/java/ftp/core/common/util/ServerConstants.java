@@ -19,6 +19,10 @@ public interface ServerConstants {
 
     public static final String FILES_ALIAS = "/files/";
 
+    public static final String PROFILE_PIC_ALIAS = "/profilePic/";
+
+    public static final String PROFILE_PIC_FOLDER = "profilePictures";
+
     public static final String DELETE_ALIAS = "delete/";
 
     public static final String UPDATE_ALIAS = "updateUsers/";
@@ -88,6 +92,8 @@ public interface ServerConstants {
     public static final String HOST = "host";
 
     public static final String PORT = "port";
+    
+    public static final String PROFILE_PICTURE_PARAM = "profilePictureAddress";
 
     public static final int ALL_ENTRIES = 0;
 
