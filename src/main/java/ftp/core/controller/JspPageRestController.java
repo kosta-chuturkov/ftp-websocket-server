@@ -1,22 +1,18 @@
 package ftp.core.controller;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
 import ftp.core.common.model.dto.ModifiedUsersDto;
-import ftp.core.common.model.dto.SharedFileDto;
 import ftp.core.common.model.dto.UploadedFileDto;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
 import ftp.core.service.face.tx.FileService;
-import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.impl.EventService;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -174,38 +170,11 @@ public class JspPageRestController {
                 ServerUtil.sendJsonErrorResponce(response, "You must login first.");
             } else {
                 User.setCurrent(current);
-                updateUsers0(deleteHash, modifiedUsersDto);
+                this.fileService.updateUsers(deleteHash, modifiedUsersDto);
             }
         } catch (final Exception e) {
             logger.error("errror occured", e);
             ServerUtil.sendJsonErrorResponce(response, e.getMessage());
-        }
-    }
-
-    private void updateUsers0(final String deleteHash, final Set<ModifiedUsersDto> modifiedUsersDto) {
-        final Set<String> userNickNames = Sets.newHashSet();
-        if (modifiedUsersDto.size() == 1 && modifiedUsersDto.iterator().next().getName() == null) {
-            this.fileService.updateUsersForFile(deleteHash, userNickNames);
-        } else {
-            for (final ModifiedUsersDto usersDto : modifiedUsersDto) {
-                final String name = usersDto.getName();
-                final String escapedUserName = StringEscapeUtils.escapeSql(name);
-                final User userByNickName = this.userService.getUserByNickName(escapedUserName);
-                if (userByNickName == null) {
-                    throw new FtpServerException("Wrong parameters");
-                }
-                if (escapedUserName.equals(User.getCurrent().getNickName())) {
-                    throw new FtpServerException("Cant share file with yourself.");
-                }
-                userNickNames.add(escapedUserName);
-            }
-
-            final File file = this.fileService.updateUsersForFile(deleteHash, userNickNames);
-            final FileDto fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
-                    file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-            for (final String userNickName : userNickNames) {
-                this.eventService.fireSharedFileEvent(userNickName, fileDto);
-            }
         }
     }
 

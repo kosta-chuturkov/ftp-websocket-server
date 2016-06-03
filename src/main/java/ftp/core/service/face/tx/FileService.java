@@ -1,6 +1,7 @@
 package ftp.core.service.face.tx;
 
 import ftp.core.common.model.File;
+import ftp.core.common.model.dto.ModifiedUsersDto;
 import ftp.core.persistance.face.generic.service.GenericService;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public interface FileService extends GenericService<File, Long> {
 
     void addUserToFile(Long fileId, String userToAdd);
 
-    void createFileRecord(String fileNameEscaped, long timestamp, int modifier, String userToSendFilesTo, long fileSize,
+    void createFileRecord(String fileNameEscaped, long timestamp, int modifier, Set<String> users, long fileSize,
                           String deleteHash, String downloadHash);
 
     boolean isUserFromFileSharedUsers(Long fileId, String nickName);
@@ -31,4 +32,6 @@ public interface FileService extends GenericService<File, Long> {
     File findWithSharedUsers(Long fileId);
 
     File updateUsersForFile(final String fileHash, final Set<String> userNickNames);
+
+    void updateUsers(final String deleteHash, final Set<ModifiedUsersDto> modifiedUsersDto);
 }

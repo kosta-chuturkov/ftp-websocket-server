@@ -1,7 +1,7 @@
 package ftp.core.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.common.collect.Sets;
+import com.google.gson.*;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.JsonFileResponseDtoWrapper;
 import ftp.core.common.util.ServerConstants;
@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 import static ftp.core.common.util.ServerUtil.getProtocol;
 
@@ -118,7 +119,7 @@ public class UploadController {
     @RequestMapping(value = {"/upload**"}, method = RequestMethod.POST)
     public String uploadFile(final HttpServletRequest request, final HttpServletResponse response,
                              @RequestParam("files[]") final MultipartFile file, @RequestParam("modifier") final String modifier,
-                             @RequestParam("nickName") final String nickName) throws IOException {
+                             @RequestParam("nickName") final String userNickNames) throws IOException {
         final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
         final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
         final User current = this.userService.findByEmailAndPassword(email, password);
@@ -141,7 +142,17 @@ public class UploadController {
                     final String serverFileName = tempFileName + "_" + fileName;
                     final String deleteHash = ServerUtil.hash(ServerUtil.hash(serverFileName + token) + ServerConstants.DELETE_SALT);
                     final String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
-                    this.fileService.createFileRecord(fileName, currentTime, getModifier(modifier), nickName, file.getSize(),
+
+                    final JsonParser parser = new JsonParser();
+                    final JsonElement elem = parser.parse(userNickNames);
+                    final JsonArray asJsonArray = elem.getAsJsonArray();
+                    final Set<String> users = Sets.newHashSet();
+                    for (final JsonElement jsonElement : asJsonArray) {
+                        final String name = jsonElement.getAsJsonObject().get("name").getAsString();
+                        users.add(name);
+                    }
+
+                    this.fileService.createFileRecord(fileName, currentTime, getModifier(modifier), users, file.getSize(),
                             deleteHash, downloadHash);
                     final File userFolder = getUserFolder(current.getEmail());
                     final File targetFile = new File(userFolder, serverFileName);

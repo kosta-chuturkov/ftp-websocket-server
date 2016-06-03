@@ -8,6 +8,7 @@ import ftp.core.common.model.File.FileType;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.DeletedFileDto;
 import ftp.core.common.model.dto.FileDto;
+import ftp.core.common.model.dto.ModifiedUsersDto;
 import ftp.core.common.model.dto.SharedFileDto;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.persistance.face.dao.FileDao;
@@ -16,6 +17,7 @@ import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -61,7 +63,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     }
 
 
-    public void createFileRecord(final String fileNameEscaped, final long timestamp, final int modifier, final String userToSendFilesTo,
+    public void createFileRecord(final String fileNameEscaped, final long timestamp, final int modifier, final Set<String> users,
                                  final long fileSize, final String deleteHash, final String downloadHash) {
         final User currentUser = User.getCurrent();
         final long remainingStorage = currentUser.getRemainingStorage();
@@ -82,12 +84,14 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
         if (savedFileId != null) {
             this.userService.updateRemainingStorageForUser(fileSize, currentUser.getId(), remainingStorage);
             if (modifier == FileType.SHARED.getType()) {
-                final User userToShareTheFileWith = this.userService.checkAndGetUserToSendFilesTo(userToSendFilesTo);
-                addUserToFile(savedFileId, userToShareTheFileWith.getNickName());
-                this.userService.addFileToUser(savedFileId, currentUser.getId());
-                final FileDto fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
-                        file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-                this.eventService.fireSharedFileEvent(userToSendFilesTo, fileDto);
+                for (final String user : users) {
+                    final User userToShareTheFileWith = this.userService.checkAndGetUserToSendFilesTo(user);
+                    addUserToFile(savedFileId, userToShareTheFileWith.getNickName());
+                    this.userService.addFileToUser(savedFileId, currentUser.getId());
+                    final FileDto fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                            file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
+                    this.eventService.fireSharedFileEvent(user, fileDto);
+                }
             }
         } else {
             throw new RuntimeException("Unable to add file!");
@@ -147,6 +151,34 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
         update(file);
         this.eventService.fireRemovedFileEvent(Lists.newArrayList(persistentSharedToUsers), new DeletedFileDto(downloadHash));
         return file;
+    }
+
+    @Override
+    public void updateUsers(final String deleteHash, final Set<ModifiedUsersDto> modifiedUsersDto) {
+        final Set<String> userNickNames = Sets.newHashSet();
+        if (modifiedUsersDto.size() == 1 && modifiedUsersDto.iterator().next().getName() == null) {
+            updateUsersForFile(deleteHash, userNickNames);
+        } else {
+            for (final ModifiedUsersDto usersDto : modifiedUsersDto) {
+                final String name = usersDto.getName();
+                final String escapedUserName = StringEscapeUtils.escapeSql(name);
+                final User userByNickName = this.userService.getUserByNickName(escapedUserName);
+                if (userByNickName == null) {
+                    throw new FtpServerException("Wrong parameters");
+                }
+                if (escapedUserName.equals(User.getCurrent().getNickName())) {
+                    throw new FtpServerException("Cant share file with yourself.");
+                }
+                userNickNames.add(escapedUserName);
+            }
+
+            final File file = updateUsersForFile(deleteHash, userNickNames);
+            final FileDto fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                    file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
+            for (final String userNickName : userNickNames) {
+                this.eventService.fireSharedFileEvent(userNickName, fileDto);
+            }
+        }
     }
 
 }

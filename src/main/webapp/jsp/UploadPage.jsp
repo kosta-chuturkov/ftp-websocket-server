@@ -60,9 +60,10 @@
 			position: absolute;
 		}
 
-		#nickName {
-			position: absolute;
-		}
+		.js-data-example-ajax {
+        		position: absolute;
+        		width:400px;
+        }
 	</style>
 	<!-- Bootstrap styles -->
 
@@ -80,6 +81,16 @@
 		  href="<c:url value="/resources/css/jquery.fileupload-ui.css" />">
 	<!-- CSS adjustments for browsers with JavaScript disabled -->
 	<link rel="stylesheet" href="<c:url value="/resources/css/jquery-ui.css" />">
+    <script type="text/javascript" src="<c:url value="/resources/js/jquery.min.js" />"></script>
+          <script type="text/javascript" src="<c:url value="/resources/js/select2.full.js" />"></script>
+          <script type="text/javascript" src="<c:url value="/resources/js/bootstrap.min.js" />"></script>
+          <script type="text/javascript" src="<c:url value="/resources/js/prettify.min.js"/>"></script>
+          <script type="text/javascript" src="<c:url value="/resources/js/anchor.min.js"/>"></script>
+          <link href="<c:url value="/resources/css/bootstrap.css" />" type="text/css" rel="stylesheet">
+          <link href="<c:url value="/resources/css/select2.min.css" />" type="text/css" rel="stylesheet">
+
+          <link href="<c:url value="/resources/css/font-awesome.css" />" type="text/css" rel="stylesheet">
+          <link href="<c:url value="/resources/css/s2-docs.css" />" type="text/css" rel="stylesheet">
 	<noscript>
 		<link rel="stylesheet"
 			  href="<c:url value="/resources/css/jquery.fileupload-noscript.css" />">
@@ -125,7 +136,7 @@
 	<br>
 
 	<!-- The file upload form used as target for the file upload widget -->
-	<form id="fileupload" action="<c:url value="/upload" />" method="POST"
+	<form id="fileupload" action="<c:url value="/upload" />" onsubmit="changeNickNamesInputValue()" method="POST"
 		  enctype="multipart/form-data">
 		<!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
 		<div style="color: #222; padding: 10px;">
@@ -141,9 +152,8 @@
 							   class="css-checkbox"/><label for="radio3"
 															class="css-label radGroup2">Share
 						with:</label></td>
-					<td><input id="tags" onclick="javascript:Clear();"
-							   value="enter user name here..." onkeyup="doAjax(this.value)"
-							   name="nickName" style="width: 300px;"></td>
+					<td><select id="selectedUsers" class="js-data-example-ajax" multiple="multiple" tabindex="-1" aria-hidden="true"></select>
+					<input type="hidden" name="nickName" value=""></td>
 				</tr>
 			</table>
 		</div>
@@ -154,7 +164,7 @@
 							class="glyphicon glyphicon-plus"></i> <span>Add files...</span> <input
 							type="file" name="files[]" multiple>
 					</span>
-				<button type="submit" class="btn btn-primary start">
+				<button onclick="changeNickNamesInputValue()" type="submit" class="btn btn-primary start">
 					<i class="glyphicon glyphicon-upload"></i> <span>Start
 							upload</span>
 				</button>
@@ -224,7 +234,7 @@
         </td>
         <td>
             {% if (!i && !o.options.autoUpload) { %}
-                <button class="btn btn-primary start" disabled>
+                <button class="btn btn-primary start" onclick="changeNickNamesInputValue()" disabled>
                     <i class="glyphicon glyphicon-upload"></i>
                     <span>Start</span>
                 </button>
@@ -282,7 +292,6 @@
     </tr>
 {% } %}
 </script>
-<script src="<c:url value="/resources/js/jquery.min.js" />"></script>
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
 <script src="<c:url value="/resources/js/vendor/jquery.ui.widget.js" />"></script>
 <!-- The Templates plugin is included to render the upload/download listings -->
@@ -292,8 +301,6 @@
 <!-- The Canvas to Blob plugin is included for image resizing functionality -->
 <script src="<c:url value="/resources/js/canvas-to-blob.min.js" />"></script>
 <!-- Bootstrap JS is not required, but included for the responsive demo navigation -->
-<script
-		src="<c:url value="/resources/js/bootstrap.min.js" />"></script>
 <!-- blueimp Gallery script -->
 <script src="<c:url value="/resources/js/jquery.blueimp-gallery.min.js" />"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
@@ -327,30 +334,75 @@
 		document.getElementById("radio3").checked = true;
 	}
 
+	function formatRepo (repo) {
+          if (repo.loading) return repo.text;
+          var markup = "<div class='select2-result-repository clearfix'>" +
+            "<div class='select2-result-repository__avatar'><img src='" + repo.owner.avatar_url + "' /></div>" +
+            "<div class='select2-result-repository__meta'>" +
+              "<div class='select2-result-repository__title'>" + repo.full_name + "</div></div></div>";
+          return markup;
+    }
+
+    function formatRepoSelection (repo) {
+         return repo.full_name || repo.text;
+    }
+    function applySelect2(){
+        	$(".js-data-example-ajax").select2({
+            ajax: {
+            url: "<c:url value="/users" />",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+              return {
+                q: params.term, // search term
+                page: params.page
+              };
+            },
+            processResults: function (data, params) {
+              // parse the results into the format expected by Select2
+              // since we are using custom formatting functions we do not need to
+              // alter the remote JSON data, except to indicate that infinite
+              // scrolling can be used
+
+               params.page = params.page || 1;
+
+               return {
+                  results: data.items,
+                     pagination: {
+                        more: (params.page * 30) < data.total_count
+                     }
+              };
+            },
+            cache: true
+          },
+          escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+          minimumInputLength: 1,
+          templateResult: formatRepo, // omitted for brevity, see the source of this page
+          templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+        });
+        }
+        function changeNickNamesInputValue(){
+        var options = $('#selectedUsers').select2("val");
+        var values = [];
+           for(var i = 0; i < options.length; i++){
+            var usr = {};
+            usr.name = options[i];
+            values.push(usr);
+           }
+           $('input[name=nickName]').val(JSON.stringify(values));
+        }
+        function onSelectCheckSharedBox(){
+        $('.js-data-example-ajax').on("select2:selecting", function(e) {
+             document.getElementById("radio3").checked = true;
+
+         });
+        }
+        window.onload = function() {
+           applySelect2();
+           onSelectCheckSharedBox();
+        };
+
 </script>
 <script src="<c:url value="/resources/js/jquery-ui.js" />"></script>
-<script>
-	function doAjax(query) {
-		if (query == null || query == "") {
-			return;
-		}
-		$.ajax({
-			type: 'GET',
-			url: "<c:url value="/usr" />" + "?q=" + query,
-			dataType: 'json',
-			success: function (data) {
-				$("#tags").autocomplete({
-					source: data
-				});
-			},
-			complete: function (data) {
-			},
-			error: function (xhr, ajaxOptions, thrownError) {
-
-			}
-		});
-	}
-
-</script>
 </body>
 </html>
