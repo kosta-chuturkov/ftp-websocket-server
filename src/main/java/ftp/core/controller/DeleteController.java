@@ -1,11 +1,14 @@
 package ftp.core.controller;
 
+import com.google.common.collect.Lists;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
+import ftp.core.common.model.dto.DeletedFileDto;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
+import ftp.core.service.impl.EventService;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -16,6 +19,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Controller
 public class DeleteController {
@@ -25,6 +30,9 @@ public class DeleteController {
     private UserService userService;
     @Resource
     private FileService fileService;
+    @Resource
+    private EventService eventService;
+
 
     @RequestMapping(value = {
             ServerConstants.FILES_ALIAS + ServerConstants.DELETE_ALIAS + "*"}, method = RequestMethod.GET)
@@ -59,6 +67,10 @@ public class DeleteController {
         if (findByDeleteHash == null) {
             ServerUtil.sendJsonErrorResponce(response, "File does not exist.");
         } else {
+            final String downloadHash = findByDeleteHash.getDownloadHash();
+            final Set<String> sharedWithUsers = findByDeleteHash.getSharedWithUsers();
+            final List<String> usersToBeNotifiedFileDeleted = Lists.newArrayList(sharedWithUsers);
+            usersToBeNotifiedFileDeleted.add(current.getNickName());
             final long fileSize = findByDeleteHash.getFileSize();
             final String name = findByDeleteHash.getName();
             final Date timestamp = findByDeleteHash.getTimestamp();
@@ -73,6 +85,7 @@ public class DeleteController {
                     .concat("/").concat(timestamp.getTime() + "_" + name);
             final java.io.File fileToDelete = new java.io.File(deletePath);
             ServerUtil.deleteFile(fileToDelete);
+            this.eventService.fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
         }
     }
 

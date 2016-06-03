@@ -58,6 +58,6 @@ public class SharedWithMeHandler implements JsonTypedHandler {
 
     @Override
     public Handlers getHandlerType() {
-        return Handlers.SHARED_FILE_HANDLER;
+        return Handlers.FILES_SHARED_WITH_ME_HANDLER;
     }
 }

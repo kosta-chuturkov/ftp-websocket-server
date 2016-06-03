@@ -7,8 +7,8 @@ public enum Handlers {
 
     DEFAULT_HANDLER("DEFAULT"),
     PRIVATE_FILE_HANDLER("getPrivateFiles"),
-    SHARED_FILE_HANDLER("getSharedFiles"),
-    SHARED_FILES_WITH_USERS_HANDLER("getSharedWithUsersFiles"),
+    FILES_SHARED_WITH_ME_HANDLER("sharedFilesWithMe"),
+    FILES_I_SHARED_HANDLER("filesIShared"),
     DELETED_FILE("deletedFile");
 
     private final String handlerName;

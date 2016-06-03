@@ -16,7 +16,6 @@ import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.impl.EventService;
-import ftp.core.websocket.handler.Handlers;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -165,8 +164,8 @@ public class JspPageRestController {
 
 
     @RequestMapping(value = {
-            ServerConstants.FILES_ALIAS + ServerConstants.UPDATE_ALIAS + "/{fileHash}"}, method = RequestMethod.POST, consumes = "application/json")
-    public void updateUsers(final HttpServletRequest request, final HttpServletResponse response, @PathVariable final String fileHash, @RequestBody final Set<ModifiedUsersDto> modifiedUsersDto) {
+            ServerConstants.FILES_ALIAS + ServerConstants.UPDATE_ALIAS + "/{deleteHash}"}, method = RequestMethod.POST, consumes = "application/json")
+    public void updateUsers(final HttpServletRequest request, final HttpServletResponse response, @PathVariable final String deleteHash, @RequestBody final Set<ModifiedUsersDto> modifiedUsersDto) {
         try {
             final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
             final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
@@ -175,7 +174,7 @@ public class JspPageRestController {
                 ServerUtil.sendJsonErrorResponce(response, "You must login first.");
             } else {
                 User.setCurrent(current);
-                updateUsers0(fileHash, modifiedUsersDto);
+                updateUsers0(deleteHash, modifiedUsersDto);
             }
         } catch (final Exception e) {
             logger.error("errror occured", e);
@@ -183,10 +182,10 @@ public class JspPageRestController {
         }
     }
 
-    private void updateUsers0(final String fileHash, final Set<ModifiedUsersDto> modifiedUsersDto) {
+    private void updateUsers0(final String deleteHash, final Set<ModifiedUsersDto> modifiedUsersDto) {
         final Set<String> userNickNames = Sets.newHashSet();
         if (modifiedUsersDto.size() == 1 && modifiedUsersDto.iterator().next().getName() == null) {
-            this.fileService.updateUsersForFile(fileHash, userNickNames);
+            this.fileService.updateUsersForFile(deleteHash, userNickNames);
         } else {
             for (final ModifiedUsersDto usersDto : modifiedUsersDto) {
                 final String name = usersDto.getName();
@@ -201,11 +200,11 @@ public class JspPageRestController {
                 userNickNames.add(escapedUserName);
             }
 
-            final File file = this.fileService.updateUsersForFile(fileHash, userNickNames);
+            final File file = this.fileService.updateUsersForFile(deleteHash, userNickNames);
             final FileDto fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                     file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
             for (final String userNickName : userNickNames) {
-                this.eventService.fireSharedFileEvent(userNickName, fileDto, Handlers.SHARED_FILE_HANDLER);
+                this.eventService.fireSharedFileEvent(userNickName, fileDto);
             }
         }
     }

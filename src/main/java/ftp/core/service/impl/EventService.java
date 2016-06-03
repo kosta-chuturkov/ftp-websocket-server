@@ -1,6 +1,7 @@
 package ftp.core.service.impl;
 
 import com.google.gson.Gson;
+import ftp.core.common.model.dto.DeletedFileDto;
 import ftp.core.common.model.dto.FileDto;
 import ftp.core.websocket.dto.JsonResponse;
 import ftp.core.websocket.handler.Handlers;
@@ -10,6 +11,7 @@ import reactor.bus.EventBus;
 import reactor.fn.Consumer;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 import static reactor.bus.selector.Selectors.$;
 
@@ -26,9 +28,15 @@ public class EventService {
     private EventBus eventBus;
 
 
-    public void fireSharedFileEvent(final String topic, final FileDto fileDto, final Handlers handlers) {
-        this.eventBus.notify(topic, Event.wrap(new JsonResponse(handlers, this.gson.toJson(fileDto))));
+    public void fireSharedFileEvent(final String topic, final FileDto fileDto) {
+        this.eventBus.notify(topic, Event.wrap(new JsonResponse(Handlers.FILES_SHARED_WITH_ME_HANDLER, this.gson.toJson(fileDto))));
 
+    }
+
+    public void fireRemovedFileEvent(final List<String> usersToBeNotified, final DeletedFileDto deletedFileDto) {
+        for (final String userNickName : usersToBeNotified) {
+            this.eventBus.notify(userNickName, Event.wrap(new JsonResponse(Handlers.DELETED_FILE, this.gson.toJson(deletedFileDto))));
+        }
     }
 
     public <T> void listen(final String topic, final Consumer<Event<T>> consumer) {

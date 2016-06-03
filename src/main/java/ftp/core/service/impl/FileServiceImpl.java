@@ -1,9 +1,12 @@
 package ftp.core.service.impl;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import ftp.core.common.model.AbstractEntity;
 import ftp.core.common.model.File;
 import ftp.core.common.model.File.FileType;
 import ftp.core.common.model.User;
+import ftp.core.common.model.dto.DeletedFileDto;
 import ftp.core.common.model.dto.FileDto;
 import ftp.core.common.model.dto.SharedFileDto;
 import ftp.core.common.util.ServerConstants;
@@ -12,7 +15,6 @@ import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
-import ftp.core.websocket.handler.Handlers;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
@@ -85,7 +87,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
                 this.userService.addFileToUser(savedFileId, currentUser.getId());
                 final FileDto fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                         file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-                this.eventService.fireSharedFileEvent(userToSendFilesTo, fileDto, Handlers.SHARED_FILE_HANDLER);
+                this.eventService.fireSharedFileEvent(userToSendFilesTo, fileDto);
             }
         } else {
             throw new RuntimeException("Unable to add file!");
@@ -135,8 +137,15 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     @Override
     public File updateUsersForFile(final String fileHash, final Set<String> userNickNames) {
         final File file = findByDeleteHash(fileHash, User.getCurrent().getNickName());
+        if (file == null) {
+            throw new FtpServerException("File not found...");
+        }
+        final String downloadHash = file.getDownloadHash();
+        final Set<String> persistentSharedToUsers = Sets.newHashSet(file.getSharedWithUsers());
+        persistentSharedToUsers.removeAll(userNickNames);
         file.setSharedWithUsers(userNickNames);
         update(file);
+        this.eventService.fireRemovedFileEvent(Lists.newArrayList(persistentSharedToUsers), new DeletedFileDto(downloadHash));
         return file;
     }
 

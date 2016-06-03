@@ -349,7 +349,7 @@ p,:focus {
 						   </table>
 						</div>
 						<div id="SharedWithUsersTab" class="tab">
-                        	<table id="sharedWithUsersTable" border="1" cellpadding="2" width="1400">
+                        	<table id="filesISharedTable" border="1" cellpadding="2" width="1400">
                         	  <tr>
                         			<td><b>Id</b></td>
                         			<td><b>Name</b></td>
@@ -363,7 +363,7 @@ p,:focus {
                         	</table>
                         </div>
 						<div id="SharedTab" class="tab">
-							<table id="sharedFilesTable" border="1" cellpadding="2" width="1200">
+							<table id="filesSharedWithMeTable" border="1" cellpadding="2" width="1200">
 								<tr>
 									<td><b>Id</b></td>
 									<td><b>Name</b></td>
@@ -385,19 +385,22 @@ p,:focus {
 	var timeout;
 	var type = 2;
 	var maxResults = 30;
+	var downloadHashes = {};
     var currentPrivateID = 0;
     var currentSharedID = 0;
     var currentSharedToUsersID = 0;
     var privateRowCounter = 0;
-    var sharedRowCounter = 0;
+    var filesISharedCounter = 0;
+    var filesSharedWithMeCounter = 0;
     var serverAddress = location.protocol+'//' + '<%=host%>' + ":" + '<%=port%>';
     var deleteUrl = serverAddress + "<c:url value="/files/delete/" />";
     var updateUsersUrl = serverAddress + "<c:url value="/files/updateUsers/" />";
     var downloadUrl = serverAddress + "<c:url value="/files/" />";
     var profilePicUpdateUrl = serverAddress + "<c:url value="/profilePicUpdate/" />";
     var ws = null;
-    var getSharedFilesMethod = 'getSharedFiles';
-    var getSharedWithUsersMethod = 'getSharedWithUsersFiles';
+    var sharedFilesWithMeMethod = 'sharedFilesWithMe';
+    var filesISharedMethod = 'filesIShared';
+    var deletedFile = 'deletedFile';
     var getPrivateFilesMethod = 'getPrivateFiles';
     var url = null;
     var transports = [];
@@ -488,15 +491,15 @@ p,:focus {
     			firstResult: currentSharedToUsersID,
     			maxResults: maxResults
     		};
-    		callRemoteMethod(getSharedWithUsersMethod, params);
+    		callRemoteMethod(filesISharedMethod, params);
         }
-    
+
     function onSharedTabClick() {
 		var params = {
 			firstResult: currentSharedID,
 			maxResults: maxResults
 		};
-		callRemoteMethod(getSharedFilesMethod, params);
+		callRemoteMethod(sharedFilesWithMeMethod, params);
     }
 
     function Clear(element) {
@@ -505,19 +508,19 @@ p,:focus {
 
 	function addSharedFileRow(entry) {
 		var downloadLinkURL = downloadUrl + entry.downloadHash;
-		var tableName2 = "sharedFilesTable";
+		var tableName2 = "filesSharedWithMeTable";
 		var table2 = document.getElementById(tableName2);
 		var rowCount2 = table2.rows.length;
 		var size2 = parseInt(entry.size);
 		var row1 = table2.insertRow(rowCount2);
-		row1.insertCell(0).innerHTML = sharedRowCounter;
+		row1.insertCell(0).innerHTML = filesSharedWithMeCounter;
 		row1.insertCell(1).innerHTML = entry.name;
 		row1.insertCell(2).innerHTML = entry.timestamp;
 		row1.insertCell(3).innerHTML = size2.fileSize(1);
 		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
 		row1.insertCell(5).innerHTML = entry.sharingUserName;
-		sharedRowCounter++;
-
+		filesSharedWithMeCounter++;
+		return row1;
     }
      function getSelect(elements, currentItteration){
         var markup = '<select id="sharedSelect'+currentItteration+'" class="js-data-example-ajax" multiple="multiple" tabindex="-1" aria-hidden="true">'
@@ -530,7 +533,7 @@ p,:focus {
     function addSharedWithUsersRow(entry, currentItteration) {
             var usersSharingFile = entry.sharedToUsers;
     		var downloadLinkURL = downloadUrl + entry.downloadHash;
-    		var tableName2 = "sharedWithUsersTable";
+    		var tableName2 = "filesISharedTable";
     		var table2 = document.getElementById(tableName2);
     		var rowCount2 = table2.rows.length;
     		var size2 = parseInt(entry.size);
@@ -538,7 +541,7 @@ p,:focus {
     		var deleteLinkURL1 = deleteUrl + entry.deleteHash;
     		var updateUrl = updateUsersUrl + entry.deleteHash;
     		var selectName = 'sharedSelect'+currentItteration;
-    		row1.insertCell(0).innerHTML = sharedRowCounter;
+    		row1.insertCell(0).innerHTML = filesISharedCounter;
     		row1.insertCell(1).innerHTML = entry.name;
     		row1.insertCell(2).innerHTML = entry.timestamp;
     		row1.insertCell(3).innerHTML = size2.fileSize(1);
@@ -546,7 +549,7 @@ p,:focus {
     		row1.insertCell(5).innerHTML = '<input type="button" class="delbtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName2 + '\')">';
     		row1.insertCell(6).innerHTML = getSelect(usersSharingFile, currentItteration);
     		row1.insertCell(7).innerHTML = '<input type="button" class="updateBtn" value = "update" onClick="updateUsers(\'' + selectName +'\',\''+updateUrl+ '\')">';
-    		sharedRowCounter++;
+    		filesISharedCounter++;
         }
 
 
@@ -574,19 +577,35 @@ p,:focus {
         var index = obj.parentNode.parentNode.rowIndex;
         var table = document.getElementById(name);
         table.deleteRow(index);
-
+    }
+    function removeDeletedFileFromTable(obj,name) {
+        var index = obj.rowIndex;
+        var table = document.getElementById(name);
+        table.deleteRow(index);
     }
 
-	function addRowToTables(responseMethod, arrayLen, array, currentItteration) {
+
+	function dispatchRequest(responseMethod, arrayLen, array, currentItteration) {
 		if (responseMethod === getPrivateFilesMethod) {
 			currentPrivateID += arrayLen;
 			addPrivateFileRow(array);
-		} else if (responseMethod === getSharedFilesMethod) {
-			currentSharedID += arrayLen;
-			addSharedFileRow(array);
-		}else if (responseMethod === getSharedWithUsersMethod) {
+		} else if (responseMethod === sharedFilesWithMeMethod) {
+		    if(downloadHashes[array.downloadHash]){
+               return;
+            }else {
+			    currentSharedID += arrayLen;
+			    downloadHashes[array.downloadHash] = addSharedFileRow(array);
+			}
+		}else if (responseMethod === filesISharedMethod) {
         	currentSharedToUsersID += arrayLen;
         	addSharedWithUsersRow(array, currentItteration);
+        }else if(responseMethod === deletedFile){
+          var deletedFileId = array.deletedFileUid;
+          var deletedFileRow = downloadHashes[deletedFileId];
+          if(deletedFileRow){
+            removeDeletedFileFromTable(deletedFileRow, "filesSharedWithMeTable");
+            filesSharedWithMeCounter--;
+          }
         }
 	}
 	function getDataFromJSON(response) {
@@ -601,13 +620,15 @@ p,:focus {
 			var arrayLen = array.length;
 			for (var i = 0; i < array.length; i++) {
 				var entry = array[i];
-				addRowToTables(responseMethod, arrayLen, entry, i);
+				dispatchRequest(responseMethod, arrayLen, entry, i);
 			}
 		} else {
-			addRowToTables(responseMethod, 1, array, i);
+			dispatchRequest(responseMethod, 1, array, i);
 		}
     }
-   
+
+
+
 
     function deleteFileAndRemoveRow(path,obj,name) {
     	if (confirm("Are you sure you want to delete this file ?") != true) {
