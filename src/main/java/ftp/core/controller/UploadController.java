@@ -116,9 +116,9 @@ public class UploadController {
     }
 
     @RequestMapping(value = {"/upload**"}, method = RequestMethod.POST)
-    public String logIn(final HttpServletRequest request, final HttpServletResponse response,
-                        @RequestParam("files[]") final MultipartFile file, @RequestParam("modifier") final String modifier,
-                        @RequestParam("nickName") final String nickName) throws IOException {
+    public String uploadFile(final HttpServletRequest request, final HttpServletResponse response,
+                             @RequestParam("files[]") final MultipartFile file, @RequestParam("modifier") final String modifier,
+                             @RequestParam("nickName") final String nickName) throws IOException {
         final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
         final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
         final User current = this.userService.findByEmailAndPassword(email, password);

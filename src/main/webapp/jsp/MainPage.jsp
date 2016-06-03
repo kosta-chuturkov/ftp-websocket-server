@@ -338,7 +338,6 @@ p,:focus {
 						<div id="PrivateTab" class="tab active">
 							<table id="uploadedFilesTable" border="1" cellpadding="2" width="1200">
 							 <tr>
-								<td><b>Id</b></td>
 								<td><b>Name</b></td>
 								<td><b>Date</b></td>
 								<td><b>Size</b></td>
@@ -351,7 +350,6 @@ p,:focus {
 						<div id="SharedWithUsersTab" class="tab">
                         	<table id="filesISharedTable" border="1" cellpadding="2" width="1400">
                         	  <tr>
-                        			<td><b>Id</b></td>
                         			<td><b>Name</b></td>
                         			<td><b>Date</b></td>
                         			<td><b>Size</b></td>
@@ -365,7 +363,6 @@ p,:focus {
 						<div id="SharedTab" class="tab">
 							<table id="filesSharedWithMeTable" border="1" cellpadding="2" width="1200">
 								<tr>
-									<td><b>Id</b></td>
 									<td><b>Name</b></td>
 									<td><b>Date</b></td>
 									<td><b>Size</b></td>
@@ -513,12 +510,11 @@ p,:focus {
 		var rowCount2 = table2.rows.length;
 		var size2 = parseInt(entry.size);
 		var row1 = table2.insertRow(rowCount2);
-		row1.insertCell(0).innerHTML = filesSharedWithMeCounter;
-		row1.insertCell(1).innerHTML = entry.name;
-		row1.insertCell(2).innerHTML = entry.timestamp;
-		row1.insertCell(3).innerHTML = size2.fileSize(1);
-		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
-		row1.insertCell(5).innerHTML = entry.sharingUserName;
+		row1.insertCell(0).innerHTML = entry.name;
+		row1.insertCell(1).innerHTML = entry.timestamp;
+		row1.insertCell(2).innerHTML = size2.fileSize(1);
+		row1.insertCell(3).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">Download</a>';
+		row1.insertCell(4).innerHTML = entry.sharingUserName;
 		filesSharedWithMeCounter++;
 		return row1;
     }
@@ -541,14 +537,13 @@ p,:focus {
     		var deleteLinkURL1 = deleteUrl + entry.deleteHash;
     		var updateUrl = updateUsersUrl + entry.deleteHash;
     		var selectName = 'sharedSelect'+currentItteration;
-    		row1.insertCell(0).innerHTML = filesISharedCounter;
-    		row1.insertCell(1).innerHTML = entry.name;
-    		row1.insertCell(2).innerHTML = entry.timestamp;
-    		row1.insertCell(3).innerHTML = size2.fileSize(1);
-    		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
-    		row1.insertCell(5).innerHTML = '<input type="button" class="delbtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName2 + '\')">';
-    		row1.insertCell(6).innerHTML = getSelect(usersSharingFile, currentItteration);
-    		row1.insertCell(7).innerHTML = '<input type="button" class="updateBtn" value = "update" onClick="updateUsers(\'' + selectName +'\',\''+updateUrl+ '\')">';
+    		row1.insertCell(0).innerHTML = entry.name;
+    		row1.insertCell(1).innerHTML = entry.timestamp;
+    		row1.insertCell(2).innerHTML = size2.fileSize(1);
+    		row1.insertCell(3).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">Download</a>';
+    		row1.insertCell(4).innerHTML = '<input type="button" class="delbtn" value = "Delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName2 + '\')">';
+    		row1.insertCell(5).innerHTML = getSelect(usersSharingFile, currentItteration);
+    		row1.insertCell(6).innerHTML = '<input type="button" class="updateBtn" value = "Update" onClick="updateUsers(\'' + selectName +'\',\''+updateUrl+ '\')">';
     		filesISharedCounter++;
         }
 
@@ -563,13 +558,12 @@ p,:focus {
 		var size = parseInt(entry.size);
 		var downloadLinkURL = downloadUrl + entry.downloadHash;
 		var deleteLinkURL1 = deleteUrl + entry.deleteHash;
-		row1.insertCell(0).innerHTML = privateRowCounter;
-		row1.insertCell(1).innerHTML = entry.name;
-		row1.insertCell(2).innerHTML = entry.timestamp;
-		row1.insertCell(3).innerHTML = size.fileSize(1);
-		row1.insertCell(4).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">download</a>';
-		row1.insertCell(5).innerHTML = '<input type="button" class="delbtn" value = "delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName + '\')">';
-		row1.insertCell(6).innerHTML = entry.fileType;
+		row1.insertCell(0).innerHTML = entry.name;
+		row1.insertCell(1).innerHTML = entry.timestamp;
+		row1.insertCell(2).innerHTML = size.fileSize(1);
+		row1.insertCell(3).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">Download</a>';
+		row1.insertCell(4).innerHTML = '<input type="button" class="delbtn" value = "Delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName + '\')">';
+		row1.insertCell(5).innerHTML = entry.fileType;
 		privateRowCounter++;
 	}
 
@@ -578,7 +572,7 @@ p,:focus {
         var table = document.getElementById(name);
         table.deleteRow(index);
     }
-    function removeDeletedFileFromTable(obj,name) {
+    function removeDeletedFileFromTable(array,obj,name) {
         var index = obj.rowIndex;
         var table = document.getElementById(name);
         table.deleteRow(index);
@@ -603,7 +597,8 @@ p,:focus {
           var deletedFileId = array.deletedFileUid;
           var deletedFileRow = downloadHashes[deletedFileId];
           if(deletedFileRow){
-            removeDeletedFileFromTable(deletedFileRow, "filesSharedWithMeTable");
+            downloadHashes[array.deletedFileUid] = undefined;
+            removeDeletedFileFromTable(array,deletedFileRow, "filesSharedWithMeTable");
             filesSharedWithMeCounter--;
           }
         }

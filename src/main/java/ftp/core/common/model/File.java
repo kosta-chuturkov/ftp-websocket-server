@@ -24,7 +24,7 @@ public class File extends AbstractEntity<Long> {
 
     public static final int SHARED_FILE = 3;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "Nicknames", joinColumns = @JoinColumn(name = "file_id"))
     @Column(name = "nickname")
     private final Set<String> sharedWithUsers = Sets.newHashSet();
