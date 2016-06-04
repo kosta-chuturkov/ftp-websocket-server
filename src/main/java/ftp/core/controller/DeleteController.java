@@ -12,6 +12,7 @@ import ftp.core.service.impl.EventService;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -35,8 +36,8 @@ public class DeleteController {
 
 
     @RequestMapping(value = {
-            ServerConstants.FILES_ALIAS + ServerConstants.DELETE_ALIAS + "*"}, method = RequestMethod.GET)
-    public void deleteFiles(final HttpServletRequest request, final HttpServletResponse response) {
+            ServerConstants.FILES_ALIAS + ServerConstants.DELETE_ALIAS + "{deleteHash}"}, method = RequestMethod.GET)
+    public void deleteFiles(final HttpServletRequest request, final HttpServletResponse response, @PathVariable final String deleteHash) {
         try {
             final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
             final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
@@ -45,7 +46,7 @@ public class DeleteController {
                 ServerUtil.sendJsonErrorResponce(response, "You must login first.");
             } else {
                 User.setCurrent(current);
-                deleteFile(request, response);
+                deleteFile(request, response, deleteHash);
             }
         } catch (final Exception e) {
             logger.error("errror occured", e);
@@ -53,13 +54,7 @@ public class DeleteController {
         }
     }
 
-    private void deleteFile(final HttpServletRequest request, final HttpServletResponse response) {
-        final String path = request.getServletPath();
-        String deleteHash = "";
-        if (path != null) {
-            deleteHash = path.substring((ServerConstants.FILES_ALIAS + ServerConstants.DELETE_ALIAS).length(),
-                    path.length());
-        }
+    private void deleteFile(final HttpServletRequest request, final HttpServletResponse response, final String deleteHash) {
 
         final User current = User.getCurrent();
         final String nickName = current.getNickName();

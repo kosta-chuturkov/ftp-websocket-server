@@ -38,13 +38,18 @@ import static ftp.core.common.util.ServerUtil.getProtocol;
 public class UploadController {
 
     private static final Logger logger = Logger.getLogger(UploadController.class);
+
     @Resource
     private FileService fileService;
+
     @Resource
     private UserService userService;
 
     @Resource
     private Gson gson;
+
+    @Resource
+    private JsonParser jsonParser;
 
     @RequestMapping(value = {"/upload**"}, method = RequestMethod.GET)
     public ModelAndView getLoginPage(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
@@ -143,15 +148,7 @@ public class UploadController {
                     final String deleteHash = ServerUtil.hash(ServerUtil.hash(serverFileName + token) + ServerConstants.DELETE_SALT);
                     final String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
 
-                    final JsonParser parser = new JsonParser();
-                    final JsonElement elem = parser.parse(userNickNames);
-                    final JsonArray asJsonArray = elem.getAsJsonArray();
-                    final Set<String> users = Sets.newHashSet();
-                    for (final JsonElement jsonElement : asJsonArray) {
-                        final String name = jsonElement.getAsJsonObject().get("name").getAsString();
-                        users.add(name);
-                    }
-
+                    final Set<String> users = getFileSharedUsersAsSet(userNickNames);
                     this.fileService.createFileRecord(fileName, currentTime, getModifier(modifier), users, file.getSize(),
                             deleteHash, downloadHash);
                     final File userFolder = getUserFolder(current.getEmail());
@@ -182,6 +179,17 @@ public class UploadController {
             }
         }
         return geAstJsonObject(dtoWrapper).toString();
+    }
+
+    private Set<String> getFileSharedUsersAsSet(@RequestParam("nickName") final String userNickNames) {
+        final JsonElement elem = this.jsonParser.parse(userNickNames);
+        final JsonArray asJsonArray = elem.getAsJsonArray();
+        final Set<String> users = Sets.newHashSet();
+        for (final JsonElement jsonElement : asJsonArray) {
+            final String name = jsonElement.getAsJsonObject().get("name").getAsString();
+            users.add(name);
+        }
+        return users;
     }
 
     private JSONObject geAstJsonObject(final JsonFileResponseDtoWrapper dtoWrapper) {
