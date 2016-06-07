@@ -181,10 +181,11 @@ public class UploadController {
         return geAstJsonObject(dtoWrapper).toString();
     }
 
-    private Set<String> getFileSharedUsersAsSet(@RequestParam("nickName") final String userNickNames) {
+    private Set<String> getFileSharedUsersAsSet(final String userNickNames) {
+        final Set<String> users = Sets.newHashSet();
+        if (userNickNames.isEmpty()) return users;
         final JsonElement elem = this.jsonParser.parse(userNickNames);
         final JsonArray asJsonArray = elem.getAsJsonArray();
-        final Set<String> users = Sets.newHashSet();
         for (final JsonElement jsonElement : asJsonArray) {
             final String name = jsonElement.getAsJsonObject().get("name").getAsString();
             users.add(name);
