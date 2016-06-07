@@ -15,15 +15,15 @@ public class User extends AbstractEntity<Long> {
     private static final ThreadLocal<User> current = new ThreadLocal<>();
     @NotNull
     @NotEmpty
-    @Column(name = "nickname")
+    @Column(name = "nickname", length = 32)
     private String nickName;
     @NotNull
     @NotEmpty
-    @Column(name = "email")
+    @Column(name = "email", length = 32)
     private String email;
     @NotNull
     @NotEmpty
-    @Column(name = "pass")
+    @Column(name = "pass", length = 64)
     private String password;
     @Column(name = "remaining_storage")
     private long remainingStorage;

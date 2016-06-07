@@ -25,8 +25,8 @@ public class File extends AbstractEntity<Long> {
     public static final int SHARED_FILE = 3;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "Nicknames", joinColumns = @JoinColumn(name = "file_id"))
-    @Column(name = "nickname")
+    @CollectionTable(name = "file_shared_to_users", joinColumns = @JoinColumn(name = "file_id"))
+    @Column(name = "nickname", length = 32)
     private final Set<String> sharedWithUsers = Sets.newHashSet();
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -40,12 +40,12 @@ public class File extends AbstractEntity<Long> {
 
     @NotNull
     @NotEmpty
-    @Column(name = "download_hash", unique = true)
+    @Column(name = "download_hash", unique = true, length = 64)
     private String downloadHash;
 
     @NotNull
     @NotEmpty
-    @Column(name = "delete_hash", unique = true)
+    @Column(name = "delete_hash", unique = true, length = 64)
     private String deleteHash;
 
     @Column(name = "file_size")
