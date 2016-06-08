@@ -1,11 +1,11 @@
-package ftp.core.persistance.face.dao;
+package ftp.core.persistance.face.repository;
 
 import ftp.core.common.model.User;
-import ftp.core.persistance.face.generic.dao.GenericDao;
+import ftp.core.persistance.face.generic.repository.GenericRepository;
 
 import java.util.List;
 
-public interface UserDao extends GenericDao<User, Long> {
+public interface UserRepository extends GenericRepository<User, Long> {
 
     User findByEmailAndPassword(String email, String password);
 

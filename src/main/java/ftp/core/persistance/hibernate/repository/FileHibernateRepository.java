@@ -1,15 +1,15 @@
-package ftp.core.persistance.hibernate.dao;
+package ftp.core.persistance.hibernate.repository;
 
 import ftp.core.common.model.File;
-import ftp.core.persistance.face.dao.FileDao;
-import ftp.core.persistance.face.generic.dao.GenericHibernateDao;
+import ftp.core.persistance.face.generic.repository.GenericHibernateRepository;
+import ftp.core.persistance.face.repository.FileRepository;
 import org.hibernate.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class FileHibernateDao extends GenericHibernateDao<File, Long> implements FileDao {
+public class FileHibernateRepository extends GenericHibernateRepository<File, Long> implements FileRepository {
 
     @Override
     public File getFileByDownloadHash(final String downloadHash) {

@@ -4,8 +4,8 @@ import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
-import ftp.core.persistance.face.dao.FileDao;
-import ftp.core.persistance.face.dao.UserDao;
+import ftp.core.persistance.face.repository.FileRepository;
+import ftp.core.persistance.face.repository.UserRepository;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
@@ -20,14 +20,14 @@ import java.util.List;
 public class UserServiceImpl extends AbstractGenericService<User, Long> implements UserService {
 
     @Resource
-    private UserDao userDao;
+    private UserRepository userRepository;
 
     @Resource
-    private FileDao fileDao;
+    private FileRepository fileRepository;
 
     @Override
     public File addFileToUser(final Long fileId, final Long userId) {
-        final File file = this.fileDao.findOne(fileId);
+        final File file = this.fileRepository.findOne(fileId);
         if (file != null) {
             final User user = findOne(userId);
             user.addUploadedFile(file);
@@ -39,27 +39,27 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 
     @Override
     public User findByEmailAndPassword(final String email, final String password) {
-        return this.userDao.findByEmailAndPassword(email, password);
+        return this.userRepository.findByEmailAndPassword(email, password);
     }
 
     @Override
     public Long getTokenByEmail(final String email) {
-        return this.userDao.getTokenByEmail(email);
+        return this.userRepository.getTokenByEmail(email);
     }
 
     @Override
     public Long getRandomTokenFromDB() {
-        return this.userDao.getRandomTokenFromDB();
+        return this.userRepository.getRandomTokenFromDB();
     }
 
     @Override
     public User getUserByNickName(final String nickName) {
-        return this.userDao.getUserByNickName(nickName);
+        return this.userRepository.getUserByNickName(nickName);
     }
 
     @Override
     public User getUserByEmail(final String email) {
-        return this.userDao.getUserByEmail(email);
+        return this.userRepository.getUserByEmail(email);
     }
 
     public void updateRemainingStorageForUser(final long fileSize, final Long userId, long remainingStorage) {
@@ -87,7 +87,7 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 
     @Override
     public List<String> getUserByNickLike(final String userNickName) {
-        return this.userDao.getUserByNickLike(userNickName);
+        return this.userRepository.getUserByNickLike(userNickName);
     }
 
     @Override

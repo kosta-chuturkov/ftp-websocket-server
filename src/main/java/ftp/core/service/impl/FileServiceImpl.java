@@ -11,7 +11,7 @@ import ftp.core.common.model.dto.FileDto;
 import ftp.core.common.model.dto.ModifiedUsersDto;
 import ftp.core.common.model.dto.SharedFileDto;
 import ftp.core.common.util.ServerConstants;
-import ftp.core.persistance.face.dao.FileDao;
+import ftp.core.persistance.face.repository.FileRepository;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
@@ -29,7 +29,7 @@ import java.util.Set;
 public class FileServiceImpl extends AbstractGenericService<File, Long> implements FileService {
 
     @Resource
-    private FileDao fileDao;
+    private FileRepository fileRepository;
 
     @Resource
     private UserService userService;
@@ -39,17 +39,17 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 
     @Override
     public File getFileByDownloadHash(final String downloadHash) {
-        return this.fileDao.getFileByDownloadHash(downloadHash);
+        return this.fileRepository.getFileByDownloadHash(downloadHash);
     }
 
     @Override
     public void deleteFile(final String deleteHash, final String creatorNickName) {
-        this.fileDao.deleteFile(deleteHash, creatorNickName);
+        this.fileRepository.deleteFile(deleteHash, creatorNickName);
     }
 
     @Override
     public File findByDeleteHash(final String deleteHash, final String creatorNickName) {
-        return this.fileDao.findByDeleteHash(deleteHash, creatorNickName);
+        return this.fileRepository.findByDeleteHash(deleteHash, creatorNickName);
     }
 
     @Override
@@ -120,22 +120,22 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 
     @Override
     public List<File> getSharedFilesForUser(final String userNickName, final int firstResult, final int maxResults) {
-        return this.fileDao.getSharedFilesForUser(userNickName, firstResult, maxResults);
+        return this.fileRepository.getSharedFilesForUser(userNickName, firstResult, maxResults);
     }
 
     @Override
     public List<File> getPrivateFilesForUser(final String userNickName, final int firstResult, final int maxResults) {
-        return this.fileDao.getPrivateFilesForUser(userNickName, firstResult, maxResults);
+        return this.fileRepository.getPrivateFilesForUser(userNickName, firstResult, maxResults);
     }
 
     @Override
     public List<Long> getSharedFilesWithUsersIds(final Long userId, final int firstResult, final int maxResults) {
-        return this.fileDao.getSharedFilesWithUsers(userId, firstResult, maxResults);
+        return this.fileRepository.getSharedFilesWithUsers(userId, firstResult, maxResults);
     }
 
     @Override
     public File findWithSharedUsers(final Long fileId) {
-        return this.fileDao.findWithSharedUsers(fileId);
+        return this.fileRepository.findWithSharedUsers(fileId);
     }
 
     @Override

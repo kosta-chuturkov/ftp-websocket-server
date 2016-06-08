@@ -1,8 +1,8 @@
-package ftp.core.persistance.hibernate.dao;
+package ftp.core.persistance.hibernate.repository;
 
 import ftp.core.common.model.User;
-import ftp.core.persistance.face.dao.UserDao;
-import ftp.core.persistance.face.generic.dao.GenericHibernateDao;
+import ftp.core.persistance.face.generic.repository.GenericHibernateRepository;
+import ftp.core.persistance.face.repository.UserRepository;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class UserHibernateDao extends GenericHibernateDao<User, Long> implements UserDao {
+public class UserHibernateRepository extends GenericHibernateRepository<User, Long> implements UserRepository {
 
     @Override
     public User findByEmailAndPassword(final String email, final String password) {
