@@ -17,9 +17,10 @@ import ftp.core.common.util.ServerUtil;
 public class LogOutController {
 
 	@RequestMapping(value = { "/logout**" }, method = RequestMethod.GET)
-	public ModelAndView getLoginPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public ModelAndView logClientOut(final HttpServletRequest request, final HttpServletResponse response)
+			throws IOException {
 		ServerUtil.invalidateSession(request, response);
-		ModelAndView modelAndView = new ModelAndView("redirect:" + ServerConstants.LOGIN_ALIAS);
+		final ModelAndView modelAndView = new ModelAndView("redirect:" + ServerConstants.LOGIN_ALIAS);
 		return modelAndView;
 	}
 }

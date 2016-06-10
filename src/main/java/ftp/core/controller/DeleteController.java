@@ -1,14 +1,13 @@
 package ftp.core.controller;
 
-import com.google.common.collect.Lists;
-import ftp.core.common.model.File;
-import ftp.core.common.model.User;
-import ftp.core.common.model.dto.DeletedFileDto;
-import ftp.core.common.util.ServerConstants;
-import ftp.core.common.util.ServerUtil;
-import ftp.core.service.face.tx.FileService;
-import ftp.core.service.face.tx.UserService;
-import ftp.core.service.impl.EventService;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -16,12 +15,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import com.google.common.collect.Lists;
+
+import ftp.core.common.model.File;
+import ftp.core.common.model.User;
+import ftp.core.common.model.dto.DeletedFileDto;
+import ftp.core.common.util.ServerConstants;
+import ftp.core.common.util.ServerUtil;
+import ftp.core.service.face.tx.FileService;
+import ftp.core.service.face.tx.UserService;
+import ftp.core.service.impl.AuthenticationService;
+import ftp.core.service.impl.EventService;
 
 @Controller
 public class DeleteController {
@@ -34,20 +38,16 @@ public class DeleteController {
     @Resource
     private EventService eventService;
 
+	@Resource
+	private AuthenticationService authenticationService;
+
 
     @RequestMapping(value = {
             ServerConstants.FILES_ALIAS + ServerConstants.DELETE_ALIAS + "{deleteHash}"}, method = RequestMethod.GET)
     public void deleteFiles(final HttpServletRequest request, final HttpServletResponse response, @PathVariable final String deleteHash) {
         try {
-            final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
-            final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
-            final User current = this.userService.findByEmailAndPassword(email, password);
-            if (current == null) {
-                ServerUtil.sendJsonErrorResponce(response, "You must login first.");
-            } else {
-                User.setCurrent(current);
-                deleteFile(request, response, deleteHash);
-            }
+			this.authenticationService.authenticateClient(request, response);
+			deleteFile(request, response, deleteHash);
         } catch (final Exception e) {
             logger.error("errror occured", e);
             ServerUtil.sendJsonErrorResponce(response, e.getMessage());

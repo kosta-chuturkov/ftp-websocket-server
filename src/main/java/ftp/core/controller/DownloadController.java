@@ -1,5 +1,18 @@
 package ftp.core.controller;
 
+import java.util.Date;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+
 import ftp.core.common.model.File;
 import ftp.core.common.model.File.FileType;
 import ftp.core.common.model.User;
@@ -9,17 +22,7 @@ import ftp.core.config.ServerConfigurator;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
-import org.apache.log4j.Logger;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
+import ftp.core.service.impl.AuthenticationService;
 
 @Controller
 public class DownloadController {
@@ -29,20 +32,15 @@ public class DownloadController {
     private UserService userService;
     @Resource
     private FileService fileService;
+	@Resource
+	private AuthenticationService authenticationService;
 
     @RequestMapping(value = {ServerConstants.FILES_ALIAS + "*"}, method = RequestMethod.GET)
     public ModelAndView downloadFile(final HttpServletRequest request, final HttpServletResponse response) {
 
         try {
-            final String email = ServerUtil.getSessionParam(request, ServerConstants.EMAIL_PARAMETER);
-            final String password = ServerUtil.getSessionParam(request, ServerConstants.PASSWORD);
-            final User current = this.userService.findByEmailAndPassword(email, password);
-            if (current == null) {
-                ServerUtil.sendJsonErrorResponce(response, "You must login first.");
-            } else {
-                User.setCurrent(current);
-                sendFile(request, response);
-            }
+			this.authenticationService.authenticateClient(request, response);
+			sendFile(request, response);
         } catch (final Exception e) {
             logger.error("error occured", e);
             return new ModelAndView(ServerConstants.RESOURCE_NOT_FOUND_PAGE).addObject("errorMsg", e.getMessage());
