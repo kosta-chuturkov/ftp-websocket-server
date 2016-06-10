@@ -378,9 +378,6 @@ p,:focus {
 	</div>
 
 	<script>
-
-	var timeout;
-	var type = 2;
 	var maxResults = 30;
 	var downloadHashes = {};
     var currentPrivateID = 0;
