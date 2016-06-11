@@ -57,6 +57,8 @@ public interface ServerConstants {
 
     String PROFILE_PICTURE_PARAM = "profilePictureAddress";
 
+    final static String CURRENT_USER = "currentUser";
+
     int MINIMUM_PASSWORD_LENGTH = 6;
 
     long USER_MAX_UPLOAD_IN_BYTES = UPLOAD_LIMIT;
