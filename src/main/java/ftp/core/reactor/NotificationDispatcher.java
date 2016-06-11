@@ -12,13 +12,13 @@ import java.io.IOException;
 /**
  * Created by Kosta_Chuturkov on 2/26/2016.
  */
-public class NewFileSharedReciver implements Consumer<Event<JsonResponse>> {
+public class NotificationDispatcher implements Consumer<Event<JsonResponse>> {
 
     private final WebSocketSession webSocketSession;
 
     private final Gson gson;
 
-    public NewFileSharedReciver(final WebSocketSession webSocketSession, final Gson gson) {
+    public NotificationDispatcher(final WebSocketSession webSocketSession, final Gson gson) {
         this.webSocketSession = webSocketSession;
         this.gson = gson;
     }

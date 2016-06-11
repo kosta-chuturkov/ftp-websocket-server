@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import ftp.core.common.model.User;
 import ftp.core.common.util.ServerConstants;
 import ftp.core.listener.SessionToConsumerMapper;
-import ftp.core.reactor.NewFileSharedReciver;
+import ftp.core.reactor.NotificationDispatcher;
 import ftp.core.service.impl.EventService;
 import ftp.core.websocket.api.JsonTypedHandler;
 import ftp.core.websocket.dto.JsonRequest;
@@ -41,9 +41,9 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
     public void afterConnectionEstablished(final WebSocketSession session) throws Exception {
         final Object currentUser = session.getAttributes().get(ServerConstants.CURRENT_USER);
         if (currentUser != null) {
-            final NewFileSharedReciver newFileSharedReciver = new NewFileSharedReciver(session, this.gson);
+            final NotificationDispatcher notificationDispatcher = new NotificationDispatcher(session, this.gson);
             final String currentUserNickName = ((User) currentUser).getNickName();
-            this.eventService.listen(currentUserNickName, newFileSharedReciver);
+            this.eventService.listen(currentUserNickName, notificationDispatcher);
         }
     }
 
