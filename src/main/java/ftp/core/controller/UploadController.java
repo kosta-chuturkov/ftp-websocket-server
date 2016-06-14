@@ -60,7 +60,8 @@ public class UploadController {
 	private AuthenticationService authenticationService;
 
     @RequestMapping(value = {"/upload**"}, method = RequestMethod.GET)
-    public ModelAndView getLoginPage(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+	public ModelAndView getUploadPage(final HttpServletRequest request, final HttpServletResponse response)
+			throws IOException {
         try {
             if (ServerUtil.checkUserSession(request, true)) {
                 return new ModelAndView(ServerConstants.UPLOAD_PAGE);
