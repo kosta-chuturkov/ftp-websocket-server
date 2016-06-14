@@ -114,7 +114,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,abbr,
 	border: 0;
 	outline: 0;
 	font-size: 100%;
-	vertical-align: bottom;
+	vertical-align: sub;
 	background: transparent;
 	margin: 0;
 	padding: 0;
@@ -378,9 +378,6 @@ p,:focus {
 	</div>
 
 	<script>
-
-	var timeout;
-	var type = 2;
 	var maxResults = 30;
 	var downloadHashes = {};
     var currentPrivateID = 0;

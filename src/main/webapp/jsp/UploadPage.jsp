@@ -383,6 +383,9 @@
         }
         function changeNickNamesInputValue(){
         var options = $('#selectedUsers').select2("val");
+        if(!options){
+            return;
+        }
         var values = [];
            for(var i = 0; i < options.length; i++){
             var usr = {};
