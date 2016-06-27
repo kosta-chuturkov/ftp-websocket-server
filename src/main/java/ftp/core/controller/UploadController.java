@@ -1,18 +1,18 @@
 package ftp.core.controller;
 
-import static ftp.core.common.util.ServerUtil.getProtocol;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.common.collect.Sets;
+import com.google.gson.*;
+import ftp.core.common.model.User;
+import ftp.core.common.model.dto.JsonFileResponseDtoWrapper;
+import ftp.core.common.util.ServerConstants;
+import ftp.core.common.util.ServerUtil;
+import ftp.core.config.ServerConfigurator;
+import ftp.core.service.face.tx.FileService;
+import ftp.core.service.face.tx.FtpServerException;
+import ftp.core.service.face.tx.UserService;
+import ftp.core.service.impl.AuthenticationService;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -26,18 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.google.common.collect.Sets;
-import com.google.gson.*;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
 
-import ftp.core.common.model.User;
-import ftp.core.common.model.dto.JsonFileResponseDtoWrapper;
-import ftp.core.common.util.ServerConstants;
-import ftp.core.common.util.ServerUtil;
-import ftp.core.config.ServerConfigurator;
-import ftp.core.service.face.tx.FileService;
-import ftp.core.service.face.tx.FtpServerException;
-import ftp.core.service.face.tx.UserService;
-import ftp.core.service.impl.AuthenticationService;
+import static ftp.core.common.util.ServerUtil.getProtocol;
 
 @RestController
 public class UploadController {
@@ -56,8 +52,8 @@ public class UploadController {
     @Resource
     private JsonParser jsonParser;
 
-	@Resource
-	private AuthenticationService authenticationService;
+    @Resource
+    private AuthenticationService authenticationService;
 
     @RequestMapping(value = {"/upload**"}, method = RequestMethod.GET)
     public ModelAndView getLoginPage(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
@@ -78,46 +74,46 @@ public class UploadController {
     public String profilePicUpdate(final HttpServletRequest request, final HttpServletResponse response,
                                    @RequestParam("files[]") final MultipartFile file) throws IOException {
         JsonFileResponseDtoWrapper dtoWrapper = null;
-		this.authenticationService.authenticateClient(request, response);
-            if (!file.isEmpty()) {
-                try {
-                    final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
-                    final String extension = FilenameUtils.getExtension(fileName);
-                    if (!ServerUtil.ALLOWED_EXTENTIONS.contains(extension)) {
-                        throw new FtpServerException("Image expected...");
-                    }
-                    final int port = request.getServerPort();
-                    final String host = request.getServerName();
-				final String serverFileName = User.getCurrent().getNickName() + "." + extension;
-                    final String serverContextAddress = ServerUtil.getProtocol(request) + host + ":" + port
-                            + ServerConstants.PROFILE_PIC_ALIAS + serverFileName;
-
-                    final File imagesFolder = ServerConfigurator.getProfilePicsFolder();
-                    final File targetFile = new File(imagesFolder, serverFileName);
-                    if (targetFile.exists()) {
-                        targetFile.delete();
-                    }
-                    targetFile.createNewFile();
-                    file.transferTo(targetFile);
-
-                    Thumbnails.of(targetFile)
-                            .size(50, 50)
-                            .outputFormat("jpg")
-                            .toFiles(Rename.NO_CHANGE);
-
-                    final JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("imageUrl", serverContextAddress);
-                    return jsonObject.toString();
-                } catch (final Exception e) {
-                    if (e instanceof HibernateException) {
-                        dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error("Unexpected error occured. Try again.").build();
-                    } else {
-                        dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error(e.getMessage()).build();
-                    }
+        this.authenticationService.authenticateClient(request, response);
+        if (!file.isEmpty()) {
+            try {
+                final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
+                final String extension = FilenameUtils.getExtension(fileName);
+                if (!ServerUtil.ALLOWED_EXTENTIONS.contains(extension)) {
+                    throw new FtpServerException("Image expected...");
                 }
-            } else {
-                dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error("You failed to upload " + file.getName() + " because the file was empty.").build();
+                final int port = request.getServerPort();
+                final String host = request.getServerName();
+                final String serverFileName = User.getCurrent().getNickName() + "." + extension;
+                final String serverContextAddress = ServerUtil.getProtocol(request) + host + ":" + port
+                        + ServerConstants.PROFILE_PIC_ALIAS + serverFileName;
+
+                final File imagesFolder = ServerConfigurator.getProfilePicsFolder();
+                final File targetFile = new File(imagesFolder, serverFileName);
+                if (targetFile.exists()) {
+                    targetFile.delete();
+                }
+                targetFile.createNewFile();
+                file.transferTo(targetFile);
+
+                Thumbnails.of(targetFile)
+                        .size(50, 50)
+                        .outputFormat("jpg")
+                        .toFiles(Rename.NO_CHANGE);
+
+                final JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("imageUrl", serverContextAddress);
+                return jsonObject.toString();
+            } catch (final Exception e) {
+                if (e instanceof HibernateException) {
+                    dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error("Unexpected error occured. Try again.").build();
+                } else {
+                    dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error(e.getMessage()).build();
+                }
             }
+        } else {
+            dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error("You failed to upload " + file.getName() + " because the file was empty.").build();
+        }
         return geAstJsonObject(dtoWrapper).toString();
     }
 
@@ -125,52 +121,52 @@ public class UploadController {
     public String uploadFile(final HttpServletRequest request, final HttpServletResponse response,
                              @RequestParam("files[]") final MultipartFile file, @RequestParam("modifier") final String modifier,
                              @RequestParam("nickName") final String userNickNames) throws IOException {
-		this.authenticationService.authenticateClient(request, response);
+        this.authenticationService.authenticateClient(request, response);
         JsonFileResponseDtoWrapper dtoWrapper = null;
-            if (!file.isEmpty()) {
-                try {
-                    final int port = request.getServerPort();
-                    final String host = request.getServerName();
-                    final String contextPath = request.getContextPath();
-                    final String serverContextAddress = getProtocol(request) + host + ":" + port + contextPath
-                            + ServerConstants.FILES_ALIAS;
-				final Long token = User.getCurrent().getToken();
-                    final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
-                    final long currentTime = System.currentTimeMillis();
-                    final String tempFileName = new Long(currentTime).toString();
-                    final String serverFileName = tempFileName + "_" + fileName;
-                    final String deleteHash = ServerUtil.hash(ServerUtil.hash(serverFileName + token) + ServerConstants.DELETE_SALT);
-                    final String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
+        if (!file.isEmpty()) {
+            try {
+                final int port = request.getServerPort();
+                final String host = request.getServerName();
+                final String contextPath = request.getContextPath();
+                final String serverContextAddress = getProtocol(request) + host + ":" + port + contextPath
+                        + ServerConstants.FILES_ALIAS;
+                final Long token = User.getCurrent().getToken();
+                final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
+                final long currentTime = System.currentTimeMillis();
+                final String tempFileName = new Long(currentTime).toString();
+                final String serverFileName = tempFileName + "_" + fileName;
+                final String deleteHash = ServerUtil.hash(ServerUtil.hash(serverFileName + token) + ServerConstants.DELETE_SALT);
+                final String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
 
-                    final Set<String> users = getFileSharedUsersAsSet(userNickNames);
-                    this.fileService.createFileRecord(fileName, currentTime, getModifier(modifier), users, file.getSize(),
-                            deleteHash, downloadHash);
-				final File userFolder = getUserFolder(User.getCurrent().getEmail());
-                    final File targetFile = new File(userFolder, serverFileName);
-                    if (targetFile.exists()) {
-                        targetFile.delete();
-                    }
-                    targetFile.createNewFile();
-
-                    file.transferTo(targetFile);
-                    dtoWrapper = new JsonFileResponseDtoWrapper.Builder().
-                            name(StringEscapeUtils.escapeHtml(serverFileName)).
-                            size(Long.toString(file.getSize())).url((serverContextAddress + downloadHash)).deleteUrl
-                            ((serverContextAddress + ServerConstants.DELETE_ALIAS + deleteHash)).deleteType
-                            ("GET").build();
-
-                    final JSONObject parent = geAstJsonObject(dtoWrapper);
-                    return parent.toString();
-                } catch (final Exception e) {
-                    if (e instanceof HibernateException) {
-                        dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error("Unexpected error occured. Try again.").build();
-                    } else {
-                        dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error(e.getMessage()).build();
-                    }
+                final Set<String> users = getFileSharedUsersAsSet(userNickNames);
+                this.fileService.createFileRecord(fileName, currentTime, getModifier(modifier), users, file.getSize(),
+                        deleteHash, downloadHash);
+                final File userFolder = getUserFolder(User.getCurrent().getEmail());
+                final File targetFile = new File(userFolder, serverFileName);
+                if (targetFile.exists()) {
+                    targetFile.delete();
                 }
-            } else {
-                dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error("You failed to upload " + file.getName() + " because the file was empty.").build();
+                targetFile.createNewFile();
+
+                file.transferTo(targetFile);
+                dtoWrapper = new JsonFileResponseDtoWrapper.Builder().
+                        name(StringEscapeUtils.escapeHtml(fileName)).
+                        size(Long.toString(file.getSize())).url((serverContextAddress + downloadHash)).deleteUrl
+                        ((serverContextAddress + ServerConstants.DELETE_ALIAS + deleteHash)).deleteType
+                        ("GET").build();
+
+                final JSONObject parent = geAstJsonObject(dtoWrapper);
+                return parent.toString();
+            } catch (final Exception e) {
+                if (e instanceof HibernateException) {
+                    dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error("Unexpected error occured. Try again.").build();
+                } else {
+                    dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error(e.getMessage()).build();
+                }
             }
+        } else {
+            dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error("You failed to upload " + file.getName() + " because the file was empty.").build();
+        }
 
         return geAstJsonObject(dtoWrapper).toString();
     }
