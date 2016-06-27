@@ -11,7 +11,7 @@ import reactor.bus.EventBus;
 import reactor.fn.Consumer;
 
 import javax.annotation.Resource;
-import java.util.List;
+import java.util.Collection;
 
 import static reactor.bus.selector.Selectors.$;
 
@@ -33,7 +33,7 @@ public class EventService {
 
     }
 
-    public void fireRemovedFileEvent(final List<String> usersToBeNotified, final DeletedFileDto deletedFileDto) {
+    public void fireRemovedFileEvent(final Collection<String> usersToBeNotified, final DeletedFileDto deletedFileDto) {
         for (final String userNickName : usersToBeNotified) {
             this.eventBus.notify(userNickName, Event.wrap(new JsonResponse(Handlers.DELETED_FILE, this.gson.toJson(deletedFileDto))));
         }

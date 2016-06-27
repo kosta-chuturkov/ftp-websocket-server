@@ -645,12 +645,18 @@ p,:focus {
     function updateUsers(name,path) {
     var options = $('#'+name).select2("val");
     var values = [];
-    for(var i = 0; i < options.length; i++){
-    var usr = {};
-    usr.name = options[i];
-      values.push(usr);
-    }
-
+    if(options){
+        for(var i = 0; i < options.length; i++){
+        var usr = {};
+        usr.name = options[i];
+          values.push(usr);
+        }
+    }else {
+      var usr1 = {};
+      usr1.name = "-1";
+      values.push(usr1);
+     }
+     var result = JSON.stringify(values);
             $.ajax({
                 headers: {
                     'Accept': 'application/json',
@@ -658,7 +664,7 @@ p,:focus {
                 },
                 type: 'POST',
                 url: ''+path,
-                data: JSON.stringify(values),
+                data: result,
                 dataType: 'json',
                 error: function(data) {
                 if(data.status==200){
