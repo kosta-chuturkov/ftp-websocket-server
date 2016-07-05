@@ -45,7 +45,7 @@
 <div id="login-box">
     <H2>Login</H2>
     Login to Cloud Server. <br/> <br/>
-    <form id="loginForm" method="post" action="<c:url value="/login" />">
+    <form id="loginForm" method="post" action="<c:url value="/api/login" />">
         <div id="login-box-name" style="margin-top: 20px;">Email:</div>
         <div id="login-box-field" style="margin-top: 20px;">
             <input id="email" name="email" class="form-login"

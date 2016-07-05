@@ -60,7 +60,9 @@ dependencies {
     compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.6.Final'
     compile group: 'org.hibernate', name: 'hibernate-c3p0', version: '5.0.6.Final'
     compile group: 'org.hibernate', name: 'hibernate-validator', version: '5.0.3.Final'
+
     runtime('postgresql:postgresql:9.1-901-1.jdbc4')
+
     compile group: 'javax', name: 'javaee-api', version: '7.0'
     compile('javax.servlet:jstl')
     compile('javax.servlet:javax.servlet-api:3.1.0')
@@ -69,6 +71,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework.boot:spring-boot-starter-websocket")
+    compile group: 'org.springframework.security', name: 'spring-security-data', version: '4.1.0.RELEASE'
     compile("org.springframework:spring-messaging")
     compile("org.springframework:spring-context-support")
     compile('com.google.guava:guava:19.0')

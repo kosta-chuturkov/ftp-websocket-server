@@ -682,7 +682,7 @@ p,:focus {
           req.open("GET","<c:url value="/logout"/>", true);
           req.withCredentials = true;
           req.send();
-          window.location.replace("<c:url value="/login"/>");
+          window.location.replace("<c:url value="/api/login"/>");
         }
 
         function openUploadDialog(obj){

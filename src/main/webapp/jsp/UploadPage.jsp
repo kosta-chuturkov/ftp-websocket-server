@@ -115,7 +115,7 @@
 			<ul class="nav navbar-nav">
 				<li><a href="<c:url value="/main/" />"><strong><%=user%>
 				</strong></a></li>
-				<li><a href="<c:url value="/logout" />"><b>Logout</b></a></li>
+				<li><a href="<c:url value="/api/logout" />"><b>Logout</b></a></li>
 			</ul>
 		</div>
 	</div>

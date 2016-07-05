@@ -2,7 +2,7 @@ package ftp.core.constants;
 
 public class APIAliases {
 
-    public static final String ROOT_PREFIX = "/api/";
+    public static final String ROOT_PREFIX = "/api";
 
     public static final String DELETE_FILE_ALIAS = "/files/delete/{deleteHash}";
 
@@ -20,9 +20,9 @@ public class APIAliases {
 
     public static final String UPDATE_USERS_FILE_IS_SHARED_TO_ALIAS = "/files/updateUsers/{deleteHash}";
 
-    public static final String LOGIN_ALIAS = "/login";
+    public static final String LOGIN_ALIAS = ROOT_PREFIX + "/login";
 
-    public static final String LOGOUT_ALIAS = "/logout";
+    public static final String LOGOUT_ALIAS = ROOT_PREFIX + "/logout";
 
     public static final String MAIN_PAGE_ALIAS = "/main/";
 

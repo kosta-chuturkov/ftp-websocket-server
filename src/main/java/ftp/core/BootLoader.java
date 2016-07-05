@@ -10,10 +10,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 /**
  * Created by Kosta_Chuturkov on 2/3/2016.
  */
-@SpringBootApplication(scanBasePackages = "ftp.core", exclude = {
-        org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class
-
-})
+@SpringBootApplication(scanBasePackages = "ftp.core")
 @ImportResource(value = "classpath:applicationContext.xml")
 @EnableWebMvc
 public class BootLoader extends SpringBootServletInitializer {

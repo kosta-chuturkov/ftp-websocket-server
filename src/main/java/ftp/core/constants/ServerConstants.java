@@ -32,6 +32,8 @@ public class ServerConstants {
 
     public static final String DELETE_SALT = "1RWqnVnlyrDTSiLqKtXuyGzRu8Eqi2vmJIfEKteBM8gE99F4WnJ79N1reqp1";
 
+    public static final String REMEMBER_ME_SECURITY_KEY = "5c37379956bd1242f5636c8cb322c2966ad82277";
+
     public static final String DOWNLOAD_SALT = "P5esIq0RXXvqZigZfdUSUzatUcVotQTQCx8HKLT83tUVVScq2oymCiQZ2N26kBgpfC5HANyZheJaiaQ4";
 
 }
