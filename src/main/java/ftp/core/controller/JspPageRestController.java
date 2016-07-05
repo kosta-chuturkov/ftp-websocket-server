@@ -1,35 +1,32 @@
 package ftp.core.controller;
 
-import static ftp.core.common.util.ServerUtil.getAvatarUrl;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
-
-import org.apache.log4j.Logger;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
 import ftp.core.common.model.dto.ModifiedUsersDto;
 import ftp.core.common.model.dto.UploadedFileDto;
-import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
+import ftp.core.constants.APIAliases;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.impl.AuthenticationService;
 import ftp.core.service.impl.EventService;
+import org.apache.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+
+import static ftp.core.common.util.ServerUtil.getAvatarUrl;
 
 @RestController
 public class JspPageRestController {
@@ -44,7 +41,8 @@ public class JspPageRestController {
 	@Resource
 	private AuthenticationService authenticationService;
 
-    @RequestMapping(value = {"/files/shared/*"}, method = RequestMethod.POST)
+
+    @RequestMapping(value = {APIAliases.GET_FILES_SHARED_WITH_ME_ALIAS}, method = RequestMethod.POST)
     public List<FileDto> getSharedFiles(final HttpServletRequest request, final HttpServletResponse response,
                                         @NotNull @ModelAttribute("firstResult") final Integer firstResult,
                                         @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
@@ -63,7 +61,7 @@ public class JspPageRestController {
     }
 
 
-    @RequestMapping(value = {"/files/private/*"}, method = RequestMethod.POST)
+    @RequestMapping(value = {APIAliases.GET_PRIVATE_FILES_ALIAS}, method = RequestMethod.POST)
     public List<FileDto> getPrivateFiles(final HttpServletRequest request, final HttpServletResponse response,
                                          @NotNull @ModelAttribute("firstResult") final Integer firstResult,
                                          @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
@@ -80,7 +78,7 @@ public class JspPageRestController {
         return fileDtos;
     }
 
-    @RequestMapping(value = {"/files/uploaded/*"}, method = RequestMethod.POST)
+    @RequestMapping(value = {APIAliases.GET_UPLOADED_FILES_ALIAS}, method = RequestMethod.POST)
     public List<FileDto> getUploadedFiles(final HttpServletRequest request, final HttpServletResponse response,
                                           @NotNull @ModelAttribute("firstResult") final Integer firstResult,
                                           @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
@@ -97,22 +95,14 @@ public class JspPageRestController {
         return fileDtos;
     }
 
-    @RequestMapping(value = {"/usr*"}, method = RequestMethod.GET)
-    public List<String> getUsersByNickName(final HttpServletRequest request, final HttpServletResponse response,
-                                           @NotNull @ModelAttribute("q") final String userNickName) throws IOException {
-		this.authenticationService.authenticateClient(request, response);
-		final List<String> users = this.userService.getUserByNickLike(userNickName);
-		return users;
-    }
-
-    @RequestMapping(value = {"/users*"}, method = RequestMethod.GET)
+    @RequestMapping(value = {APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS}, method = RequestMethod.GET)
     public String usrs(final HttpServletRequest request, final HttpServletResponse response,
                        @NotNull @ModelAttribute("q") final String userNickName) throws IOException {
 		this.authenticationService.authenticateClient(request, response);
         final int port = request.getServerPort();
         final String host = request.getServerName();
         final String serverContextAddress = ServerUtil.getProtocol(request) + host + ":" + port;
-        final String profilePicAddress = serverContextAddress + ServerConstants.PROFILE_PIC_ALIAS;
+        final String profilePicAddress = serverContextAddress + APIAliases.PROFILE_PIC_ALIAS;
         final JsonObject jsonResponse = new JsonObject();
 
             final List<String> users = this.userService.getUserByNickLike(userNickName);
@@ -137,7 +127,7 @@ public class JspPageRestController {
 
 
     @RequestMapping(value = {
-            ServerConstants.FILES_ALIAS + ServerConstants.UPDATE_ALIAS + "/{deleteHash}"}, method = RequestMethod.POST, consumes = "application/json")
+            APIAliases.UPDATE_USERS_FILE_IS_SHARED_TO_ALIAS}, method = RequestMethod.POST, consumes = "application/json")
     public void updateUsers(final HttpServletRequest request, final HttpServletResponse response, @PathVariable final String deleteHash, @RequestBody final Set<ModifiedUsersDto> modifiedUsersDto) {
         try {
 			this.authenticationService.authenticateClient(request, response);

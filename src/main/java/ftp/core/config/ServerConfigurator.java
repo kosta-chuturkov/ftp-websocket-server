@@ -1,6 +1,6 @@
 package ftp.core.config;
 
-import ftp.core.common.util.ServerConstants;
+import ftp.core.constants.ServerConstants;
 import org.apache.log4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -16,12 +16,19 @@ public class ServerConfigurator {
     private static File profilePicsFolder;
 
     private static File serverStorageFile;
+    private final Logger logger = Logger.getLogger(ServerConfigurator.class);
 
     private ServerConfigurator() {
         CONTENT_TYPES = new HashMap<String, String>();
     }
 
-    private final Logger logger = Logger.getLogger(ServerConfigurator.class);
+    public static File getProfilePicsFolder() {
+        return profilePicsFolder;
+    }
+
+    public static File getServerStorageFile() {
+        return serverStorageFile;
+    }
 
     @PostConstruct
     private void init() {
@@ -49,10 +56,6 @@ public class ServerConfigurator {
         }
     }
 
-    public static File getProfilePicsFolder() {
-        return profilePicsFolder;
-    }
-
     private void fillContentTypeTable() {
         try {
             final InputStream is = this.getClass().getResourceAsStream(ServerConstants.CONTENT_TYPES_FILE);
@@ -65,10 +68,6 @@ public class ServerConfigurator {
         } catch (final IOException e) {
             System.out.println(e.getMessage());
         }
-    }
-
-    public static File getServerStorageFile() {
-        return serverStorageFile;
     }
 
 }

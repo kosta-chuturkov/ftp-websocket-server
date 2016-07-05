@@ -1,11 +1,16 @@
 package ftp.core.controller;
 
-import java.util.Date;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import ftp.core.common.model.File;
+import ftp.core.common.model.File.FileType;
+import ftp.core.common.model.User;
+import ftp.core.common.util.ServerUtil;
+import ftp.core.config.ServerConfigurator;
+import ftp.core.constants.APIAliases;
+import ftp.core.constants.ServerConstants;
+import ftp.core.service.face.tx.FileService;
+import ftp.core.service.face.tx.FtpServerException;
+import ftp.core.service.face.tx.UserService;
+import ftp.core.service.impl.AuthenticationService;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,16 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import ftp.core.common.model.File;
-import ftp.core.common.model.File.FileType;
-import ftp.core.common.model.User;
-import ftp.core.common.util.ServerConstants;
-import ftp.core.common.util.ServerUtil;
-import ftp.core.config.ServerConfigurator;
-import ftp.core.service.face.tx.FileService;
-import ftp.core.service.face.tx.FtpServerException;
-import ftp.core.service.face.tx.UserService;
-import ftp.core.service.impl.AuthenticationService;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 
 @Controller
 public class DownloadController {
@@ -35,7 +34,7 @@ public class DownloadController {
 	@Resource
 	private AuthenticationService authenticationService;
 
-    @RequestMapping(value = {ServerConstants.FILES_ALIAS + "*"}, method = RequestMethod.GET)
+    @RequestMapping(value = {APIAliases.DOWNLOAD_FILE_ALIAS + "*"}, method = RequestMethod.GET)
     public ModelAndView downloadFile(final HttpServletRequest request, final HttpServletResponse response) {
 
         try {
@@ -48,7 +47,7 @@ public class DownloadController {
         return null;
     }
 
-    @RequestMapping(value = {ServerConstants.PROFILE_PIC_ALIAS + "{filename}"}, method = RequestMethod.GET)
+    @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS + "{filename}"}, method = RequestMethod.GET)
     public ModelAndView getProfilePic(final HttpServletResponse response, @PathVariable String filename) {
 
         try {
@@ -67,7 +66,7 @@ public class DownloadController {
         final String path = request.getServletPath();
         String downloadHash = "";
         if (path != null) {
-            downloadHash = path.substring(ServerConstants.FILES_ALIAS.length(), path.length());
+            downloadHash = path.substring(APIAliases.DOWNLOAD_FILE_ALIAS.length(), path.length());
         }
         final User current = User.getCurrent();
         final String requesterEmail = current.getEmail();

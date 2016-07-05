@@ -2,8 +2,8 @@ package ftp.core.service.impl;
 
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
-import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
+import ftp.core.constants.ServerConstants;
 import ftp.core.persistance.face.repository.FileRepository;
 import ftp.core.persistance.face.repository.UserRepository;
 import ftp.core.service.face.tx.FtpServerException;

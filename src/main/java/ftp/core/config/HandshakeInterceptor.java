@@ -1,8 +1,8 @@
 package ftp.core.config;
 
 import ftp.core.common.model.User;
-import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
+import ftp.core.constants.ServerConstants;
 import ftp.core.listener.SessionToConsumerMapper;
 import ftp.core.service.face.tx.UserService;
 import org.springframework.context.annotation.Configuration;

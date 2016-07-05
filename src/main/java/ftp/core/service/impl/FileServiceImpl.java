@@ -9,7 +9,7 @@ import ftp.core.common.model.dto.DeletedFileDto;
 import ftp.core.common.model.dto.FileDto;
 import ftp.core.common.model.dto.ModifiedUsersDto;
 import ftp.core.common.model.dto.SharedFileDto;
-import ftp.core.common.util.ServerConstants;
+import ftp.core.constants.ServerConstants;
 import ftp.core.persistance.face.repository.FileRepository;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;

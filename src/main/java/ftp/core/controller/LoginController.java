@@ -1,10 +1,11 @@
 package ftp.core.controller;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
-
+import ftp.core.common.model.User;
+import ftp.core.common.util.ServerUtil;
+import ftp.core.constants.APIAliases;
+import ftp.core.constants.ServerConstants;
+import ftp.core.service.face.tx.FtpServerException;
+import ftp.core.service.face.tx.UserService;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -13,11 +14,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-import ftp.core.common.model.User;
-import ftp.core.common.util.ServerConstants;
-import ftp.core.common.util.ServerUtil;
-import ftp.core.service.face.tx.FtpServerException;
-import ftp.core.service.face.tx.UserService;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 @Controller("loginController")
 public class LoginController {
@@ -26,14 +26,12 @@ public class LoginController {
     @Resource
     private UserService userService;
 
-    @RequestMapping(value = {
-            "/", "/login**"
-    }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/", APIAliases.LOGIN_ALIAS + "**"}, method = RequestMethod.GET)
     public ModelAndView getLoginPage(final HttpServletRequest request, final HttpServletResponse response) {
 
         try {
             if (ServerUtil.checkUserSession(request, true)) {
-                final RedirectView view = new RedirectView(ServerConstants.MAIN_ALIAS, true);
+                final RedirectView view = new RedirectView(APIAliases.MAIN_PAGE_ALIAS, true);
                 view.setExposeModelAttributes(false);
                 return new ModelAndView(view);
             } else {
@@ -47,12 +45,10 @@ public class LoginController {
         }
     }
 
-    @RequestMapping(value = {
-            "/login"
-    }, method = RequestMethod.POST)
-	public ModelAndView authenticateClient(final HttpServletRequest request,
-			@NotNull @ModelAttribute("email") final String email,
-			@NotNull @ModelAttribute("pswd") final String password) {
+    @RequestMapping(value = {APIAliases.LOGIN_ALIAS}, method = RequestMethod.POST)
+    public ModelAndView authenticateClient(final HttpServletRequest request,
+                                           @NotNull @ModelAttribute("email") final String email,
+                                           @NotNull @ModelAttribute("pswd") final String password) {
 
         try {
             final ModelAndView modelAndView = new ModelAndView(ServerConstants.NEW_CLIENT_LOGIN_PAGE);
@@ -72,7 +68,7 @@ public class LoginController {
             } else {
                 User.setCurrent(user);
                 ServerUtil.startUserSession(request, email, encodedPassword, user.getRemainingStorage());
-                final RedirectView view = new RedirectView(ServerConstants.MAIN_ALIAS, true);
+                final RedirectView view = new RedirectView(APIAliases.MAIN_PAGE_ALIAS, true);
                 view.setExposeModelAttributes(false);
                 return new ModelAndView(view);
             }

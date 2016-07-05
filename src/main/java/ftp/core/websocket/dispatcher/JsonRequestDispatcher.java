@@ -2,7 +2,7 @@ package ftp.core.websocket.dispatcher;
 
 import com.google.gson.Gson;
 import ftp.core.common.model.User;
-import ftp.core.common.util.ServerConstants;
+import ftp.core.constants.ServerConstants;
 import ftp.core.listener.SessionToConsumerMapper;
 import ftp.core.reactor.NotificationDispatcher;
 import ftp.core.service.impl.EventService;

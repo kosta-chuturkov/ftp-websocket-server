@@ -1,8 +1,9 @@
 package ftp.core.controller;
 
 import ftp.core.common.model.User;
-import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
+import ftp.core.constants.APIAliases;
+import ftp.core.constants.ServerConstants;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import org.apache.log4j.Logger;
@@ -26,12 +27,12 @@ public class RegistrationController {
 	@Resource
 	private UserService userService;
 
-	@RequestMapping(value = { "/register" }, method = RequestMethod.GET)
+	@RequestMapping(value = {APIAliases.REGISTRATION_ALIAS}, method = RequestMethod.GET)
 	public ModelAndView getRegistrationPage(final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException {
 		try {
 			if (ServerUtil.checkUserSession(request, true)) {
-				final RedirectView view = new RedirectView(ServerConstants.MAIN_ALIAS, true);
+				final RedirectView view = new RedirectView(APIAliases.MAIN_PAGE_ALIAS, true);
 				view.setExposeModelAttributes(false);
 				return new ModelAndView(view);
 			} else {
@@ -45,7 +46,7 @@ public class RegistrationController {
 		}
 	}
 
-	@RequestMapping(value = { "/register" }, method = RequestMethod.POST)
+	@RequestMapping(value = {APIAliases.REGISTRATION_ALIAS}, method = RequestMethod.POST)
 	public ModelAndView register(final HttpServletRequest request, @NotNull @ModelAttribute("email") final String email,
 								 @NotNull @ModelAttribute("pswd") final String password, @NotNull @ModelAttribute("nickname") final String nickName,
 								 @NotNull @ModelAttribute("password_repeated") final String password_repeated) throws IOException {
@@ -60,7 +61,7 @@ public class RegistrationController {
 				final User user = this.userService.findOne(id);
 				User.setCurrent(user);
 				ServerUtil.startUserSession(request, email, user.getPassword(), user.getRemainingStorage());
-				final RedirectView view = new RedirectView(ServerConstants.MAIN_ALIAS, true);
+				final RedirectView view = new RedirectView(APIAliases.MAIN_PAGE_ALIAS, true);
 				view.setExposeModelAttributes(false);
 				return new ModelAndView(view);
 			}

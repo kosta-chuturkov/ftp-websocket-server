@@ -1,13 +1,16 @@
 package ftp.core.controller;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.common.collect.Lists;
+import ftp.core.common.model.File;
+import ftp.core.common.model.User;
+import ftp.core.common.model.dto.DeletedFileDto;
+import ftp.core.common.util.ServerUtil;
+import ftp.core.constants.APIAliases;
+import ftp.core.constants.ServerConstants;
+import ftp.core.service.face.tx.FileService;
+import ftp.core.service.face.tx.UserService;
+import ftp.core.service.impl.AuthenticationService;
+import ftp.core.service.impl.EventService;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -15,17 +18,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.google.common.collect.Lists;
-
-import ftp.core.common.model.File;
-import ftp.core.common.model.User;
-import ftp.core.common.model.dto.DeletedFileDto;
-import ftp.core.common.util.ServerConstants;
-import ftp.core.common.util.ServerUtil;
-import ftp.core.service.face.tx.FileService;
-import ftp.core.service.face.tx.UserService;
-import ftp.core.service.impl.AuthenticationService;
-import ftp.core.service.impl.EventService;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Controller
 public class DeleteController {
@@ -42,8 +40,7 @@ public class DeleteController {
 	private AuthenticationService authenticationService;
 
 
-    @RequestMapping(value = {
-            ServerConstants.FILES_ALIAS + ServerConstants.DELETE_ALIAS + "{deleteHash}"}, method = RequestMethod.GET)
+    @RequestMapping(value = {APIAliases.DELETE_FILE_ALIAS}, method = RequestMethod.GET)
     public void deleteFiles(final HttpServletRequest request, final HttpServletResponse response, @PathVariable final String deleteHash) {
         try {
 			this.authenticationService.authenticateClient(request, response);

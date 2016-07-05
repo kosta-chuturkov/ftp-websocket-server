@@ -3,6 +3,8 @@ package ftp.core.common.util;
 import com.google.common.collect.Sets;
 import ftp.core.common.model.User;
 import ftp.core.config.ServerConfigurator;
+import ftp.core.constants.APIAliases;
+import ftp.core.constants.ServerConstants;
 import ftp.core.service.face.tx.FtpServerException;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
@@ -108,7 +110,7 @@ public class ServerUtil {
         final int port = request.getServerPort();
         final String host = request.getServerName();
         final String serverContextAddress = ServerUtil.getProtocol(request) + host + ":" + port;
-        final String profilePicAddress = serverContextAddress + ServerConstants.PROFILE_PIC_ALIAS;
+        final String profilePicAddress = serverContextAddress + APIAliases.PROFILE_PIC_ALIAS;
         session.setAttribute(ServerConstants.EMAIL_PARAMETER, email);
         session.setAttribute(ServerConstants.PASSWORD, password);
         session.setAttribute(ServerConstants.HOST, request.getServerName());

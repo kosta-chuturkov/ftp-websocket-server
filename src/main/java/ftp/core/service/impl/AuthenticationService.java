@@ -1,15 +1,14 @@
 package ftp.core.service.impl;
 
+import ftp.core.common.model.User;
+import ftp.core.common.util.ServerUtil;
+import ftp.core.constants.ServerConstants;
+import ftp.core.service.face.tx.UserService;
+import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Service;
-
-import ftp.core.common.model.User;
-import ftp.core.common.util.ServerConstants;
-import ftp.core.common.util.ServerUtil;
-import ftp.core.service.face.tx.UserService;
 
 /**
  * Created by Kosta_Chuturkov on 6/10/2016.

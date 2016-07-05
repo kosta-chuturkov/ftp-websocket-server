@@ -4,9 +4,10 @@ import com.google.common.collect.Sets;
 import com.google.gson.*;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.JsonFileResponseDtoWrapper;
-import ftp.core.common.util.ServerConstants;
 import ftp.core.common.util.ServerUtil;
 import ftp.core.config.ServerConfigurator;
+import ftp.core.constants.APIAliases;
+import ftp.core.constants.ServerConstants;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
@@ -55,15 +56,15 @@ public class UploadController {
     @Resource
     private AuthenticationService authenticationService;
 
-    @RequestMapping(value = {"/upload**"}, method = RequestMethod.GET)
-	public ModelAndView getUploadPage(final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException {
+    @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS}, method = RequestMethod.GET)
+    public ModelAndView getUploadPage(final HttpServletRequest request, final HttpServletResponse response)
+            throws IOException {
         try {
             if (ServerUtil.checkUserSession(request, true)) {
                 return new ModelAndView(ServerConstants.UPLOAD_PAGE);
             } else {
                 ServerUtil.invalidateSession(request, response);
-                final ModelAndView modelAndView = new ModelAndView("redirect:" + ServerConstants.LOGIN_ALIAS);
+                final ModelAndView modelAndView = new ModelAndView("redirect:" + APIAliases.LOGIN_ALIAS);
                 return modelAndView;
             }
         } catch (final Exception e) {
@@ -71,7 +72,7 @@ public class UploadController {
         }
     }
 
-    @RequestMapping(value = {"/profilePicUpdate**"}, method = RequestMethod.POST)
+    @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS}, method = RequestMethod.POST)
     public String profilePicUpdate(final HttpServletRequest request, final HttpServletResponse response,
                                    @RequestParam("files[]") final MultipartFile file) throws IOException {
         JsonFileResponseDtoWrapper dtoWrapper = null;
@@ -87,7 +88,7 @@ public class UploadController {
                 final String host = request.getServerName();
                 final String serverFileName = User.getCurrent().getNickName() + "." + extension;
                 final String serverContextAddress = ServerUtil.getProtocol(request) + host + ":" + port
-                        + ServerConstants.PROFILE_PIC_ALIAS + serverFileName;
+                        + APIAliases.PROFILE_PIC_ALIAS + serverFileName;
 
                 final File imagesFolder = ServerConfigurator.getProfilePicsFolder();
                 final File targetFile = new File(imagesFolder, serverFileName);
@@ -118,7 +119,7 @@ public class UploadController {
         return geAstJsonObject(dtoWrapper).toString();
     }
 
-    @RequestMapping(value = {"/upload**"}, method = RequestMethod.POST)
+    @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS}, method = RequestMethod.POST)
     public String uploadFile(final HttpServletRequest request, final HttpServletResponse response,
                              @RequestParam("files[]") final MultipartFile file, @RequestParam("modifier") final String modifier,
                              @RequestParam("nickName") final String userNickNames) throws IOException {
@@ -130,7 +131,7 @@ public class UploadController {
                 final String host = request.getServerName();
                 final String contextPath = request.getContextPath();
                 final String serverContextAddress = getProtocol(request) + host + ":" + port + contextPath
-                        + ServerConstants.FILES_ALIAS;
+                        + APIAliases.DOWNLOAD_FILE_ALIAS;
                 final Long token = User.getCurrent().getToken();
                 final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
                 final long currentTime = System.currentTimeMillis();

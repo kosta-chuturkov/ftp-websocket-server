@@ -390,7 +390,7 @@ p,:focus {
     var deleteUrl = serverAddress + "<c:url value="/files/delete/" />";
     var updateUsersUrl = serverAddress + "<c:url value="/files/updateUsers/" />";
     var downloadUrl = serverAddress + "<c:url value="/files/" />";
-    var profilePicUpdateUrl = serverAddress + "<c:url value="/profilePicUpdate/" />";
+    var profilePicUpdateUrl = serverAddress + "<c:url value="/profilePic/" />";
     var ws = null;
     var sharedFilesWithMeMethod = 'sharedFilesWithMe';
     var filesISharedMethod = 'filesIShared';
