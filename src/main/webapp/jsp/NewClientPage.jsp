@@ -17,6 +17,9 @@
     }
 %>
 <script>
+    var serverAddress = window.location.origin;
+    var loginUrl = serverAddress + "<c:url value="/api/login" />";
+
     function validateInput() {
         var username = document.getElementById("email").value;
         var pass = document.getElementById("pswd").value;
@@ -30,6 +33,16 @@
         }
         return true;
     }
+    function getCSRF() {
+        var name = "CSRF-TOKEN=";
+           var ca = document.cookie.split(';');
+            for(var i=0; i<ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0)==' ') c = c.substring(1);
+                if (c.indexOf(name) != -1) return c.substring(name.length,c.length);
+            }
+            return "";
+    }
     function enterPressedHandler(e, input) {
         var code = (e.keyCode ? e.keyCode : e.which);
         if (code == 13) {
@@ -38,7 +51,17 @@
     }
     function submitForm() {
         if (validateInput()) {
-            document.getElementById("loginForm").submit();
+        $.ajax({
+            url: loginUrl,
+            headers: {
+                'X-CSRF-TOKEN':getCSRF(),
+            },
+            method: 'POST',
+            data: $("#loginForm").serialize(),
+            success: function(data){
+              console.log('succes: '+data);
+            }
+          });
         }
     }
 </script>

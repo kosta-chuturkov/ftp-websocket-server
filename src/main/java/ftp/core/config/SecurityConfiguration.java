@@ -1,9 +1,7 @@
 package ftp.core.config;
 
-import ftp.core.constants.APIAliases;
-import ftp.core.constants.ServerConstants;
-import ftp.core.security.*;
-import ftp.core.web.filter.CsrfCookieGeneratorFilter;
+import javax.annotation.Resource;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,7 +18,10 @@ import org.springframework.security.data.repository.query.SecurityEvaluationCont
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.csrf.CsrfFilter;
 
-import javax.annotation.Resource;
+import ftp.core.constants.APIAliases;
+import ftp.core.constants.ServerConstants;
+import ftp.core.security.*;
+import ftp.core.web.filter.CsrfCookieGeneratorFilter;
 
 
 @Configuration
@@ -53,14 +54,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Resource
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+	public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .userDetailsService(this.userDetailsService)
                 .passwordEncoder(passwordEncoder());
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+	public void configure(final WebSecurity web) throws Exception {
         web.ignoring()
                 .antMatchers(HttpMethod.OPTIONS, "/**")
                 .antMatchers("/app/**/*.{js,html}")
@@ -73,7 +74,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+	protected void configure(final HttpSecurity http) throws Exception {
         http
                 .csrf()
                 .and()
@@ -108,15 +109,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(APIAliases.REGISTRATION_ALIAS).permitAll()
                 .antMatchers(APIAliases.LOGIN_ALIAS).permitAll()
-                .antMatchers(APIAliases.DELETE_FILE_ALIAS).permitAll()
-                .antMatchers(APIAliases.DOWNLOAD_FILE_ALIAS).permitAll()
-                .antMatchers(APIAliases.GET_FILES_SHARED_WITH_ME_ALIAS).permitAll()
-                .antMatchers(APIAliases.GET_PRIVATE_FILES_ALIAS).permitAll()
-                .antMatchers(APIAliases.GET_UPLOADED_FILES_ALIAS).permitAll()
-                .antMatchers(APIAliases.MAIN_PAGE_ALIAS).permitAll()
                 .antMatchers(APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS).permitAll()
-                .antMatchers(APIAliases.UPDATE_USERS_FILE_IS_SHARED_TO_ALIAS).permitAll()
-                .antMatchers("/api/**").authenticated();
+.anyRequest().permitAll();
+		// .antMatchers("/api/**").authenticated();
 
     }
 
