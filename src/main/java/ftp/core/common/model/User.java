@@ -1,12 +1,17 @@
 package ftp.core.common.model;
 
-import com.google.common.collect.Sets;
-import org.hibernate.validator.constraints.NotEmpty;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Sets;
 
 @Entity
 @Table(name = "users")
@@ -32,6 +37,14 @@ public class User extends AbstractEntity<Long> {
     @OneToMany
     @JoinColumn(name = "user_id")
     private Set<File> uploadedFiles = Sets.newHashSet();
+
+	@JsonIgnore
+	@ManyToMany
+	@JoinTable(name = "user_authority", joinColumns = {
+			@JoinColumn(name = "user_id", referencedColumnName = "id") }, inverseJoinColumns = {
+					@JoinColumn(name = "authority_name", referencedColumnName = "name") })
+	@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+	private Set<Authority> authorities = new HashSet<>();
 
     public User() {
 
@@ -101,6 +114,14 @@ public class User extends AbstractEntity<Long> {
     public void setUploadedFiles(final Set<File> uploadedFiles) {
         this.uploadedFiles = uploadedFiles;
     }
+
+	public Set<Authority> getAuthorities() {
+		return this.authorities;
+	}
+
+	public void setAuthorities(final Set<Authority> authorities) {
+		this.authorities = authorities;
+	}
 
     public boolean addUploadedFile(final File file) {
         if (!this.uploadedFiles.contains(file)) {

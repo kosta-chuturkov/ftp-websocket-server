@@ -1,33 +1,32 @@
 package ftp.core.persistance.face.generic.repository;
 
-import com.google.common.collect.Sets;
-import ftp.core.common.model.AbstractEntity;
-import org.hibernate.*;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
+import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
+import org.hibernate.*;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.Sets;
+
 @Transactional
 @Repository
-public abstract class GenericHibernateRepository<T extends AbstractEntity, ID extends Number>
+public abstract class GenericHibernateRepository<T, ID extends Serializable>
         implements GenericRepository<T, ID> {
 
     private final static String unchecked = "unchecked";
-
+	private final Class<T> persistentClass;
     @Resource
     private SessionFactory sessionFactory;
 
-    private final Class<T> persistentClass;
-
-    @SuppressWarnings(unchecked)
     public GenericHibernateRepository() {
         this.persistentClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass())
                 .getActualTypeArguments()[0];
@@ -45,7 +44,7 @@ public abstract class GenericHibernateRepository<T extends AbstractEntity, ID ex
 
     @Override
     public ID save(final T entity) {
-        @SuppressWarnings("unchecked") final
+		final
         ID id = (ID) getCurrentSession().save(entity);
         return id;
     }
@@ -83,7 +82,6 @@ public abstract class GenericHibernateRepository<T extends AbstractEntity, ID ex
         return id == null ? null : (T) getCurrentSession().get(this.persistentClass, id);
     }
 
-    @SuppressWarnings(unchecked)
     @Override
     public Iterable<T> findByIds(final Collection<ID> ids) {
         if (!ids.iterator().hasNext()) {
@@ -94,7 +92,6 @@ public abstract class GenericHibernateRepository<T extends AbstractEntity, ID ex
         return Sets.newHashSet(c.list());
     }
 
-    @SuppressWarnings(unchecked)
     @Override
     public T unproxy(final ID id) {
         T t = (T) getCurrentSession().load(this.persistentClass, id);
@@ -120,7 +117,6 @@ public abstract class GenericHibernateRepository<T extends AbstractEntity, ID ex
         delete((T) getCurrentSession().load(this.persistentClass, id));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<T> findAll() {
         return getCurrentSession().createCriteria(this.persistentClass).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
@@ -128,7 +124,6 @@ public abstract class GenericHibernateRepository<T extends AbstractEntity, ID ex
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Iterable<T> findAllOrderById() {
         return getCurrentSession().createCriteria(this.persistentClass).addOrder(Order.asc("id"))
@@ -141,7 +136,6 @@ public abstract class GenericHibernateRepository<T extends AbstractEntity, ID ex
         getCurrentSession().saveOrUpdate(entity);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T merge(final T entity) {
         return (T) getCurrentSession().merge(entity);

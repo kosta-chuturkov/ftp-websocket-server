@@ -51,6 +51,9 @@
             <input id="email" name="email" class="form-login"
                    title="Email" value="" size="30" maxlength="2048"/>
         </div>
+        <input type="hidden"
+        	name="${_csrf.parameterName}"
+        	value="${_csrf.token}"/>
         <div id="login-box-name">Password:</div>
         <div id="login-box-field">
             <input id="pswd" name="pswd" type="password" class="form-login"

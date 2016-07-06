@@ -1,13 +1,12 @@
 package ftp.core.persistance.face.generic.repository;
 
-import ftp.core.common.model.AbstractEntity;
-import org.springframework.stereotype.Repository;
-
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.springframework.stereotype.Repository;
+
 @Repository
-public interface GenericRepository<T extends AbstractEntity, ID extends Serializable> {
+public interface GenericRepository<T, ID extends Serializable> {
 
     ID save(T entity);
 

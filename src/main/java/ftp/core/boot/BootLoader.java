@@ -1,4 +1,4 @@
-package ftp.core;
+package ftp.core.boot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,7 +1,5 @@
 package ftp.core.config;
 
-import java.util.UUID;
-
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
@@ -23,13 +21,11 @@ public class WebAppInitializer implements WebApplicationInitializer, Application
 	@Resource
 	private ApplicationContext appContext;
 
-
-
 	@Override
-	public void onStartup(ServletContext container) {
+	public void onStartup(final ServletContext container) {
 
-		ServletRegistration.Dynamic dispatcher = container.addServlet("dispatcher",
-				new DispatcherServlet((WebApplicationContext) appContext));
+		final ServletRegistration.Dynamic dispatcher = container.addServlet("dispatcher",
+				new DispatcherServlet((WebApplicationContext) this.appContext));
 		dispatcher.setLoadOnStartup(1);
 		dispatcher.addMapping("/*");
 	}

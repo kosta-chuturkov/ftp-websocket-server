@@ -1,50 +1,48 @@
-//package ftp.core.security;
-//
-//import io.github.jhipster.sample.domain.User;
-//import io.github.jhipster.sample.repository.UserRepository;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//import org.springframework.security.core.GrantedAuthority;
-//import org.springframework.security.core.authority.SimpleGrantedAuthority;
-//import org.springframework.security.core.userdetails.UserDetails;
-//import org.springframework.security.core.userdetails.UsernameNotFoundException;
-//import org.springframework.stereotype.Component;
-//import org.springframework.transaction.annotation.Transactional;
-//
-//import javax.inject.Inject;
-//import java.util.List;
-//import java.util.Locale;
-//import java.util.Optional;
-//import java.util.stream.Collectors;
-//
-///**
-// * Authenticate a user from the database.
-// */
-//@Component("userDetailsService")
-//public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
-//
-//    private final Logger log = LoggerFactory.getLogger(UserDetailsService.class);
-//
-//    @Inject
-//    private UserRepository userRepository;
-//
-//    @Override
-//    @Transactional
-//    public UserDetails loadUserByUsername(final String login) {
-//        this.log.debug("Authenticating {}", login);
-//        String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
-//        Optional<User> userFromDatabase = this.userRepository.findOneByLogin(lowercaseLogin);
-//        return userFromDatabase.map(user -> {
-//            if (!user.getActivated()) {
-//                throw new UserNotActivatedException("User " + lowercaseLogin + " was not activated");
-//            }
-//            List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
-//                    .map(authority -> new SimpleGrantedAuthority(authority.getName()))
-//                .collect(Collectors.toList());
-//            return new org.springframework.security.core.userdetails.User(lowercaseLogin,
-//                user.getPassword(),
-//                grantedAuthorities);
-//        }).orElseThrow(() -> new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the " +
-//        "database"));
-//    }
-//}
+package ftp.core.security;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import ftp.core.common.model.User;
+import ftp.core.persistance.face.repository.UserRepository;
+
+/**
+ * Authenticate a user from the database.
+ */
+@Component("userDetailsService")
+public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
+
+	private final Logger log = LoggerFactory.getLogger(UserDetailsService.class);
+
+	@Resource
+	private UserRepository userRepository;
+
+	@Override
+	@Transactional
+	public UserDetails loadUserByUsername(final String login) {
+		this.log.debug("Authenticating {}", login);
+		final String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
+		final User userFromDatabase = this.userRepository.getUserByEmail(lowercaseLogin);
+		if (userFromDatabase != null) {
+			final List<GrantedAuthority> grantedAuthorities = userFromDatabase.getAuthorities().stream()
+					.map(authority -> new SimpleGrantedAuthority(authority.getName())).collect(Collectors.toList());
+			return new org.springframework.security.core.userdetails.User(lowercaseLogin,
+					userFromDatabase.getPassword(), grantedAuthorities);
+		} else {
+			throw new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the " + "database");
+		}
+
+	}
+}

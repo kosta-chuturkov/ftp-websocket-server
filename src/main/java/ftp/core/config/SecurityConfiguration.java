@@ -20,7 +20,8 @@ import org.springframework.security.data.repository.query.SecurityEvaluationCont
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.csrf.CsrfFilter;
 
-import javax.inject.Inject;
+import javax.annotation.Resource;
+
 
 @Configuration
 @EnableWebSecurity
@@ -28,22 +29,22 @@ import javax.inject.Inject;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 
-    @Inject
+    @Resource
     private AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
 
-    @Inject
+    @Resource
     private AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler;
 
-    @Inject
+    @Resource
     private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
 
-    @Inject
+    @Resource
     private Http401UnauthorizedEntryPoint authenticationEntryPoint;
 
-    @Inject
+    @Resource
     private UserDetailsService userDetailsService;
 
-    @Inject
+    @Resource
     private RememberMeServices rememberMeServices;
 
     @Bean
@@ -51,7 +52,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-    @Inject
+    @Resource
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .userDetailsService(this.userDetailsService)
