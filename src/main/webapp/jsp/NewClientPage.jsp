@@ -59,7 +59,7 @@
             method: 'POST',
             data: $("#loginForm").serialize(),
             success: function(data){
-              console.log('succes: '+data);
+                window.location = "<c:url value="/api/main/" />"
             },
             error:function(thrownError){
              var r = jQuery.parseJSON(thrownError.responseText);

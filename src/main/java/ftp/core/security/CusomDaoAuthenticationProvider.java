@@ -1,13 +1,12 @@
 package ftp.core.security;
 
+import ftp.core.common.model.User;
+import ftp.core.service.face.tx.UserService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import ftp.core.common.model.User;
-import ftp.core.service.face.tx.UserService;
 
 /**
  * Created by Kosta_Chuturkov on 7/11/2016.

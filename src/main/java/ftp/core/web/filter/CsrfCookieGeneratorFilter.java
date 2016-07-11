@@ -18,6 +18,7 @@ public class CsrfCookieGeneratorFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // Spring put the CSRF token in session attribute "_csrf"
+
         CsrfToken csrfToken = (CsrfToken) request.getAttribute("_csrf");
 
         // Send the cookie only if the token has changed

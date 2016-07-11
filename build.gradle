@@ -77,8 +77,6 @@ dependencies {
     compile("org.springframework:spring-context-support")
     compile('com.google.guava:guava:19.0')
     compile('net.coobird:thumbnailator:0.4.8')
-    compile('javax.el:el-api:2.2')
-    compile('org.glassfish.web:el-impl:2.2')
     compile('com.thetransactioncompany:jsonrpc2-base:1.38')
     compile('net.logstash.logback:logstash-logback-encoder:4.5.1')
     compile('com.google.code.gson:gson:2.6.1')

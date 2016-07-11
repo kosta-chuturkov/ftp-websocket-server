@@ -1,7 +1,10 @@
 package ftp.core.config;
 
-import javax.annotation.Resource;
-
+import ftp.core.constants.APIAliases;
+import ftp.core.constants.ServerConstants;
+import ftp.core.security.*;
+import ftp.core.service.face.tx.UserService;
+import ftp.core.web.filter.CsrfCookieGeneratorFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,11 +25,7 @@ import org.springframework.security.data.repository.query.SecurityEvaluationCont
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.csrf.CsrfFilter;
 
-import ftp.core.constants.APIAliases;
-import ftp.core.constants.ServerConstants;
-import ftp.core.security.*;
-import ftp.core.service.face.tx.UserService;
-import ftp.core.web.filter.CsrfCookieGeneratorFilter;
+import javax.annotation.Resource;
 
 
 @Configuration
@@ -143,5 +142,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
         return new SecurityEvaluationContextExtension();
     }
+
+
 
 }

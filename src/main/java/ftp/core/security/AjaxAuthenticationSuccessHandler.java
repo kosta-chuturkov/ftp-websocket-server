@@ -1,5 +1,7 @@
 package ftp.core.security;
 
+import ftp.core.common.model.User;
+import ftp.core.common.util.ServerUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -19,7 +21,10 @@ public class AjaxAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication)
         throws IOException, ServletException {
-
+        String email = User.getCurrent().getEmail();
+        String password = User.getCurrent().getPassword();
+        long remainingStorage = User.getCurrent().getRemainingStorage();
+        ServerUtil.startUserSession(request, email, password, remainingStorage);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 }

@@ -60,10 +60,9 @@ public class UploadController {
     public ModelAndView getUploadPage(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
         try {
-            if (ServerUtil.checkUserSession(request, true)) {
+            if (ServerUtil.userHasSession(request, true)) {
                 return new ModelAndView(ServerConstants.UPLOAD_PAGE);
             } else {
-                ServerUtil.invalidateSession(request, response);
                 final ModelAndView modelAndView = new ModelAndView("redirect:" + APIAliases.LOGIN_ALIAS);
                 return modelAndView;
             }

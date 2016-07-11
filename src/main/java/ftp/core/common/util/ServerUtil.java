@@ -33,7 +33,7 @@ public class ServerUtil {
 
     private static final Logger logger = Logger.getLogger(ServerUtil.class);
 
-    public static boolean checkUserSession(final HttpServletRequest request, final boolean checkAttributes)
+    public static boolean userHasSession(final HttpServletRequest request, final boolean checkAttributes)
             throws ServletException, IOException {
         final HttpSession session = request.getSession(false);
         if (session == null) {
@@ -106,7 +106,7 @@ public class ServerUtil {
     }
 
     public static void startUserSession(final HttpServletRequest request, final String email, final String password, final long storage) {
-        final HttpSession session = request.getSession(true);
+        final HttpSession session = request.getSession(false);
         final int port = request.getServerPort();
         final String host = request.getServerName();
         final String serverContextAddress = ServerUtil.getProtocol(request) + host + ":" + port;
