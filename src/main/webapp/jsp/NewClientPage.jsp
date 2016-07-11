@@ -60,6 +60,10 @@
             data: $("#loginForm").serialize(),
             success: function(data){
               console.log('succes: '+data);
+            },
+            error:function(thrownError){
+             var r = jQuery.parseJSON(thrownError.responseText);
+             $('#error').html(r.message);
             }
           });
         }
@@ -84,12 +88,12 @@
                    onKeyPress="enterPressedHandler(event, this)"/>
         </div>
         <br/> <span class="login-box-options">Dont have an account ?<a
-            href="<c:url value="/register" />" style="margin-left: 30px;">Register</a></span> <br/>
+            href="<c:url value="/api/register" />" style="margin-left: 30px;">Register</a></span> <br/>
         <br/>
         <a href="javascript:submitForm();"><img
                 src="<c:url value="/resources/images/login-btn.png" />" width="103"
                 height="42" style="margin-left: 90px;"/></a>
-        <div id="error"><%=errorMessage %>
+        <div id="error">
         </div>
     </form>
 </div>

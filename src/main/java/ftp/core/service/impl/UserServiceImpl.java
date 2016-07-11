@@ -1,5 +1,15 @@
 package ftp.core.service.impl;
 
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.util.ServerUtil;
@@ -9,12 +19,6 @@ import ftp.core.persistance.face.repository.UserRepository;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.annotation.Resource;
-import java.util.List;
 
 @Service("userService")
 public class UserServiceImpl extends AbstractGenericService<User, Long> implements UserService {
@@ -24,6 +28,18 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 
     @Resource
     private FileRepository fileRepository;
+
+	@Resource
+	private PasswordEncoder passwordEncoder;
+
+	@Override
+	public String getUserSaltedPassword(final String rawPassword, final Long token) {
+		return ServerUtil.SALT + rawPassword + token.toString();
+	}
+
+	public String encodePassword(final String rawPassword) {
+		return this.passwordEncoder.encode(rawPassword);
+	}
 
     @Override
     public File addFileToUser(final Long fileId, final Long userId) {
@@ -35,7 +51,6 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
         }
         return file;
     }
-
 
     @Override
     public User findByEmailAndPassword(final String email, final String password) {
@@ -95,38 +110,37 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
                              final ModelAndView modelAndView) throws IllegalArgumentException {
         validateUserCredentials(email, password, nickName, password_repeated, modelAndView);
         final Long randomTokenFromDB = getRandomTokenFromDB();
-        final String encodedPassword = ServerUtil.digestRawPassword(password, ServerUtil.SALT,
-                randomTokenFromDB.toString());
-        final User user = new User(nickName, email, encodedPassword, ServerConstants.USER_MAX_UPLOAD_IN_BYTES,
+		final String saltedPassword = getUserSaltedPassword(password, randomTokenFromDB);
+		final String hashedPassword = encodePassword(saltedPassword);
+		final User user = new User(nickName, email, hashedPassword, ServerConstants.USER_MAX_UPLOAD_IN_BYTES,
                 randomTokenFromDB);
-        return save(user);
+		return save(user);
     }
 
     @Override
     public void validateUserCredentials(final String email, final String password, final String nickName, final String password_repeated,
-                                        final ModelAndView modelAndView) throws IllegalArgumentException {
+ final ModelAndView modelAndView) throws UsernameNotFoundException {
         if (!ServerUtil.isEmailValid(email)) {
-            throw new IllegalArgumentException("Wrong email format");
+			throw new UsernameNotFoundException("Wrong email format");
         }
         final User userByEmail = getUserByEmail(email);
         if (userByEmail != null) {
-            throw new IllegalArgumentException("User with this email already exists.");
+			throw new UsernameNotFoundException("User with this email already exists.");
         }
 
         if (!ServerUtil.isNickNameValid(nickName)) {
-            throw new IllegalArgumentException("Wrong nickname format.");
+			throw new UsernameNotFoundException("Wrong nickname format.");
         }
         final User userByNickName = getUserByNickName(nickName);
         if (userByNickName != null) {
-            throw new IllegalArgumentException("User with this nickname already exists.");
+			throw new UsernameNotFoundException("User with this nickname already exists.");
         }
 
         if (!ServerUtil.isPasswordValid(password)) {
-            throw new IllegalArgumentException("Wrong password format.");
+			throw new UsernameNotFoundException("Wrong password format.");
         }
         if (!password.equals(password_repeated)) {
-            throw new IllegalArgumentException("Passwords do not match.");
+			throw new UsernameNotFoundException("Passwords do not match.");
         }
     }
-
 }

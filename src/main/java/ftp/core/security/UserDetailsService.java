@@ -1,15 +1,11 @@
 package ftp.core.security;
 
-import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -17,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ftp.core.common.model.User;
 import ftp.core.persistance.face.repository.UserRepository;
+import ftp.core.service.face.tx.UserService;
 
 /**
  * Authenticate a user from the database.
@@ -29,6 +26,9 @@ public class UserDetailsService implements org.springframework.security.core.use
 	@Resource
 	private UserRepository userRepository;
 
+	@Resource
+	private UserService userService;
+
 	@Override
 	@Transactional
 	public UserDetails loadUserByUsername(final String login) {
@@ -36,13 +36,12 @@ public class UserDetailsService implements org.springframework.security.core.use
 		final String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
 		final User userFromDatabase = this.userRepository.getUserByEmail(lowercaseLogin);
 		if (userFromDatabase != null) {
-			final List<GrantedAuthority> grantedAuthorities = userFromDatabase.getAuthorities().stream()
-					.map(authority -> new SimpleGrantedAuthority(authority.getName())).collect(Collectors.toList());
-			return new org.springframework.security.core.userdetails.User(lowercaseLogin,
-					userFromDatabase.getPassword(), grantedAuthorities);
+			User.setCurrent(userFromDatabase);
+			return userFromDatabase;
 		} else {
-			throw new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the " + "database");
+			throw new UsernameNotFoundException("Invalid credentials");
 		}
 
 	}
+
 }

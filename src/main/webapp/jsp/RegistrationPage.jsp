@@ -184,22 +184,52 @@ function validateInput(){
 			 submitForm();
 		};
 	}
+	 function getCSRF() {
+            var name = "CSRF-TOKEN=";
+               var ca = document.cookie.split(';');
+                for(var i=0; i<ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0)==' ') c = c.substring(1);
+                    if (c.indexOf(name) != -1) return c.substring(name.length,c.length);
+                }
+                return "";
+     }
+    var serverAddress = window.location.origin;
+    var registerUrl = serverAddress + "<c:url value="/api/register" />";
 	function submitForm() {
-		if(validateInput()){
-		document.getElementById("submitForm").submit();
-		}
-	}
+            if (validateInput()) {
+            $.ajax({
+                url: registerUrl,
+                headers: {
+                    'X-CSRF-TOKEN':getCSRF(),
+                },
+                method: 'POST',
+                data: $("#submitForm").serialize(),
+                success: function(data){
+                    window.location = "<c:url value="/api/main/" />"
+                },
+                error:function(thrownError){
+                var r = jQuery.parseJSON(thrownError.responseText);
+                $('#error').html(r.errors[0].message);
+                }
+              });
+            }
+        }
+
 </script>
 <div id="bg">
   <div class="module"> 
-  <form method="post" action="<c:url value="/register"/>" id="submitForm">
+  <form method="post" action="<c:url value="/api/register"/>" id="submitForm">
     <div class="form">
       <input type="text" id="nickname" name="nickname" placeholder="NickName" class="textbox" title="Entered username is invalid!" required>
       <input type="email" id="email" name="email" placeholder="Email Address" class="textbox" title="Entered email is invalid!" required>
       <input type="password" id="pswd" name="pswd" placeholder="Password" class="textbox" pattern="[a-zA-Z0-9]{5,}" title="Minmimum password length is 5 symbols." required>
       <input type="password" id="password_repeated" name="password_repeated" placeholder="Repeat Password" class="textbox" onKeyPress = "enterPressedHandler(event, this)" title="Minmimum password length is 5 symbols." required>
       <input type="button" id="submitButton" value="Register" class="button" onclick="javascript:submitForm();"/>
-      <div id="error"><%=errorMessage %></div>
+       <input type="hidden"
+              	name="${_csrf.parameterName}"
+              	value="${_csrf.token}"/>
+      <div id="error"></div>
     </div>
     </form>
   </div>

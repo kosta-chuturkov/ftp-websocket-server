@@ -11,6 +11,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * An authority (a security role) used by Spring Security.
@@ -18,7 +19,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "authority")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Authority implements Serializable {
+public class Authority implements Serializable, GrantedAuthority {
 
 	private static final long serialVersionUID = 1L;
 
@@ -28,11 +29,11 @@ public class Authority implements Serializable {
 	@Column(length = 50)
 	private String name;
 
-	public String getName() {
+	public String getAuthority() {
 		return this.name;
 	}
 
-	public void setName(final String name) {
+	public void setAuthority(final String name) {
 		this.name = name;
 	}
 

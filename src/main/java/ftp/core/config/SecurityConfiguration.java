@@ -2,9 +2,13 @@ package ftp.core.config;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.dao.ReflectionSaltSource;
+import org.springframework.security.authentication.dao.SaltSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,6 +25,7 @@ import org.springframework.security.web.csrf.CsrfFilter;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
 import ftp.core.security.*;
+import ftp.core.service.face.tx.UserService;
 import ftp.core.web.filter.CsrfCookieGeneratorFilter;
 
 
@@ -45,19 +50,37 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Resource
     private UserDetailsService userDetailsService;
 
+	@Resource
+	private UserService userService;
+
     @Resource
     private RememberMeServices rememberMeServices;
 
-    @Bean
+	@Bean(name = "passwordEncoder")
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    @Resource
-	public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .userDetailsService(this.userDetailsService)
-                .passwordEncoder(passwordEncoder());
+	@Bean
+	public SaltSource saltSource() {
+		final ReflectionSaltSource reflectionSaltSource = new ReflectionSaltSource();
+		reflectionSaltSource.setUserPropertyToUse("getToken");
+		return reflectionSaltSource;
+	}
+
+	@Bean
+	public DaoAuthenticationProvider daoAuthenticationProvider() {
+		final DaoAuthenticationProvider daoAuthenticationProvider = new CusomDaoAuthenticationProvider(
+				this.userService);
+		daoAuthenticationProvider.setUserDetailsService(this.userDetailsService);
+		daoAuthenticationProvider.setPasswordEncoder(this.passwordEncoder());
+		return daoAuthenticationProvider;
+	}
+
+	@Autowired
+	public void configureGlobal(final AuthenticationManagerBuilder auth,
+			final DaoAuthenticationProvider daoAuthenticationProvider) throws Exception {
+		auth.authenticationProvider(daoAuthenticationProvider);
     }
 
     @Override
@@ -78,6 +101,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .csrf()
                 .and()
+.addFilterBefore(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
                 .addFilterAfter(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
                 .exceptionHandling()
                 .accessDeniedHandler(new CustomAccessDeniedHandler())
@@ -110,8 +134,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(APIAliases.REGISTRATION_ALIAS).permitAll()
                 .antMatchers(APIAliases.LOGIN_ALIAS).permitAll()
                 .antMatchers(APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS).permitAll()
-.anyRequest().permitAll();
-		// .antMatchers("/api/**").authenticated();
+.antMatchers("/api/**")
+				.authenticated();
 
     }
 
@@ -119,4 +143,5 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
         return new SecurityEvaluationContextExtension();
     }
+
 }

@@ -24,9 +24,9 @@ public class APIAliases {
 
     public static final String LOGOUT_ALIAS = ROOT_PREFIX + "/logout";
 
-    public static final String MAIN_PAGE_ALIAS = "/main/";
+	public static final String MAIN_PAGE_ALIAS = ROOT_PREFIX + "/main/";
 
-    public static final String REGISTRATION_ALIAS = "/register";
+	public static final String REGISTRATION_ALIAS = ROOT_PREFIX + "/register";
 
     public static final String UPLOAD_FILE_ALIAS = "/upload";
 

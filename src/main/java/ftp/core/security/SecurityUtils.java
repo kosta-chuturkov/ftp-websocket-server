@@ -1,5 +1,7 @@
 package ftp.core.security;
 
+import java.util.Collection;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -7,12 +9,14 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
+import ftp.core.common.model.User;
+import ftp.core.common.util.ServerUtil;
 
 /**
  * Utility class for Spring Security.
  */
 public final class SecurityUtils {
+
 
     private SecurityUtils() {
     }
@@ -23,12 +27,12 @@ public final class SecurityUtils {
      * @return the login of the current user
      */
     public static String getCurrentUserLogin() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
+        final SecurityContext securityContext = SecurityContextHolder.getContext();
+        final Authentication authentication = securityContext.getAuthentication();
         String userName = null;
         if (authentication != null) {
             if (authentication.getPrincipal() instanceof UserDetails) {
-                UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
+                final UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
                 userName = springSecurityUser.getUsername();
             } else if (authentication.getPrincipal() instanceof String) {
                 userName = (String) authentication.getPrincipal();
@@ -43,10 +47,10 @@ public final class SecurityUtils {
      * @return true if the user is authenticated, false otherwise
      */
     public static boolean isAuthenticated() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Collection<? extends GrantedAuthority> authorities = securityContext.getAuthentication().getAuthorities();
+        final SecurityContext securityContext = SecurityContextHolder.getContext();
+        final Collection<? extends GrantedAuthority> authorities = securityContext.getAuthentication().getAuthorities();
         if (authorities != null) {
-            for (GrantedAuthority authority : authorities) {
+            for (final GrantedAuthority authority : authorities) {
                 if (authority.getAuthority().equals(AuthoritiesConstants.ANONYMOUS)) {
                     return false;
                 }
@@ -63,15 +67,16 @@ public final class SecurityUtils {
      * @param authority the authorithy to check
      * @return true if the current user has the authority, false otherwise
      */
-    public static boolean isCurrentUserInRole(String authority) {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
+    public static boolean isCurrentUserInRole(final String authority) {
+        final SecurityContext securityContext = SecurityContextHolder.getContext();
+        final Authentication authentication = securityContext.getAuthentication();
         if (authentication != null) {
             if (authentication.getPrincipal() instanceof UserDetails) {
-                UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
+                final UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
                 return springSecurityUser.getAuthorities().contains(new SimpleGrantedAuthority(authority));
             }
         }
         return false;
     }
+
 }

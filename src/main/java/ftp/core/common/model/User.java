@@ -9,42 +9,70 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Sets;
 
 @Entity
 @Table(name = "users")
-public class User extends AbstractEntity<Long> {
+public class User extends AbstractEntity<Long> implements UserDetails {
 
     private static final ThreadLocal<User> current = new ThreadLocal<>();
     @NotNull
     @NotEmpty
     @Column(name = "nickname", length = 32)
     private String nickName;
+
     @NotNull
     @NotEmpty
     @Column(name = "email", length = 32)
     private String email;
+
     @NotNull
     @NotEmpty
+	@JsonIgnore
     @Column(name = "pass", length = 64)
     private String password;
+
     @Column(name = "remaining_storage")
     private long remainingStorage;
+
     @Column(name = "token")
+	@JsonIgnore
     private Long token;
+
     @OneToMany
     @JoinColumn(name = "user_id")
     private Set<File> uploadedFiles = Sets.newHashSet();
 
 	@JsonIgnore
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_authority", joinColumns = {
 			@JoinColumn(name = "user_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "authority_name", referencedColumnName = "name") })
 	@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	private Set<Authority> authorities = new HashSet<>();
+
+	@JsonIgnore
+	@NotNull
+	@Column(name = "account_non_expired")
+	private Boolean accountNonExpired = true;
+
+	@JsonIgnore
+	@NotNull
+	@Column(name = "account_non_locked")
+	private Boolean accountNonLocked = true;
+
+	@JsonIgnore
+	@NotNull
+	@Column(name = "credentials_non_expired")
+	private Boolean credentialsNonExpired = true;
+
+	@JsonIgnore
+	@NotNull
+	@Column(name = "enabled")
+	private Boolean enabled = true;
 
     public User() {
 
@@ -83,13 +111,55 @@ public class User extends AbstractEntity<Long> {
         this.email = email;
     }
 
+	@Override
     public String getPassword() {
         return this.password;
-    }
+	}
 
     public void setPassword(final String password) {
         this.password = password;
     }
+
+	@Override
+	public String getUsername() {
+		return getEmail();
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return this.accountNonExpired;
+	}
+
+	public void setAccountNonExpired(final boolean accountNonExpired) {
+		this.accountNonExpired = accountNonExpired;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return this.accountNonLocked;
+	}
+
+	public void setAccountNonLocked(final boolean accountNonLocked) {
+		this.accountNonLocked = accountNonLocked;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return this.credentialsNonExpired;
+	}
+
+	public void setCredentialsNonExpired(final boolean credentialsNonExpired) {
+		this.credentialsNonExpired = credentialsNonExpired;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return this.enabled;
+	}
+
+	public void setEnabled(final boolean enabled) {
+		this.enabled = enabled;
+	}
 
     public long getRemainingStorage() {
         return this.remainingStorage;
@@ -115,6 +185,7 @@ public class User extends AbstractEntity<Long> {
         this.uploadedFiles = uploadedFiles;
     }
 
+	@Override
 	public Set<Authority> getAuthorities() {
 		return this.authorities;
 	}
