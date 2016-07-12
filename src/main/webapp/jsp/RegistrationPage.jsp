@@ -194,8 +194,11 @@ function validateInput(){
                 }
                 return "";
      }
+     function goToLoginPage(){
+        window.location = "<c:url value="/api/main/" />"
+     }
     var serverAddress = window.location.origin;
-    var registerUrl = serverAddress + "<c:url value="/api/register/" />";
+    var registerUrl = serverAddress + "<c:url value="/api/register" />";
 	function submitForm() {
             if (validateInput()) {
             $.ajax({
@@ -206,7 +209,9 @@ function validateInput(){
                 method: 'POST',
                 data: $("#submitForm").serialize(),
                 success: function(data){
-                    window.location = "<c:url value="/api/main/" />"
+                     alert('Registration successful. You can now login.');
+                     goToLoginPage();
+
                 },
                 error:function(thrownError){
                 var r = jQuery.parseJSON(thrownError.responseText);
@@ -219,7 +224,7 @@ function validateInput(){
 </script>
 <div id="bg">
   <div class="module"> 
-  <form method="post" action="<c:url value="/api/register/"/>" id="submitForm">
+  <form method="post" action="<c:url value="/api/register"/>" id="submitForm">
     <div class="form">
       <input type="text" id="nickname" name="nickname" placeholder="NickName" class="textbox" title="Entered username is invalid!" required>
       <input type="email" id="email" name="email" placeholder="Email Address" class="textbox" title="Entered email is invalid!" required>

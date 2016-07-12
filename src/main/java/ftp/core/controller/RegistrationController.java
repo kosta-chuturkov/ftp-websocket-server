@@ -1,13 +1,14 @@
 package ftp.core.controller;
 
-import java.io.IOException;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
-
+import ftp.core.common.model.User;
+import ftp.core.common.util.ServerUtil;
+import ftp.core.constants.APIAliases;
+import ftp.core.constants.ServerConstants;
+import ftp.core.service.face.tx.FtpServerException;
+import ftp.core.service.face.tx.UserService;
 import org.apache.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,12 +16,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-import ftp.core.common.model.User;
-import ftp.core.common.util.ServerUtil;
-import ftp.core.constants.APIAliases;
-import ftp.core.constants.ServerConstants;
-import ftp.core.service.face.tx.FtpServerException;
-import ftp.core.service.face.tx.UserService;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
 
 @Controller
 public class RegistrationController {
@@ -48,10 +48,10 @@ public class RegistrationController {
 		}
 	}
 
-	@RequestMapping(value = { APIAliases.REGISTRATION_ALIAS + "/" }, method = RequestMethod.POST)
-	public ModelAndView register(final HttpServletRequest request, @NotNull @ModelAttribute("email") final String email,
-								 @NotNull @ModelAttribute("pswd") final String password, @NotNull @ModelAttribute("nickname") final String nickName,
-								 @NotNull @ModelAttribute("password_repeated") final String password_repeated) throws IOException {
+	@RequestMapping(value = {APIAliases.REGISTRATION_ALIAS}, method = RequestMethod.POST)
+	public ResponseEntity<?> register(final HttpServletRequest request, @NotNull @ModelAttribute("email") final String email,
+									  @NotNull @ModelAttribute("pswd") final String password, @NotNull @ModelAttribute("nickname") final String nickName,
+									  @NotNull @ModelAttribute("password_repeated") final String password_repeated) throws IOException {
 		final ModelAndView modelAndView = new ModelAndView(ServerConstants.REGISTRATION_PAGE);
 		try {
 			if (ServerUtil.userHasSession(request, true)) {
@@ -66,14 +66,12 @@ public class RegistrationController {
 				final User user = this.userService.findOne(id);
 				User.setCurrent(user);
 				ServerUtil.startUserSession(request, email, user.getPassword(), user.getRemainingStorage());
-				final RedirectView view = new RedirectView(APIAliases.MAIN_PAGE_ALIAS, true);
-				view.setExposeModelAttributes(false);
-				return new ModelAndView(view);
+				return new ResponseEntity<>(HttpStatus.CREATED);
 			}
 		} catch (final Exception e) {
 			modelAndView.addObject("errorMsg", e.getMessage());
 		}
-		return modelAndView;
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 
 }
