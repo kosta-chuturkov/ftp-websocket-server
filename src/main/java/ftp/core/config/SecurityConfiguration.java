@@ -1,10 +1,7 @@
 package ftp.core.config;
 
-import ftp.core.constants.APIAliases;
-import ftp.core.constants.ServerConstants;
-import ftp.core.security.*;
-import ftp.core.service.face.tx.UserService;
-import ftp.core.web.filter.CsrfCookieGeneratorFilter;
+import javax.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +22,11 @@ import org.springframework.security.data.repository.query.SecurityEvaluationCont
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.csrf.CsrfFilter;
 
-import javax.annotation.Resource;
+import ftp.core.constants.APIAliases;
+import ftp.core.constants.ServerConstants;
+import ftp.core.security.*;
+import ftp.core.service.face.tx.UserService;
+import ftp.core.web.filter.CsrfCookieGeneratorFilter;
 
 
 @Configuration
@@ -112,7 +113,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .key(ServerConstants.REMEMBER_ME_SECURITY_KEY)
                 .and()
                 .formLogin()
-                .loginProcessingUrl(APIAliases.LOGIN_ALIAS)
+				.loginProcessingUrl(APIAliases.LOGIN_ALIAS)
                 .successHandler(this.ajaxAuthenticationSuccessHandler)
                 .failureHandler(this.ajaxAuthenticationFailureHandler)
                 .usernameParameter("email")
@@ -130,7 +131,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .disable()
                 .and()
                 .authorizeRequests()
-                .antMatchers(APIAliases.REGISTRATION_ALIAS).permitAll()
+				.antMatchers(APIAliases.REGISTRATION_ALIAS).permitAll()
                 .antMatchers(APIAliases.LOGIN_ALIAS).permitAll()
                 .antMatchers(APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS).permitAll()
 .antMatchers("/api/**")

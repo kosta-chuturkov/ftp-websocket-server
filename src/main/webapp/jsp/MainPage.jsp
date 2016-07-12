@@ -316,7 +316,7 @@ p,:focus {
 			<div id="toplinks">
 				<div class="left">
 					<strong>Cloud Server Main Page</strong> &nbsp;|&nbsp; <a class="uploadButton"
-						href="<c:url value="/upload" />"><strong>Upload Files</strong></a>&nbsp;|&nbsp;
+						href="<c:url value="/api/upload" />"><strong>Upload Files</strong></a>&nbsp;|&nbsp;
 						<strong><%=user%></strong>&nbsp;|&nbsp;
 						&nbsp;|&nbsp;<label id="storageInfo"><%=storage%> left from <%=maxStorage%>.</label>
 				</div>
@@ -679,7 +679,7 @@ p,:focus {
 
         function logout(){
           var req = new XMLHttpRequest();
-          req.open("GET","<c:url value="/logout"/>", true);
+          req.open("GET","<c:url value="/api/logout"/>", true);
           req.withCredentials = true;
           req.send();
           window.location.replace("<c:url value="/api/login"/>");
@@ -726,11 +726,24 @@ p,:focus {
         request.send(formData);
 
         }
-
+     function getCSRF() {
+        var name = "CSRF-TOKEN=";
+           var ca = document.cookie.split(';');
+            for(var i=0; i<ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0)==' ') c = c.substring(1);
+                if (c.indexOf(name) != -1) return c.substring(name.length,c.length);
+            }
+            return "";
+     }
      function applySelect2(){
     	$(".js-data-example-ajax").select2({
         ajax: {
-        url: "<c:url value="/users" />",
+        type: 'POST',
+        url: "<c:url value="/api/users" />",
+        headers: {
+        'X-CSRF-TOKEN':getCSRF(),
+        },
         dataType: 'json',
         delay: 250,
         data: function (params) {

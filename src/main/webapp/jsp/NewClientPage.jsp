@@ -49,6 +49,9 @@
             submitForm();
         }
     }
+    function refresh(){
+        window.location = "<c:url value="/api/login/" />"
+    }
     function submitForm() {
         if (validateInput()) {
         $.ajax({
@@ -64,6 +67,7 @@
             error:function(thrownError){
              var r = jQuery.parseJSON(thrownError.responseText);
              $('#error').html(r.message);
+             setTimeout(refresh, 3000);
             }
           });
         }

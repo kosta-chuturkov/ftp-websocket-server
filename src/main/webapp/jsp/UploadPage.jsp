@@ -113,9 +113,9 @@
 		</div>
 		<div class="navbar-collapse collapse">
 			<ul class="nav navbar-nav">
-				<li><a href="<c:url value="/main/" />"><strong><%=user%>
+				<li><a href="<c:url value="/api/main/" />"><strong><%=user%>
 				</strong></a></li>
-				<li><a href="<c:url value="/api/logout" />"><b>Logout</b></a></li>
+				<li><a href="javascript:logout();" /><b>Logout</b></a></li>
 			</ul>
 		</div>
 	</div>
@@ -136,7 +136,7 @@
 	<br>
 
 	<!-- The file upload form used as target for the file upload widget -->
-	<form id="fileupload" action="<c:url value="/upload" />" onsubmit="changeNickNamesInputValue()" method="POST"
+	<form id="fileupload" action="<c:url value="/api/upload" />" onsubmit="changeNickNamesInputValue()" method="POST"
 		  enctype="multipart/form-data">
 		<!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
 		<div style="color: #222; padding: 10px;">
@@ -155,6 +155,9 @@
 					<td><select id="selectedUsers" class="js-data-example-ajax" multiple="multiple" tabindex="-1" aria-hidden="true"></select>
 					<input type="hidden" name="nickName" value=""></td>
 				</tr>
+				<input type="hidden"
+                        	name="${_csrf.parameterName}"
+                        	value="${_csrf.token}"/>
 			</table>
 		</div>
 		<div class="row fileupload-buttonbar">
@@ -346,10 +349,24 @@
     function formatRepoSelection (repo) {
          return repo.full_name || repo.text;
     }
+    function getCSRF() {
+            var name = "CSRF-TOKEN=";
+               var ca = document.cookie.split(';');
+                for(var i=0; i<ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0)==' ') c = c.substring(1);
+                    if (c.indexOf(name) != -1) return c.substring(name.length,c.length);
+                }
+                return "";
+        }
     function applySelect2(){
         	$(".js-data-example-ajax").select2({
             ajax: {
-            url: "<c:url value="/users" />",
+            type: 'POST',
+            url: "<c:url value="/api/users" />",
+            headers: {
+             'X-CSRF-TOKEN':getCSRF(),
+            },
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -380,6 +397,13 @@
           templateResult: formatRepo, // omitted for brevity, see the source of this page
           templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
         });
+        }
+        function logout(){
+            var req = new XMLHttpRequest();
+            req.open("GET","<c:url value="/api/logout"/>", true);
+            req.withCredentials = true;
+            req.send();
+            window.location.replace("<c:url value="/api/login"/>");
         }
         function changeNickNamesInputValue(){
         var options = $('#selectedUsers').select2("val");

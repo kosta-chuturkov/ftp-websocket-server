@@ -52,9 +52,9 @@
             
             // The regular expression for allowed file types, matches
             // against either file type or file name:
-            acceptFileTypes: ,
+            acceptFileTypes: undefined,
             // The maximum allowed file size in bytes:
-            maxFileSize: 1073741824, // 1 GB
+            maxFileSize: undefined, // 1 GB
             // The minimum allowed file size in bytes:
             minFileSize: undefined, // No minimal file size
             // The limit of files to be uploaded:

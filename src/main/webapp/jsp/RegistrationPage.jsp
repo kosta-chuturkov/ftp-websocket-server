@@ -195,7 +195,7 @@ function validateInput(){
                 return "";
      }
     var serverAddress = window.location.origin;
-    var registerUrl = serverAddress + "<c:url value="/api/register" />";
+    var registerUrl = serverAddress + "<c:url value="/api/register/" />";
 	function submitForm() {
             if (validateInput()) {
             $.ajax({
@@ -219,7 +219,7 @@ function validateInput(){
 </script>
 <div id="bg">
   <div class="module"> 
-  <form method="post" action="<c:url value="/api/register"/>" id="submitForm">
+  <form method="post" action="<c:url value="/api/register/"/>" id="submitForm">
     <div class="form">
       <input type="text" id="nickname" name="nickname" placeholder="NickName" class="textbox" title="Entered username is invalid!" required>
       <input type="email" id="email" name="email" placeholder="Email Address" class="textbox" title="Entered email is invalid!" required>

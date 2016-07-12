@@ -23,10 +23,10 @@ public class MainController {
 	public ModelAndView getLoginPage(final HttpServletRequest request, final HttpServletResponse response)
 					throws IOException {
 		try {
+
 			if (ServerUtil.userHasSession(request, true)) {
 				return new ModelAndView(ServerConstants.MAIN_PAGE);
 			} else {
-				ServerUtil.invalidateSession(request, response);
 				return new ModelAndView("redirect:" + APIAliases.LOGIN_ALIAS);
 			}
 		} catch (final Exception e) {

@@ -1,8 +1,24 @@
 package ftp.core.controller;
 
+import static ftp.core.common.util.ServerUtil.getAvatarUrl;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
+
+import org.apache.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.FileDto;
@@ -14,19 +30,6 @@ import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.impl.AuthenticationService;
 import ftp.core.service.impl.EventService;
-import org.apache.log4j.Logger;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
-import static ftp.core.common.util.ServerUtil.getAvatarUrl;
 
 @RestController
 public class JspPageRestController {
@@ -95,7 +98,7 @@ public class JspPageRestController {
         return fileDtos;
     }
 
-    @RequestMapping(value = {APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS}, method = RequestMethod.GET)
+	@RequestMapping(value = { APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS }, method = RequestMethod.POST)
     public String usrs(final HttpServletRequest request, final HttpServletResponse response,
                        @NotNull @ModelAttribute("q") final String userNickName) throws IOException {
 		this.authenticationService.authenticateClient(request, response);
