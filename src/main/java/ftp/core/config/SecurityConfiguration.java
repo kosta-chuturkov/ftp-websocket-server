@@ -100,7 +100,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.requiresChannel().anyRequest().requiresSecure().and()
                 .csrf()
                 .and()
-.addFilterBefore(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
                 .addFilterAfter(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
                 .exceptionHandling()
                 .accessDeniedHandler(new CustomAccessDeniedHandler())
