@@ -1,5 +1,8 @@
 package ftp.core.service.face;
 
+import java.util.Collection;
+
+import ftp.core.common.model.dto.AbstractDto;
 import ftp.core.websocket.dto.JsonResponse;
 
 /**
@@ -7,5 +10,5 @@ import ftp.core.websocket.dto.JsonResponse;
  */
 public interface JsonService {
 
-    JsonResponse getJsonResponse(final String method, final Object data);
+	JsonResponse getJsonResponse(final String method, final Collection<AbstractDto> data);
 }

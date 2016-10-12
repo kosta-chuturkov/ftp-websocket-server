@@ -1,12 +1,17 @@
 package ftp.core.service.impl;
 
+import java.util.Collection;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
 import com.google.gson.Gson;
+
+import ftp.core.common.model.dto.AbstractDto;
 import ftp.core.service.face.JsonService;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.websocket.dto.JsonResponse;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
 
 /**
  * Created by Kosta_Chuturkov on 2/26/2016.
@@ -22,7 +27,7 @@ public class JsonServiceImpl implements JsonService {
     private FileService fileService;
 
 
-    public JsonResponse getJsonResponse(final String method, final Object data) {
+	public JsonResponse getJsonResponse(final String method, final Collection<AbstractDto> data) {
         final JsonResponse jsonResponse = new JsonResponse();
         jsonResponse.setResponseMethod(method);
         jsonResponse.setResult(this.gson.toJson(data));

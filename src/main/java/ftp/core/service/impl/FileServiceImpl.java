@@ -6,7 +6,7 @@ import ftp.core.common.model.File;
 import ftp.core.common.model.File.FileType;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.DeletedFileDto;
-import ftp.core.common.model.dto.FileDto;
+import ftp.core.common.model.dto.AbstractDto;
 import ftp.core.common.model.dto.ModifiedUsersDto;
 import ftp.core.common.model.dto.SharedFileDto;
 import ftp.core.constants.ServerConstants;
@@ -87,9 +87,9 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
                     final User userToShareTheFileWith = this.userService.checkAndGetUserToSendFilesTo(user);
                     addUserToFile(savedFileId, userToShareTheFileWith.getNickName());
                     this.userService.addFileToUser(savedFileId, currentUser.getId());
-                    final FileDto fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                    final AbstractDto abstractDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                             file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-                    this.eventService.fireSharedFileEvent(user, fileDto);
+                    this.eventService.fireSharedFileEvent(user, abstractDto);
                 }
             }
         } else {
@@ -177,10 +177,10 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
         }
 
         final File file = updateUsersForFile(deleteHash, userNickNames);
-        final FileDto fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+        final AbstractDto abstractDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                 file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
         for (final String userNickName : userNickNames) {
-            this.eventService.fireSharedFileEvent(userNickName, fileDto);
+            this.eventService.fireSharedFileEvent(userNickName, abstractDto);
         }
     }
 

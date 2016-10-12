@@ -21,7 +21,7 @@ import com.google.gson.JsonObject;
 
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
-import ftp.core.common.model.dto.FileDto;
+import ftp.core.common.model.dto.AbstractDto;
 import ftp.core.common.model.dto.ModifiedUsersDto;
 import ftp.core.common.model.dto.UploadedFileDto;
 import ftp.core.common.util.ServerUtil;
@@ -46,56 +46,56 @@ public class JspPageRestController {
 
 
     @RequestMapping(value = {APIAliases.GET_FILES_SHARED_WITH_ME_ALIAS}, method = RequestMethod.POST)
-    public List<FileDto> getSharedFiles(final HttpServletRequest request, final HttpServletResponse response,
-                                        @NotNull @ModelAttribute("firstResult") final Integer firstResult,
-                                        @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
+    public List<AbstractDto> getSharedFiles(final HttpServletRequest request, final HttpServletResponse response,
+                                            @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                            @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
 
-        final List<FileDto> fileDtos = Lists.newArrayList();
+        final List<AbstractDto> abstractDtos = Lists.newArrayList();
 		this.authenticationService.authenticateClient(request, response);
 		final List<File> files = this.fileService.getSharedFilesForUser(User.getCurrent().getNickName(), firstResult,
 				maxResults);
             for (final File file : files) {
-                final FileDto fileDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                final AbstractDto abstractDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                         file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-                fileDtos.add(fileDto);
+                abstractDtos.add(abstractDto);
 
         }
-        return fileDtos;
+        return abstractDtos;
     }
 
 
     @RequestMapping(value = {APIAliases.GET_PRIVATE_FILES_ALIAS}, method = RequestMethod.POST)
-    public List<FileDto> getPrivateFiles(final HttpServletRequest request, final HttpServletResponse response,
-                                         @NotNull @ModelAttribute("firstResult") final Integer firstResult,
-                                         @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
-        final List<FileDto> fileDtos = Lists.newArrayList();
+    public List<AbstractDto> getPrivateFiles(final HttpServletRequest request, final HttpServletResponse response,
+                                             @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                             @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
+        final List<AbstractDto> abstractDtos = Lists.newArrayList();
 		this.authenticationService.authenticateClient(request, response);
 		final List<File> files = this.fileService.getPrivateFilesForUser(User.getCurrent().getNickName(), firstResult,
 				maxResults);
             for (final File file : files) {
-                final FileDto fileDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                final AbstractDto abstractDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                         file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-                fileDtos.add(fileDto);
+                abstractDtos.add(abstractDto);
             }
 
-        return fileDtos;
+        return abstractDtos;
     }
 
     @RequestMapping(value = {APIAliases.GET_UPLOADED_FILES_ALIAS}, method = RequestMethod.POST)
-    public List<FileDto> getUploadedFiles(final HttpServletRequest request, final HttpServletResponse response,
-                                          @NotNull @ModelAttribute("firstResult") final Integer firstResult,
-                                          @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
-        final List<FileDto> fileDtos = Lists.newArrayList();
+    public List<AbstractDto> getUploadedFiles(final HttpServletRequest request, final HttpServletResponse response,
+                                              @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                              @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
+        final List<AbstractDto> abstractDtos = Lists.newArrayList();
 		this.authenticationService.authenticateClient(request, response);
 		final List<Long> files = this.fileService.getSharedFilesWithUsersIds(User.getCurrent().getId(), firstResult,
 				maxResults);
             for (final Long fileId : files) {
                 final File file = this.fileService.findWithSharedUsers(fileId);
-                final FileDto fileDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                final AbstractDto abstractDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                         file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-                fileDtos.add(fileDto);
+                abstractDtos.add(abstractDto);
             }
-        return fileDtos;
+        return abstractDtos;
     }
 
 	@RequestMapping(value = { APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS }, method = RequestMethod.POST)

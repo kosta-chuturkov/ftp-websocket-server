@@ -2,7 +2,7 @@ package ftp.core.service.impl;
 
 import com.google.gson.Gson;
 import ftp.core.common.model.dto.DeletedFileDto;
-import ftp.core.common.model.dto.FileDto;
+import ftp.core.common.model.dto.AbstractDto;
 import ftp.core.websocket.dto.JsonResponse;
 import ftp.core.websocket.handler.Handlers;
 import org.springframework.stereotype.Service;
@@ -28,8 +28,8 @@ public class EventService {
     private EventBus eventBus;
 
 
-    public void fireSharedFileEvent(final String topic, final FileDto fileDto) {
-        this.eventBus.notify(topic, Event.wrap(new JsonResponse(Handlers.FILES_SHARED_WITH_ME_HANDLER, this.gson.toJson(fileDto))));
+    public void fireSharedFileEvent(final String topic, final AbstractDto abstractDto) {
+        this.eventBus.notify(topic, Event.wrap(new JsonResponse(Handlers.FILES_SHARED_WITH_ME_HANDLER, this.gson.toJson(abstractDto))));
 
     }
 

@@ -5,7 +5,7 @@ import ftp.core.common.model.File;
 /**
  * Created by Kosta_Chuturkov on 3/30/2016.
  */
-public class UploadedFileDto extends SharedFileDto implements FileDto {
+public class UploadedFileDto extends SharedFileDto implements AbstractDto {
     private String deleteHash;
 
 

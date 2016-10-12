@@ -5,7 +5,7 @@ import ftp.core.common.model.File;
 /**
  * Created by kosta on 2.6.2016 г..
  */
-public class SharedFileDto implements FileDto {
+public class SharedFileDto implements AbstractDto {
     private String sharingUserName;
 
     private String name;
