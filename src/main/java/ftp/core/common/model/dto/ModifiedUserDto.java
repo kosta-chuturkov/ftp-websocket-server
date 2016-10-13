@@ -3,7 +3,7 @@ package ftp.core.common.model.dto;
 /**
  * Created by kosta on 1.6.2016 г..
  */
-public class ModifiedUsersDto {
+public class ModifiedUserDto {
 
     private String name;
 
@@ -20,7 +20,7 @@ public class ModifiedUsersDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final ModifiedUsersDto that = (ModifiedUsersDto) o;
+        final ModifiedUserDto that = (ModifiedUserDto) o;
 
         return this.name != null ? this.name.equals(that.name) : that.name == null;
 

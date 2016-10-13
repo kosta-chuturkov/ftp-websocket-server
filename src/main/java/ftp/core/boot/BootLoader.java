@@ -15,6 +15,11 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc
 public class BootLoader extends SpringBootServletInitializer {
 
+    /**
+     * Starts the spring boot application
+     *
+     * @param args
+     */
     public static void main(final String[] args) {
         SpringApplication.run(BootLoader.class, args);
     }

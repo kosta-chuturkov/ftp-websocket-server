@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Created by Kosta_Chuturkov on 3/28/2016.
  */
-public class JsonFileDto extends AbstractJsonResponceDto {
+public class JsonFileDto extends BaseFileDto {
 
     @JsonProperty("thumbnail_url")
     private String thumbnailUrl;
@@ -16,8 +16,11 @@ public class JsonFileDto extends AbstractJsonResponceDto {
     @JsonProperty("deleteType")
     private String deleteType;
 
-    public JsonFileDto() {
+
+    public JsonFileDto(String name, String size, String url) {
+        super(name, size, url);
     }
+
 
     public String getThumbnailUrl() {
         return this.thumbnailUrl;
@@ -42,4 +45,7 @@ public class JsonFileDto extends AbstractJsonResponceDto {
     public void setDeleteType(final String deleteType) {
         this.deleteType = deleteType;
     }
+
+
+
 }

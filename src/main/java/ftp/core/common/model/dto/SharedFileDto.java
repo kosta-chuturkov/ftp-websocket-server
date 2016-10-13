@@ -3,82 +3,135 @@ package ftp.core.common.model.dto;
 import ftp.core.common.model.File;
 
 /**
- * Created by kosta on 2.6.2016 г..
+ * Contains information about a shared file
  */
-public class SharedFileDto implements FileDto {
-    private String sharingUserName;
+public class SharedFileDto implements DataTransferObject {
 
-    private String name;
+    protected long size;
 
-    private String downloadHash;
+    protected String name;
 
-    private long size;
+    protected String timestamp;
 
-    private String timestamp;
+    protected String downloadHash;
 
-    private File.FileType fileType;
+    protected String sharingUserName;
 
+    protected File.FileType fileType;
 
-    public SharedFileDto() {
-
+    protected SharedFileDto() {
     }
 
-    public SharedFileDto(final String sharingUserName, final String name, final String downloadHash, final long size,
-                         final String timestamp, final File.FileType modifier) {
-        this.sharingUserName = sharingUserName;
-        this.name = name;
-        this.downloadHash = downloadHash;
-        this.size = size;
-        this.timestamp = timestamp;
-        this.fileType = modifier;
-    }
-
-
-    public String getSharingUserName() {
-        return this.sharingUserName;
-    }
-
-    public void setSharingUserName(final String sharingUserName) {
-        this.sharingUserName = sharingUserName;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    public String getDownloadHash() {
-        return this.downloadHash;
-    }
-
-    public void setDownloadHash(final String downloadHash) {
-        this.downloadHash = downloadHash;
+    private SharedFileDto(Builder builder) {
+        setSize(builder.size);
+        setName(builder.name);
+        setTimestamp(builder.timestamp);
+        setDownloadHash(builder.downloadHash);
+        setSharingUserName(builder.sharingUserName);
+        setFileType(builder.fileType);
     }
 
     public long getSize() {
         return this.size;
     }
 
-    public void setSize(final long size) {
+    protected void setSize(long size) {
         this.size = size;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    protected void setName(String name) {
+        this.name = name;
     }
 
     public String getTimestamp() {
         return this.timestamp;
     }
 
-    public void setTimestamp(final String timestamp) {
+    protected void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getDownloadHash() {
+        return this.downloadHash;
+    }
+
+    protected void setDownloadHash(String downloadHash) {
+        this.downloadHash = downloadHash;
+    }
+
+    public String getSharingUserName() {
+        return this.sharingUserName;
+    }
+
+    protected void setSharingUserName(String sharingUserName) {
+        this.sharingUserName = sharingUserName;
     }
 
     public File.FileType getFileType() {
         return this.fileType;
     }
 
-    public void setFileType(final File.FileType modifier) {
-        this.fileType = modifier;
+    protected void setFileType(File.FileType fileType) {
+        this.fileType = fileType;
+    }
+
+
+    public static final class Builder {
+        private long size;
+        private String name;
+        private String timestamp;
+        private String downloadHash;
+        private String sharingUserName;
+        private File.FileType fileType;
+
+        public Builder() {
+        }
+
+        public Builder(SharedFileDto copy) {
+            this.size = copy.size;
+            this.name = copy.name;
+            this.timestamp = copy.timestamp;
+            this.downloadHash = copy.downloadHash;
+            this.sharingUserName = copy.sharingUserName;
+            this.fileType = copy.fileType;
+        }
+
+        public Builder withSize(long val) {
+            this.size = val;
+            return this;
+        }
+
+        public Builder withName(String val) {
+            this.name = val;
+            return this;
+        }
+
+        public Builder withTimestamp(String val) {
+            this.timestamp = val;
+            return this;
+        }
+
+        public Builder withDownloadHash(String val) {
+            this.downloadHash = val;
+            return this;
+        }
+
+        public Builder withSharingUserName(String val) {
+            this.sharingUserName = val;
+            return this;
+        }
+
+        public Builder withFileType(File.FileType val) {
+            this.fileType = val;
+            return this;
+        }
+
+        public SharedFileDto build() {
+            return new SharedFileDto(this);
+        }
     }
 }

@@ -3,7 +3,9 @@ package ftp.core.controller;
 import com.google.common.collect.Sets;
 import com.google.gson.*;
 import ftp.core.common.model.User;
-import ftp.core.common.model.dto.JsonFileResponseDtoWrapper;
+import ftp.core.common.model.dto.JsonErrorDto;
+import ftp.core.common.model.dto.JsonFileDto;
+import ftp.core.common.model.dto.ResponseModelAdapter;
 import ftp.core.common.util.ServerUtil;
 import ftp.core.config.ServerConfigurator;
 import ftp.core.constants.APIAliases;
@@ -74,12 +76,14 @@ public class UploadController {
     @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS}, method = RequestMethod.POST)
     public String profilePicUpdate(final HttpServletRequest request, final HttpServletResponse response,
                                    @RequestParam("files[]") final MultipartFile file) throws IOException {
-        JsonFileResponseDtoWrapper dtoWrapper = null;
+        String errorMessage;
+        JsonErrorDto jsonErrorDto = null;
         this.authenticationService.authenticateClient(request, response);
         if (!file.isEmpty()) {
             try {
                 final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
                 final String extension = FilenameUtils.getExtension(fileName);
+                jsonErrorDto = new JsonErrorDto(fileName, Long.toString(file.getSize()), null);
                 if (!ServerUtil.ALLOWED_EXTENTIONS.contains(extension)) {
                     throw new FtpServerException("Image expected...");
                 }
@@ -101,21 +105,24 @@ public class UploadController {
                         .size(50, 50)
                         .outputFormat("jpg")
                         .toFiles(Rename.NO_CHANGE);
-
                 final JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("imageUrl", serverContextAddress);
                 return jsonObject.toString();
             } catch (final Exception e) {
                 if (e instanceof HibernateException) {
-                    dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error("Unexpected error occured. Try again.").build();
+                    errorMessage = "Unexpected error occured. Try again.";
                 } else {
-                    dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error(e.getMessage()).build();
+                    errorMessage = e.getMessage();
                 }
             }
         } else {
-            dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error("You failed to upload " + file.getName() + " because the file was empty.").build();
+            errorMessage = "You failed to upload " + file.getName() + " because the file was empty.";
         }
-        return geAstJsonObject(dtoWrapper).toString();
+        if (jsonErrorDto == null) {
+            jsonErrorDto = new JsonErrorDto(null, null, null);
+        }
+        jsonErrorDto.setError(errorMessage);
+        return geAstJsonObject(new ResponseModelAdapter.Builder(jsonErrorDto).build()).toString();
     }
 
     @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS}, method = RequestMethod.POST)
@@ -123,7 +130,8 @@ public class UploadController {
                              @RequestParam("files[]") final MultipartFile file, @RequestParam("modifier") final String modifier,
                              @RequestParam("nickName") final String userNickNames) throws IOException {
         this.authenticationService.authenticateClient(request, response);
-        JsonFileResponseDtoWrapper dtoWrapper = null;
+        JsonErrorDto jsonErrorDto = null;
+        String errorMessage;
         if (!file.isEmpty()) {
             try {
                 final int port = request.getServerPort();
@@ -150,26 +158,31 @@ public class UploadController {
                 targetFile.createNewFile();
 
                 file.transferTo(targetFile);
-                dtoWrapper = new JsonFileResponseDtoWrapper.Builder().
-                        name(StringEscapeUtils.escapeHtml(fileName)).
-                        size(Long.toString(file.getSize())).url((serverContextAddress + downloadHash)).deleteUrl
-                        ((serverContextAddress + ServerConstants.DELETE_ALIAS + deleteHash)).deleteType
-                        ("GET").build();
+                JsonFileDto dtoWrapper = new JsonFileDto.Builder()
+                        .withName(StringEscapeUtils.escapeHtml(fileName))
+                        .withSize(Long.toString(file.getSize()))
+                        .withUrl((serverContextAddress + downloadHash))
+                        .withDeleteUrl((serverContextAddress + ServerConstants.DELETE_ALIAS + deleteHash))
+                        .withDeleteType("GET")
+                        .build();
 
                 final JSONObject parent = geAstJsonObject(dtoWrapper);
                 return parent.toString();
             } catch (final Exception e) {
                 if (e instanceof HibernateException) {
-                    dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error("Unexpected error occured. Try again.").build();
+                    errorMessage = "Unexpected error occured. Try again.";
                 } else {
-                    dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error(e.getMessage()).build();
-                }
+                    errorMessage = e.getMessage();
             }
-        } else {
-            dtoWrapper = new JsonFileResponseDtoWrapper.Builder().error("You failed to upload " + file.getName() + " because the file was empty.").build();
         }
-
-        return geAstJsonObject(dtoWrapper).toString();
+        } else {
+            errorMessage = "You failed to upload " + file.getName() + " because the file was empty.";
+        }
+        if (jsonErrorDto == null) {
+            jsonErrorDto = new JsonErrorDto(null, null, null);
+        }
+        jsonErrorDto.setError(errorMessage);
+        return geAstJsonObject(new ResponseModelAdapter.Builder(jsonErrorDto).build()).toString();
     }
 
     private Set<String> getFileSharedUsersAsSet(final String userNickNames) {
@@ -184,7 +197,7 @@ public class UploadController {
         return users;
     }
 
-    private JSONObject geAstJsonObject(final JsonFileResponseDtoWrapper dtoWrapper) {
+    private JSONObject geAstJsonObject(final ResponseModelAdapter dtoWrapper) {
         final JSONObject parent = new JSONObject();
         final JSONArray json = new JSONArray();
         final JSONObject jsonObject = new JSONObject(this.gson.toJson(dtoWrapper));
