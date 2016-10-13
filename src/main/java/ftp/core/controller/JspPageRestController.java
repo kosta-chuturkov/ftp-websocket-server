@@ -1,28 +1,12 @@
 package ftp.core.controller;
 
-import static ftp.core.common.util.ServerUtil.getAvatarUrl;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
-
-import org.apache.log4j.Logger;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
-import ftp.core.common.model.dto.AbstractDto;
-import ftp.core.common.model.dto.ModifiedUsersDto;
+import ftp.core.common.model.dto.DataTransferObject;
+import ftp.core.common.model.dto.ModifiedUserDto;
 import ftp.core.common.model.dto.UploadedFileDto;
 import ftp.core.common.util.ServerUtil;
 import ftp.core.constants.APIAliases;
@@ -30,6 +14,19 @@ import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.impl.AuthenticationService;
 import ftp.core.service.impl.EventService;
+import org.apache.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+
+import static ftp.core.common.util.ServerUtil.getAvatarUrl;
 
 @RestController
 public class JspPageRestController {
@@ -46,56 +43,56 @@ public class JspPageRestController {
 
 
     @RequestMapping(value = {APIAliases.GET_FILES_SHARED_WITH_ME_ALIAS}, method = RequestMethod.POST)
-    public List<AbstractDto> getSharedFiles(final HttpServletRequest request, final HttpServletResponse response,
-                                            @NotNull @ModelAttribute("firstResult") final Integer firstResult,
-                                            @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
+    public List<DataTransferObject> getSharedFiles(final HttpServletRequest request, final HttpServletResponse response,
+                                                   @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                                   @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
 
-        final List<AbstractDto> abstractDtos = Lists.newArrayList();
+        final List<DataTransferObject> fileDtos = Lists.newArrayList();
 		this.authenticationService.authenticateClient(request, response);
 		final List<File> files = this.fileService.getSharedFilesForUser(User.getCurrent().getNickName(), firstResult,
 				maxResults);
             for (final File file : files) {
-                final AbstractDto abstractDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                final DataTransferObject fileDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                         file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-                abstractDtos.add(abstractDto);
+                fileDtos.add(fileDto);
 
         }
-        return abstractDtos;
+        return fileDtos;
     }
 
 
     @RequestMapping(value = {APIAliases.GET_PRIVATE_FILES_ALIAS}, method = RequestMethod.POST)
-    public List<AbstractDto> getPrivateFiles(final HttpServletRequest request, final HttpServletResponse response,
-                                             @NotNull @ModelAttribute("firstResult") final Integer firstResult,
-                                             @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
-        final List<AbstractDto> abstractDtos = Lists.newArrayList();
+    public List<DataTransferObject> getPrivateFiles(final HttpServletRequest request, final HttpServletResponse response,
+                                                    @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                                    @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
+        final List<DataTransferObject> fileDtos = Lists.newArrayList();
 		this.authenticationService.authenticateClient(request, response);
 		final List<File> files = this.fileService.getPrivateFilesForUser(User.getCurrent().getNickName(), firstResult,
 				maxResults);
             for (final File file : files) {
-                final AbstractDto abstractDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                final DataTransferObject fileDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                         file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-                abstractDtos.add(abstractDto);
+                fileDtos.add(fileDto);
             }
 
-        return abstractDtos;
+        return fileDtos;
     }
 
     @RequestMapping(value = {APIAliases.GET_UPLOADED_FILES_ALIAS}, method = RequestMethod.POST)
-    public List<AbstractDto> getUploadedFiles(final HttpServletRequest request, final HttpServletResponse response,
-                                              @NotNull @ModelAttribute("firstResult") final Integer firstResult,
-                                              @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
-        final List<AbstractDto> abstractDtos = Lists.newArrayList();
+    public List<DataTransferObject> getUploadedFiles(final HttpServletRequest request, final HttpServletResponse response,
+                                                     @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                                     @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
+        final List<DataTransferObject> fileDtos = Lists.newArrayList();
 		this.authenticationService.authenticateClient(request, response);
 		final List<Long> files = this.fileService.getSharedFilesWithUsersIds(User.getCurrent().getId(), firstResult,
 				maxResults);
             for (final Long fileId : files) {
                 final File file = this.fileService.findWithSharedUsers(fileId);
-                final AbstractDto abstractDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+                final DataTransferObject fileDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                         file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-                abstractDtos.add(abstractDto);
+                fileDtos.add(fileDto);
             }
-        return abstractDtos;
+        return fileDtos;
     }
 
 	@RequestMapping(value = { APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS }, method = RequestMethod.POST)
@@ -131,10 +128,10 @@ public class JspPageRestController {
 
     @RequestMapping(value = {
             APIAliases.UPDATE_USERS_FILE_IS_SHARED_TO_ALIAS}, method = RequestMethod.POST, consumes = "application/json")
-    public void updateUsers(final HttpServletRequest request, final HttpServletResponse response, @PathVariable final String deleteHash, @RequestBody final Set<ModifiedUsersDto> modifiedUsersDto) {
+    public void updateUsers(final HttpServletRequest request, final HttpServletResponse response, @PathVariable final String deleteHash, @RequestBody final Set<ModifiedUserDto> modifiedUserDto) {
         try {
 			this.authenticationService.authenticateClient(request, response);
-			this.fileService.updateUsers(deleteHash, modifiedUsersDto);
+			this.fileService.updateUsers(deleteHash, modifiedUserDto);
         } catch (final Exception e) {
             logger.error("errror occured", e);
             ServerUtil.sendJsonErrorResponce(response, e.getMessage());

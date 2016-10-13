@@ -5,9 +5,9 @@ import ftp.core.common.model.AbstractEntity;
 import ftp.core.common.model.File;
 import ftp.core.common.model.File.FileType;
 import ftp.core.common.model.User;
+import ftp.core.common.model.dto.DataTransferObject;
 import ftp.core.common.model.dto.DeletedFileDto;
-import ftp.core.common.model.dto.AbstractDto;
-import ftp.core.common.model.dto.ModifiedUsersDto;
+import ftp.core.common.model.dto.ModifiedUserDto;
 import ftp.core.common.model.dto.SharedFileDto;
 import ftp.core.constants.ServerConstants;
 import ftp.core.persistance.face.repository.FileRepository;
@@ -87,9 +87,15 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
                     final User userToShareTheFileWith = this.userService.checkAndGetUserToSendFilesTo(user);
                     addUserToFile(savedFileId, userToShareTheFileWith.getNickName());
                     this.userService.addFileToUser(savedFileId, currentUser.getId());
-                    final AbstractDto abstractDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
-                            file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-                    this.eventService.fireSharedFileEvent(user, abstractDto);
+                    final DataTransferObject fileDto = new SharedFileDto.Builder()
+                            .withSharingUserName(file.getCreator().getNickName())
+                            .withName(file.getName())
+                            .withDownloadHash(file.getDownloadHash())
+                            .withSize(file.getFileSize())
+                            .withTimestamp(file.getTimestamp().toString())
+                            .withFileType(file.getFileType())
+                            .build();
+                    this.eventService.fireSharedFileEvent(user, fileDto);
                 }
             }
         } else {
@@ -153,17 +159,17 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     }
 
     @Override
-    public void updateUsers(final String deleteHash, final Set<ModifiedUsersDto> modifiedUsersDto) {
+    public void updateUsers(final String deleteHash, final Set<ModifiedUserDto> modifiedUserDto) {
         final Set<String> userNickNames = Sets.newHashSet();
-        if (modifiedUsersDto.size() == 1) {
-            final String userNickName = modifiedUsersDto.iterator().next().getName();
+        if (modifiedUserDto.size() == 1) {
+            final String userNickName = modifiedUserDto.iterator().next().getName();
             if (userNickName == null || "-1".equals(userNickName)) {
                 updateUsersForFile(deleteHash, userNickNames);
                 return;
             }
         }
 
-        for (final ModifiedUsersDto usersDto : modifiedUsersDto) {
+        for (final ModifiedUserDto usersDto : modifiedUserDto) {
             final String name = usersDto.getName();
             final String escapedUserName = StringEscapeUtils.escapeSql(name);
             final User userByNickName = this.userService.getUserByNickName(escapedUserName);
@@ -177,10 +183,10 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
         }
 
         final File file = updateUsersForFile(deleteHash, userNickNames);
-        final AbstractDto abstractDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+        final DataTransferObject fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                 file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
         for (final String userNickName : userNickNames) {
-            this.eventService.fireSharedFileEvent(userNickName, abstractDto);
+            this.eventService.fireSharedFileEvent(userNickName, fileDto);
         }
     }
 

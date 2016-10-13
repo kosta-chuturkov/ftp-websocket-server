@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
-import ftp.core.common.model.dto.AbstractDto;
+import ftp.core.common.model.dto.DataTransferObject;
 import ftp.core.common.model.dto.FileWithSharedUsersDto;
 import ftp.core.exception.JsonException;
 import ftp.core.service.face.JsonService;
@@ -37,7 +37,7 @@ public class SharedWithUsersFilesHandler implements JsonTypedHandler {
         final String method = jsonRequest.getMethod();
         final JsonElement firstResult = params.get("firstResult");
         final JsonElement maxResults = params.get("maxResults");
-        final List<AbstractDto> abstractDtos = Lists.newArrayList();
+        final List<DataTransferObject> fileDtos = Lists.newArrayList();
         if (firstResult == null || maxResults == null) {
             throw new JsonException("Expected maxResult and firstResult parameters", method);
         }
@@ -59,9 +59,9 @@ public class SharedWithUsersFilesHandler implements JsonTypedHandler {
                     fileDto.addSharedUser(user);
                 }
             }
-            abstractDtos.add(fileDto);
+            fileDtos.add(fileDto);
         }
-        return this.jsonService.getJsonResponse(method, abstractDtos);
+        return this.jsonService.getJsonResponse(method, fileDtos);
     }
 
     @Override

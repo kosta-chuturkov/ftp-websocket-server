@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
-import ftp.core.common.model.dto.AbstractDto;
+import ftp.core.common.model.dto.DataTransferObject;
 import ftp.core.common.model.dto.UploadedFileDto;
 import ftp.core.exception.JsonException;
 import ftp.core.service.face.JsonService;
@@ -36,7 +36,7 @@ public class PrivateFilesHandler implements JsonTypedHandler {
         final String method = jsonRequest.getMethod();
         final JsonElement firstResult = params.get("firstResult");
         final JsonElement maxResults = params.get("maxResults");
-        final List<AbstractDto> abstractDtos = Lists.newArrayList();
+        final List<DataTransferObject> fileDtos = Lists.newArrayList();
         if (firstResult == null || maxResults == null) {
             throw new JsonException("Expected maxResult and firstResult parameters", method);
         }
@@ -49,11 +49,11 @@ public class PrivateFilesHandler implements JsonTypedHandler {
         final Integer maxResultsAsInt = maxResults.getAsInt();
         final List<File> files = this.fileService.getPrivateFilesForUser(nickName, firstResultAsInt, maxResultsAsInt);
         for (final File file : files) {
-            final AbstractDto abstractDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
+            final DataTransferObject fileDto = new UploadedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
                     file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
-            abstractDtos.add(abstractDto);
+            fileDtos.add(fileDto);
         }
-        return this.jsonService.getJsonResponse(method, abstractDtos);
+        return this.jsonService.getJsonResponse(method, fileDtos);
     }
 
 

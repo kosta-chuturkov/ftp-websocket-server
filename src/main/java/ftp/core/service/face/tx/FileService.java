@@ -1,7 +1,7 @@
 package ftp.core.service.face.tx;
 
 import ftp.core.common.model.File;
-import ftp.core.common.model.dto.ModifiedUsersDto;
+import ftp.core.common.model.dto.ModifiedUserDto;
 import ftp.core.persistance.face.generic.service.GenericService;
 
 import java.util.List;
@@ -33,5 +33,5 @@ public interface FileService extends GenericService<File, Long> {
 
     File updateUsersForFile(final String fileHash, final Set<String> userNickNames);
 
-    void updateUsers(final String deleteHash, final Set<ModifiedUsersDto> modifiedUsersDto);
+    void updateUsers(final String deleteHash, final Set<ModifiedUserDto> modifiedUserDto);
 }
