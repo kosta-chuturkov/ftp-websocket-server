@@ -1,24 +1,24 @@
 package ftp.core.service.impl;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.ModelAndView;
-
+import ftp.core.common.model.Authority;
 import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.util.ServerUtil;
 import ftp.core.constants.ServerConstants;
 import ftp.core.persistance.face.repository.FileRepository;
 import ftp.core.persistance.face.repository.UserRepository;
+import ftp.core.security.Authorities;
+import ftp.core.service.face.tx.AuthorityService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 @Service("userService")
 public class UserServiceImpl extends AbstractGenericService<User, Long> implements UserService {
@@ -31,6 +31,9 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 
 	@Resource
 	private PasswordEncoder passwordEncoder;
+
+    @Resource
+    private AuthorityService authorityService;
 
 	@Override
 	public String getUserSaltedPassword(final String rawPassword, final Long token) {
@@ -106,20 +109,34 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
     }
 
     @Override
-    public Long registerUser(final String email, final String password, final String nickName, final String password_repeated,
-                             final ModelAndView modelAndView) throws IllegalArgumentException {
-        validateUserCredentials(email, password, nickName, password_repeated, modelAndView);
+    public User registerUser(final String email, final String password, final String nickName, final String password_repeated) throws IllegalArgumentException {
+        validateUserCredentials(email, password, nickName, password_repeated);
         final Long randomTokenFromDB = getRandomTokenFromDB();
 		final String saltedPassword = getUserSaltedPassword(password, randomTokenFromDB);
 		final String hashedPassword = encodePassword(saltedPassword);
-		final User user = new User(nickName, email, hashedPassword, ServerConstants.USER_MAX_UPLOAD_IN_BYTES,
-                randomTokenFromDB);
-		return save(user);
+		final User user = new User.Builder()
+                .withNickName(nickName)
+                .withEmail(email)
+                .withPassword(hashedPassword)
+                .withRemainingStorage(ServerConstants.USER_MAX_UPLOAD_IN_BYTES)
+                .withToken(randomTokenFromDB)
+                .withAccountNonExpired(true)
+                .withAccountNonLocked(true)
+                .withCredentialsNonExpired(true)
+                .withEnabled(true)
+                .build();
+
+        Long userId = save(user);
+        User registeredUser = findOne(userId);
+        Authority authority = new Authority(Authorities.USER);
+        this.authorityService.save(authority);
+        registeredUser.addAuthority(authority);
+        update(registeredUser);
+        return registeredUser;
     }
 
     @Override
-    public void validateUserCredentials(final String email, final String password, final String nickName, final String password_repeated,
- final ModelAndView modelAndView) throws UsernameNotFoundException {
+    public void validateUserCredentials(final String email, final String password, final String nickName, final String password_repeated) throws UsernameNotFoundException {
         if (!ServerUtil.isEmailValid(email)) {
 			throw new UsernameNotFoundException("Wrong email format");
         }

@@ -23,7 +23,6 @@ public class MainController {
 	public ModelAndView getLoginPage(final HttpServletRequest request, final HttpServletResponse response)
 					throws IOException {
 		try {
-
 			if (ServerUtil.userHasSession(request, true)) {
 				return new ModelAndView(ServerConstants.MAIN_PAGE);
 			} else {

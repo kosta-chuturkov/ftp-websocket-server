@@ -4,7 +4,9 @@ import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
 import ftp.core.security.*;
 import ftp.core.service.face.tx.UserService;
+import ftp.core.service.impl.AuthenticationService;
 import ftp.core.web.filter.CsrfCookieGeneratorFilter;
+import ftp.core.web.filter.MyFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,6 +56,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Resource
     private RememberMeServices rememberMeServices;
+
+    @Resource
+    private AuthenticationService authenticationService;
 
 	@Bean(name = "passwordEncoder")
     public PasswordEncoder passwordEncoder() {
@@ -141,6 +146,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
         return new SecurityEvaluationContextExtension();
     }
+
 
 
 

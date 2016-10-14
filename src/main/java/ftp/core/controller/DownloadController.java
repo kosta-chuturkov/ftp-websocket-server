@@ -7,15 +7,17 @@ import ftp.core.common.util.ServerUtil;
 import ftp.core.config.ServerConfigurator;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
+import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.impl.AuthenticationService;
 import org.apache.log4j.Logger;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
@@ -23,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
-@Controller
+@RestController
 public class DownloadController {
 
     private static final Logger logger = Logger.getLogger(DownloadController.class);
@@ -34,11 +36,10 @@ public class DownloadController {
 	@Resource
 	private AuthenticationService authenticationService;
 
+    @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.DOWNLOAD_FILE_ALIAS + "*"}, method = RequestMethod.GET)
     public ModelAndView downloadFile(final HttpServletRequest request, final HttpServletResponse response) {
-
         try {
-			this.authenticationService.authenticateClient(request, response);
 			sendFile(request, response);
         } catch (final Exception e) {
             logger.error("error occured", e);
@@ -63,12 +64,12 @@ public class DownloadController {
 
 
     private void sendFile(final HttpServletRequest request, final HttpServletResponse response) {
+        final User current = User.getCurrent();
         final String path = request.getServletPath();
         String downloadHash = "";
         if (path != null) {
             downloadHash = path.substring(APIAliases.DOWNLOAD_FILE_ALIAS.length(), path.length());
         }
-        final User current = User.getCurrent();
         final String requesterEmail = current.getEmail();
         final String requesterNickName = current.getNickName();
         final File fileByDownloadHash = this.fileService.getFileByDownloadHash(downloadHash);
@@ -84,10 +85,14 @@ public class DownloadController {
             } else {
                 locationFolderName = getFolderNameByFileType(requesterNickName, fileByDownloadHash, fileType);
             }
-            final String downloadPath = ServerConstants.SERVER_STORAGE_FOLDER_NAME.concat("/").concat(locationFolderName)
-                    .concat("/").concat(timestamp.getTime() + "_" + fileName);
+            final String downloadPath = buildDownloadPath(timestamp, fileName, locationFolderName);
             ServerUtil.sendResourceByName(response, downloadPath, fileByDownloadHash.getName());
         }
+    }
+
+    private String buildDownloadPath(Date timestamp, String fileName, String locationFolderName) {
+        return ServerConstants.SERVER_STORAGE_FOLDER_NAME.concat("/").concat(locationFolderName)
+                .concat("/").concat(timestamp.getTime() + "_" + fileName);
     }
 
     private String getFolderNameByFileType(final String nickName, final File fileByDownloadHash, final FileType fileType) {

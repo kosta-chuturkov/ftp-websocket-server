@@ -1,19 +1,20 @@
 package ftp.core.security;
 
-import java.util.Locale;
-
-import javax.annotation.Resource;
-
+import ftp.core.common.model.User;
+import ftp.core.persistance.face.repository.UserRepository;
+import ftp.core.service.face.tx.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import ftp.core.common.model.User;
-import ftp.core.persistance.face.repository.UserRepository;
-import ftp.core.service.face.tx.UserService;
+import javax.annotation.Resource;
+import java.util.Locale;
 
 /**
  * Authenticate a user from the database.
@@ -36,7 +37,9 @@ public class UserDetailsService implements org.springframework.security.core.use
 		final String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
 		final User userFromDatabase = this.userRepository.getUserByEmail(lowercaseLogin);
 		if (userFromDatabase != null) {
-			User.setCurrent(userFromDatabase);
+			SecurityContext context = SecurityContextHolder.getContext();
+			Authentication authentication = context.getAuthentication();
+			//authentication.getPrincipal()
 			return userFromDatabase;
 		} else {
 			throw new UsernameNotFoundException("Invalid credentials");

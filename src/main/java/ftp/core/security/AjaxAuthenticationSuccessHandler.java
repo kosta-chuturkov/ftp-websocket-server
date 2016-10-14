@@ -1,18 +1,15 @@
 package ftp.core.security;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import ftp.core.common.model.User;
+import ftp.core.common.util.ServerUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import ftp.core.common.model.User;
-import ftp.core.common.util.ServerUtil;
-import ftp.core.constants.APIAliases;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Spring Security success handler, specialized for Ajax requests.
@@ -24,9 +21,10 @@ public class AjaxAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
 	public void onAuthenticationSuccess(final HttpServletRequest request, final HttpServletResponse response,
 			final Authentication authentication)
         throws IOException, ServletException {
-		final String email = User.getCurrent().getEmail();
-		final String password = User.getCurrent().getPassword();
-		final long remainingStorage = User.getCurrent().getRemainingStorage();
+		final User springSecurityUser = (User) authentication.getPrincipal();
+		final String email = springSecurityUser.getEmail();
+		final String password = springSecurityUser.getPassword();
+		final long remainingStorage = springSecurityUser.getRemainingStorage();
         ServerUtil.startUserSession(request, email, password, remainingStorage);
         response.setStatus(HttpServletResponse.SC_OK);
     }

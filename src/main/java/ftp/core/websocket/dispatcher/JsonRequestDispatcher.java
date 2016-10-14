@@ -11,6 +11,9 @@ import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
 import ftp.core.websocket.factory.JsonHandlerFactory;
 import org.apache.log4j.Logger;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -84,8 +87,9 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
     }
 
     private void setCurrentUser(final WebSocketSession session) {
-        final Object currentUser = session.getAttributes().get(ServerConstants.CURRENT_USER);
-        User.setCurrent(currentUser != null ? (User) currentUser : null);
+        final User currentUser = (User) session.getAttributes().get(ServerConstants.CURRENT_USER);
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(currentUser, currentUser.getPassword(), currentUser.getAuthorities()));
     }
 
 

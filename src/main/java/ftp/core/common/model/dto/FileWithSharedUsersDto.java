@@ -20,6 +20,7 @@ public class FileWithSharedUsersDto extends UploadedFileDto {
         setName(builder.name);
         setTimestamp(builder.timestamp);
         setDownloadHash(builder.downloadHash);
+        setDeleteHash(builder.deleteHash);
         setSharingUserName(builder.sharingUserName);
         setFileType(builder.fileType);
     }
@@ -41,6 +42,7 @@ public class FileWithSharedUsersDto extends UploadedFileDto {
         private String name;
         private String timestamp;
         private String downloadHash;
+        private String deleteHash;
         private String sharingUserName;
         private File.FileType fileType;
 
@@ -52,37 +54,42 @@ public class FileWithSharedUsersDto extends UploadedFileDto {
             this.name = copy.name;
             this.timestamp = copy.timestamp;
             this.downloadHash = copy.downloadHash;
+            this.deleteHash = copy.getDeleteHash();
             this.sharingUserName = copy.sharingUserName;
             this.fileType = copy.fileType;
         }
 
         public Builder withSize(long val) {
-            size = val;
+            this.size = val;
             return this;
         }
 
         public Builder withName(String val) {
-            name = val;
+            this.name = val;
             return this;
         }
 
         public Builder withTimestamp(String val) {
-            timestamp = val;
+            this.timestamp = val;
             return this;
         }
 
         public Builder withDownloadHash(String val) {
-            downloadHash = val;
+            this.downloadHash = val;
+            return this;
+        }
+        public Builder withDeleteHash(String val) {
+            this.deleteHash = val;
             return this;
         }
 
         public Builder withSharingUserName(String val) {
-            sharingUserName = val;
+            this.sharingUserName = val;
             return this;
         }
 
         public Builder withFileType(File.FileType val) {
-            fileType = val;
+            this.fileType = val;
             return this;
         }
 

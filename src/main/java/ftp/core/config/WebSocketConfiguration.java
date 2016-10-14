@@ -23,8 +23,10 @@ import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 public class WebSocketConfiguration extends WebMvcConfigurerAdapter implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(final WebSocketHandlerRegistry registry) {
-        registry.addHandler(  echoWebSocketHandler(), "/echo");
-        registry.addHandler(echoWebSocketHandler(), "/sockjs/echo").withSockJS().setInterceptors(handshakeInterceptor());
+        registry.addHandler(echoWebSocketHandler(), "/echo");
+        registry.addHandler(echoWebSocketHandler(), "/sockjs/files")
+                .withSockJS()
+                .setInterceptors(handshakeInterceptor());
     }
 
     @Bean
@@ -45,7 +47,7 @@ public class WebSocketConfiguration extends WebMvcConfigurerAdapter implements W
     }
 
     @Bean
-    public Gson gson(){
+    public Gson gson() {
         return new GsonBuilder().serializeNulls().create();
     }
 }

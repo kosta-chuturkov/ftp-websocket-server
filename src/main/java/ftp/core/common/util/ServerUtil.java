@@ -1,7 +1,10 @@
 package ftp.core.common.util;
 
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 import ftp.core.common.model.User;
+import ftp.core.common.model.dto.JsonErrorDto;
+import ftp.core.common.model.dto.ResponseModelAdapter;
 import ftp.core.config.ServerConfigurator;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
@@ -21,8 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.security.MessageDigest;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 public class ServerUtil {
@@ -32,6 +33,8 @@ public class ServerUtil {
     public static final String SALT = "fKWCH(1UafNFK&QK-Vg`FEG(sAE5f^Q.vEA-+Wj?]Sbc+<crP,x]7M/+S}dnb-,^";
 
     private static final Logger logger = Logger.getLogger(ServerUtil.class);
+    private static Gson GSON = new Gson();
+
 
     public static boolean userHasSession(final HttpServletRequest request, final boolean checkAttributes)
             throws ServletException, IOException {
@@ -71,11 +74,6 @@ public class ServerUtil {
             protocol = "http://";
         }
         return protocol;
-    }
-
-    public static void removeEmailAndPasswordParams(final ModelAndView modelAndView) {
-        modelAndView.getModel().remove(ServerConstants.EMAIL_PARAMETER);
-        modelAndView.getModel().remove("pswd");
     }
 
     public static boolean isPasswordValid(final String password) {
@@ -156,7 +154,7 @@ public class ServerUtil {
     }
 
     public static String hash(final String fileName) {
-        MessageDigest digest = null;
+        MessageDigest digest;
         final StringBuffer buffer = new StringBuffer();
         try {
             digest = MessageDigest.getInstance("SHA-256");
@@ -172,10 +170,6 @@ public class ServerUtil {
         return buffer.toString();
     }
 
-    public static String digestRawPassword(final String password, final String salt, final String token) {
-        return hash(hash(password + salt) + token);
-    }
-
     public static void sendJsonErrorResponce(final HttpServletResponse response, final String message) {
         response.setContentType("application/json");
         final PrintWriter writer;
@@ -184,48 +178,21 @@ public class ServerUtil {
         } catch (final IOException e) {
             throw new FtpServerException(e.getMessage());
         }
-        final JSONObject parent = new JSONObject();
-        final JSONArray json = new JSONArray();
-        final JSONObject jsono = new JSONObject();
-        jsono.put("name", "");
-        jsono.put("size", "");
-        jsono.put("error", message);
-        jsono.put("url", "");
-        json.put(jsono);
-        parent.put("files", json);
-        System.out.println(parent.toString());
-        writer.write(parent.toString());
+        JsonErrorDto errorDto = new JsonErrorDto.Builder().withError(message).build();
+        ResponseModelAdapter build = new ResponseModelAdapter.Builder().withBaseFileDto(errorDto).build();
+
+
+        writer.write(geAstJsonObject(build).toString());
         IOUtils.closeQuietly(writer);
     }
 
-    public static final void sendPropertiesAsJson(final HttpServletResponse response, final Map<String, String> properties) {
+    public static JSONObject geAstJsonObject(final ResponseModelAdapter dtoWrapper) {
         final JSONObject parent = new JSONObject();
         final JSONArray json = new JSONArray();
-        final JSONObject jsono = new JSONObject();
-        for (final Iterator<String> iterator = properties.keySet().iterator(); iterator.hasNext(); ) {
-            final String key = iterator.next();
-            final String value = properties.get(key);
-            jsono.put(key, value);
-        }
-        json.put(jsono);
+        final JSONObject jsonObject = new JSONObject(GSON.toJson(dtoWrapper));
+        json.put(jsonObject.get("baseFileDto"));
         parent.put("files", json);
-        sendJsonMessageToClient(response, parent.toString());
-    }
-
-    public static final void sendJsonMessageToClient(final HttpServletResponse response, final String jsonString) {
-        response.setContentType("application/json");
-        PrintWriter writer = null;
-        try {
-            writer = response.getWriter();
-            writer.write(jsonString);
-        } catch (final Exception e) {
-            logger.error("Unable to respond with json.", e);
-            throw new FtpServerException("Error sending message.");
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
-        }
+        return parent;
     }
 
     public static String getSessionParam(final HttpServletRequest request, final String paramName) {

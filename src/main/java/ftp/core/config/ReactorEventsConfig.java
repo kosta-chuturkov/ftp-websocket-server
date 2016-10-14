@@ -15,20 +15,17 @@ public class ReactorEventsConfig {
 
     @Bean(name = "environment")
     Environment env() {
-
         return Environment.initializeIfEmpty().assignErrorJournal();
     }
 
     @Bean(name = "eventBus")
     EventBus createEventBus(final Environment env) {
-
         return EventBus.create(env,
                 new WorkQueueDispatcher
                         ("appWorkQueueDispatcher", 8, 8192, new ExceptionHandler()));
     }
 
     private class ExceptionHandler implements Consumer<Throwable> {
-
         @Override
         public void accept(final Throwable throwable) {
 

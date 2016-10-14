@@ -26,17 +26,22 @@ public class ResponseModelAdapter {
         return this.storedBytes;
     }
 
+
     public static final class Builder {
-        private final BaseFileDto baseFileDto;
+        private BaseFileDto baseFileDto;
         private String storedBytes;
 
-        public Builder(BaseFileDto baseFileDto) {
-            this.baseFileDto = baseFileDto;
+        public Builder() {
         }
 
         public Builder(ResponseModelAdapter copy) {
             this.baseFileDto = copy.baseFileDto;
             this.storedBytes = copy.storedBytes;
+        }
+
+        public Builder withBaseFileDto(BaseFileDto val) {
+            this.baseFileDto = val;
+            return this;
         }
 
         public Builder withStoredBytes(String val) {
@@ -48,19 +53,4 @@ public class ResponseModelAdapter {
             return new ResponseModelAdapter(this);
         }
     }
-
-
-//    private JsonFileDto getJsonFileDto() {
-//        final JsonFileDto jsonFileDto = new JsonFileDto(this.name, this.size, this.url);
-//        jsonFileDto.setDeleteType(this.deleteType);
-//        jsonFileDto.setDeleteUrl(this.deleteUrl);
-//        jsonFileDto.setThumbnailUrl(this.thumbnailUrl);
-//        return jsonFileDto;
-//    }
-//
-//    private JsonErrorDto getJsonErrorDto() {
-//        final JsonErrorDto jsonErrorDto = new JsonErrorDto(this.name, this.size, this.url);
-//        jsonErrorDto.setError(this.error);
-//        return jsonErrorDto;
-//    }
 }

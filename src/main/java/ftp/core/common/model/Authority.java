@@ -1,6 +1,8 @@
 package ftp.core.common.model;
 
-import java.io.Serializable;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,25 +11,28 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.security.core.GrantedAuthority;
-
 /**
  * An authority (a security role) used by Spring Security.
  */
 @Entity
 @Table(name = "authority")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Authority implements Serializable, GrantedAuthority {
+public class Authority extends AbstractEntity<Long> implements GrantedAuthority {
 
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
 	@Size(min = 0, max = 50)
 	@Id
-	@Column(length = 50)
+	@Column
 	private String name;
+
+	public Authority(String name) {
+		this.name = name;
+	}
+
+	public Authority() {
+	}
 
 	public String getAuthority() {
 		return this.name;

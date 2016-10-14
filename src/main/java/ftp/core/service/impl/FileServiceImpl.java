@@ -9,6 +9,7 @@ import ftp.core.common.model.dto.DataTransferObject;
 import ftp.core.common.model.dto.DeletedFileDto;
 import ftp.core.common.model.dto.ModifiedUserDto;
 import ftp.core.common.model.dto.SharedFileDto;
+import ftp.core.common.util.DtoUtil;
 import ftp.core.constants.ServerConstants;
 import ftp.core.persistance.face.repository.FileRepository;
 import ftp.core.service.face.tx.FileService;
@@ -71,14 +72,15 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
                     "You are exceeding your upload limit:" + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT)
                             + ". You have: " + FileUtils.byteCountToDisplaySize(remainingStorage) + " remainig storage.");
         }
-        final ftp.core.common.model.File file = new ftp.core.common.model.File();
-        file.setName(fileNameEscaped);
-        file.setTimestamp(new Date(timestamp));
-        file.setDownloadHash(downloadHash);
-        file.setDeleteHash(deleteHash);
-        file.setFileSize(fileSize);
-        file.setCreator(currentUser);
-        file.setFileType(ftp.core.common.model.File.FileType.getById(modifier));
+        final ftp.core.common.model.File file = new ftp.core.common.model.File.Builder()
+                .withName(fileNameEscaped)
+                .withTimestamp(new Date(timestamp))
+                .withDownloadHash(downloadHash)
+                .withDeleteHash(deleteHash)
+                .withFileSize(fileSize)
+                .withCreator(currentUser)
+                .withFileType(ftp.core.common.model.File.FileType.getById(modifier))
+                .build();
         final Long savedFileId = save(file);
         if (savedFileId != null) {
             this.userService.updateRemainingStorageForUser(fileSize, currentUser.getId(), remainingStorage);
@@ -183,8 +185,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
         }
 
         final File file = updateUsersForFile(deleteHash, userNickNames);
-        final DataTransferObject fileDto = new SharedFileDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
-                file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
+        final DataTransferObject fileDto = DtoUtil.toSharedFileDto(file);
         for (final String userNickName : userNickNames) {
             this.eventService.fireSharedFileEvent(userNickName, fileDto);
         }

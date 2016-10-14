@@ -52,24 +52,16 @@ public class RegistrationController {
 	public ResponseEntity<?> register(final HttpServletRequest request, @NotNull @ModelAttribute("email") final String email,
 									  @NotNull @ModelAttribute("pswd") final String password, @NotNull @ModelAttribute("nickname") final String nickName,
 									  @NotNull @ModelAttribute("password_repeated") final String password_repeated) throws IOException {
-		final ModelAndView modelAndView = new ModelAndView(ServerConstants.REGISTRATION_PAGE);
 		try {
 			if (ServerUtil.userHasSession(request, true)) {
 				throw new IllegalArgumentException("Cannot register. You already have a session started.");
 			}
-			this.userService.validateUserCredentials(email, password, nickName, password_repeated, modelAndView);
-
-			final Long id = this.userService.registerUser(email, password, nickName, password_repeated, modelAndView);
-			if (id == null) {
-				modelAndView.addObject("errorMsg", "Unable to register with this credentials. Please try again.");
-			} else {
-				final User user = this.userService.findOne(id);
-				User.setCurrent(user);
-				ServerUtil.startUserSession(request, email, user.getPassword(), user.getRemainingStorage());
-				return new ResponseEntity<>(HttpStatus.CREATED);
-			}
+			this.userService.validateUserCredentials(email, password, nickName, password_repeated);
+			final User user = this.userService.registerUser(email, password, nickName, password_repeated);
+			ServerUtil.startUserSession(request, email, user.getPassword(), user.getRemainingStorage());
+			return new ResponseEntity<>(HttpStatus.CREATED);
 		} catch (final Exception e) {
-			modelAndView.addObject("errorMsg", e.getMessage());
+			logger.error(e);
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}

@@ -5,9 +5,9 @@ package ftp.core.common.model.dto;
  */
 public class BaseFileDto implements DataTransferObject {
 
-    private String url;
-    private String name;
-    private String size;
+    protected String url;
+    protected String name;
+    protected String size;
 
     public BaseFileDto(String name, String size, String url) {
         this.name = name;

@@ -15,4 +15,9 @@
           class="ftp.core.persistance.hibernate.repository.FileHibernateRepository"
           parent="abstractRepository"/>
 
+    <bean id="authorityRepository"
+          class="ftp.core.persistance.hibernate.repository.AuthorityHibernateRepository"
+          parent="abstractRepository"/>
+
+
 </beans>

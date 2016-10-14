@@ -33,7 +33,7 @@ public class CusomDaoAuthenticationProvider extends DaoAuthenticationProvider {
 					.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
 		}
 
-		final Long tokenByEmail = User.getCurrent().getToken();
+		final Long tokenByEmail = ((User)userDetails).getToken();
 		final String presentedPassword = this.userService
 				.getUserSaltedPassword(authentication.getCredentials().toString(), tokenByEmail);
 

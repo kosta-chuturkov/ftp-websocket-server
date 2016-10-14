@@ -9,9 +9,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import ftp.core.common.model.User;
-import ftp.core.common.util.ServerUtil;
-
 /**
  * Utility class for Spring Security.
  */
@@ -51,7 +48,7 @@ public final class SecurityUtils {
         final Collection<? extends GrantedAuthority> authorities = securityContext.getAuthentication().getAuthorities();
         if (authorities != null) {
             for (final GrantedAuthority authority : authorities) {
-                if (authority.getAuthority().equals(AuthoritiesConstants.ANONYMOUS)) {
+                if (authority.getAuthority().equals(Authorities.ANONYMOUS)) {
                     return false;
                 }
             }

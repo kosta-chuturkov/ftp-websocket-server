@@ -17,8 +17,13 @@ public class JsonFileDto extends BaseFileDto {
     private String deleteType;
 
 
-    public JsonFileDto(String name, String size, String url) {
-        super(name, size, url);
+    private JsonFileDto(Builder builder) {
+        setUrl(builder.url);
+        setName(builder.name);
+        setSize(builder.size);
+        setThumbnailUrl(builder.thumbnailUrl);
+        setDeleteUrl(builder.deleteUrl);
+        setDeleteType(builder.deleteType);
     }
 
 
@@ -47,5 +52,58 @@ public class JsonFileDto extends BaseFileDto {
     }
 
 
+    public static final class Builder {
+        private String url;
+        private String name;
+        private String size;
+        private String thumbnailUrl;
+        private String deleteUrl;
+        private String deleteType;
 
+        public Builder() {
+        }
+
+        public Builder(JsonFileDto copy) {
+            this.url = copy.url;
+            this.name = copy.name;
+            this.size = copy.size;
+            this.thumbnailUrl = copy.thumbnailUrl;
+            this.deleteUrl = copy.deleteUrl;
+            this.deleteType = copy.deleteType;
+        }
+
+        public Builder withUrl(String val) {
+            this.url = val;
+            return this;
+        }
+
+        public Builder withName(String val) {
+            this.name = val;
+            return this;
+        }
+
+        public Builder withSize(String val) {
+            this.size = val;
+            return this;
+        }
+
+        public Builder withThumbnailUrl(String val) {
+            this.thumbnailUrl = val;
+            return this;
+        }
+
+        public Builder withDeleteUrl(String val) {
+            this.deleteUrl = val;
+            return this;
+        }
+
+        public Builder withDeleteType(String val) {
+            this.deleteType = val;
+            return this;
+        }
+
+        public JsonFileDto build() {
+            return new JsonFileDto(this);
+        }
+    }
 }

@@ -460,7 +460,7 @@ p,:focus {
      }
 
      function establishConnection(){
-         updateUrl('/sockjs/echo');
+         updateUrl('/sockjs/files');
          updateTransport('websocket');
          connect();
      }

@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
@@ -41,18 +40,16 @@ public class DeleteController {
 
 
     @RequestMapping(value = {APIAliases.DELETE_FILE_ALIAS}, method = RequestMethod.GET)
-    public void deleteFiles(final HttpServletRequest request, final HttpServletResponse response, @PathVariable final String deleteHash) {
+    public void deleteFiles(final HttpServletResponse response, @PathVariable final String deleteHash) {
         try {
-			this.authenticationService.authenticateClient(request, response);
-			deleteFile(request, response, deleteHash);
+			deleteFile(response, deleteHash);
         } catch (final Exception e) {
             logger.error("errror occured", e);
             ServerUtil.sendJsonErrorResponce(response, e.getMessage());
         }
     }
 
-    private void deleteFile(final HttpServletRequest request, final HttpServletResponse response, final String deleteHash) {
-
+    private void deleteFile(final HttpServletResponse response, final String deleteHash) {
         final User current = User.getCurrent();
         final String nickName = current.getNickName();
         final File findByDeleteHash = this.fileService.findByDeleteHash(deleteHash, nickName);
@@ -66,7 +63,9 @@ public class DeleteController {
             final long fileSize = findByDeleteHash.getFileSize();
             final String name = findByDeleteHash.getName();
             final Date timestamp = findByDeleteHash.getTimestamp();
+
             this.fileService.delete(findByDeleteHash.getId());
+
             current.setRemainingStorage(current.getRemainingStorage() + fileSize);
             this.userService.update(current);
             final User updatedUser = this.userService.findOne(current.getId());

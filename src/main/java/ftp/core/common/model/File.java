@@ -64,6 +64,16 @@ public class File extends AbstractEntity<Long> {
 
     }
 
+    private File(Builder builder) {
+        setCreator(builder.creator);
+        setName(builder.name);
+        setDownloadHash(builder.downloadHash);
+        setDeleteHash(builder.deleteHash);
+        setFileSize(builder.fileSize);
+        setTimestamp(builder.timestamp);
+        setFileType(builder.fileType);
+    }
+
     public boolean addUser(final String user) {
         if (!this.sharedWithUsers.contains(user)) {
             return this.sharedWithUsers.add(user);
@@ -138,41 +148,6 @@ public class File extends AbstractEntity<Long> {
         }
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        final File file = (File) o;
-
-        if (this.fileSize != file.fileSize) return false;
-        if (this.sharedWithUsers != null ? !this.sharedWithUsers.equals(file.sharedWithUsers) : file.sharedWithUsers != null)
-            return false;
-        if (this.creator != null ? !this.creator.equals(file.creator) : file.creator != null)
-            return false;
-        if (this.name != null ? !this.name.equals(file.name) : file.name != null) return false;
-        if (this.downloadHash != null ? !this.downloadHash.equals(file.downloadHash) : file.downloadHash != null)
-            return false;
-        if (this.deleteHash != null ? !this.deleteHash.equals(file.deleteHash) : file.deleteHash != null)
-            return false;
-        if (this.timestamp != null ? !this.timestamp.equals(file.timestamp) : file.timestamp != null)
-            return false;
-        return this.fileType == file.fileType;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = this.sharedWithUsers != null ? this.sharedWithUsers.hashCode() : 0;
-        result = 31 * result + (this.creator != null ? this.creator.hashCode() : 0);
-        result = 31 * result + (this.name != null ? this.name.hashCode() : 0);
-        result = 31 * result + (this.downloadHash != null ? this.downloadHash.hashCode() : 0);
-        result = 31 * result + (this.deleteHash != null ? this.deleteHash.hashCode() : 0);
-        result = 31 * result + (int) (this.fileSize ^ (this.fileSize >>> 32));
-        result = 31 * result + (this.timestamp != null ? this.timestamp.hashCode() : 0);
-        result = 31 * result + (this.fileType != null ? this.fileType.hashCode() : 0);
-        return result;
-    }
 
     public enum FileType {
         SHARED(SHARED_FILE), PRIVATE(PRIVATE_FILE), PUBLIC(PUBLIC_FILE);
@@ -205,5 +180,67 @@ public class File extends AbstractEntity<Long> {
             this.type = type;
         }
 
+    }
+
+    public static final class Builder {
+        private User creator;
+        private String name;
+        private String downloadHash;
+        private String deleteHash;
+        private long fileSize;
+        private Date timestamp;
+        private FileType fileType;
+
+        public Builder() {
+        }
+
+        public Builder(File copy) {
+            this.creator = copy.creator;
+            this.name = copy.name;
+            this.downloadHash = copy.downloadHash;
+            this.deleteHash = copy.deleteHash;
+            this.fileSize = copy.fileSize;
+            this.timestamp = copy.timestamp;
+            this.fileType = copy.fileType;
+        }
+
+        public Builder withCreator(User val) {
+            this.creator = val;
+            return this;
+        }
+
+        public Builder withName(String val) {
+            this.name = val;
+            return this;
+        }
+
+        public Builder withDownloadHash(String val) {
+            this.downloadHash = val;
+            return this;
+        }
+
+        public Builder withDeleteHash(String val) {
+            this.deleteHash = val;
+            return this;
+        }
+
+        public Builder withFileSize(long val) {
+            this.fileSize = val;
+            return this;
+        }
+
+        public Builder withTimestamp(Date val) {
+            this.timestamp = val;
+            return this;
+        }
+
+        public Builder withFileType(FileType val) {
+            this.fileType = val;
+            return this;
+        }
+
+        public File build() {
+            return new File(this);
+        }
     }
 }

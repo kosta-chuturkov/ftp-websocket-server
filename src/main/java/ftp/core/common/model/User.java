@@ -1,18 +1,18 @@
 package ftp.core.common.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Sets;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.Sets;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -47,48 +47,67 @@ public class User extends AbstractEntity<Long> implements UserDetails {
     private Set<File> uploadedFiles = Sets.newHashSet();
 
 	@JsonIgnore
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "user_authority", joinColumns = {
-			@JoinColumn(name = "user_id", referencedColumnName = "id") }, inverseJoinColumns = {
-					@JoinColumn(name = "authority_name", referencedColumnName = "name") })
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
 	@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-	private Set<Authority> authorities = new HashSet<>();
+	private Set<Authority> authorities;
 
 	@JsonIgnore
-	@NotNull
 	@Column(name = "account_non_expired")
-	private Boolean accountNonExpired = true;
+	private Boolean accountNonExpired = Boolean.TRUE;
 
 	@JsonIgnore
-	@NotNull
 	@Column(name = "account_non_locked")
-	private Boolean accountNonLocked = true;
+	private Boolean accountNonLocked = Boolean.TRUE;
 
 	@JsonIgnore
-	@NotNull
 	@Column(name = "credentials_non_expired")
-	private Boolean credentialsNonExpired = true;
+	private Boolean credentialsNonExpired = Boolean.TRUE;
 
 	@JsonIgnore
-	@NotNull
 	@Column(name = "enabled")
-	private Boolean enabled = true;
+	private Boolean enabled = Boolean.TRUE;
 
     public User() {
-
+        this.authorities = Sets.newHashSet();
     }
 
-    public User(final String nickName, final String email, final String password, final long remainingStorage, final Long token) {
-        super();
-        this.nickName = nickName;
-        this.email = email;
-        this.password = password;
-        this.remainingStorage = remainingStorage;
-        this.token = token;
+    private User(Builder builder) {
+        setNickName(builder.nickName);
+        setEmail(builder.email);
+        setPassword(builder.password);
+        setRemainingStorage(builder.remainingStorage);
+        setToken(builder.token);
+        setUploadedFiles(builder.uploadedFiles);
+        setAuthorities(builder.authorities);
+        this.accountNonExpired = builder.accountNonExpired;
+        this.accountNonLocked = builder.accountNonLocked;
+        this.credentialsNonExpired = builder.credentialsNonExpired;
+        this.enabled = builder.enabled;
+        this.authorities = Sets.newHashSet();
     }
+
 
     public static User getCurrent() {
-        return current.get();
+        final SecurityContext securityContext = SecurityContextHolder.getContext();
+        final Authentication authentication = securityContext.getAuthentication();
+        String userName;
+        if (authentication != null) {
+            if (authentication.getPrincipal() instanceof UserDetails) {
+                final User springSecurityUser = (User) authentication.getPrincipal();
+               return springSecurityUser;
+            } else if (authentication.getPrincipal() instanceof String) {
+                userName = (String) authentication.getPrincipal();
+                throw new RuntimeException("Request now allowed as: ["+userName+"]. You must login first.");
+            }
+        }
+        return null;
+    }
+
+    public void addAuthority(Authority authority){
+        if(!this.authorities.contains(authority)){
+            this.authorities.add(authority);
+        }
     }
 
     public static void setCurrent(final User current) {
@@ -238,4 +257,93 @@ public class User extends AbstractEntity<Long> implements UserDetails {
         return true;
     }
 
+    public static final class Builder {
+        private String nickName;
+        private String email;
+        private String password;
+        private long remainingStorage;
+        private Long token;
+        private Set<File> uploadedFiles;
+        private Set<Authority> authorities;
+        private Boolean accountNonExpired;
+        private Boolean accountNonLocked;
+        private Boolean credentialsNonExpired;
+        private Boolean enabled;
+
+        public Builder() {
+        }
+
+        public Builder(User copy) {
+            this.nickName = copy.nickName;
+            this.email = copy.email;
+            this.password = copy.password;
+            this.remainingStorage = copy.remainingStorage;
+            this.token = copy.token;
+            this.uploadedFiles = copy.uploadedFiles;
+            this.authorities = copy.authorities;
+            this.accountNonExpired = copy.accountNonExpired;
+            this.accountNonLocked = copy.accountNonLocked;
+            this.credentialsNonExpired = copy.credentialsNonExpired;
+            this.enabled = copy.enabled;
+        }
+
+        public Builder withNickName(String val) {
+            this.nickName = val;
+            return this;
+        }
+
+        public Builder withEmail(String val) {
+            this.email = val;
+            return this;
+        }
+
+        public Builder withPassword(String val) {
+            this.password = val;
+            return this;
+        }
+
+        public Builder withRemainingStorage(long val) {
+            this.remainingStorage = val;
+            return this;
+        }
+
+        public Builder withToken(Long val) {
+            this.token = val;
+            return this;
+        }
+
+        public Builder withUploadedFiles(Set<File> val) {
+            this.uploadedFiles = val;
+            return this;
+        }
+
+        public Builder withAuthorities(Set<Authority> val) {
+            this.authorities = val;
+            return this;
+        }
+
+        public Builder withAccountNonExpired(Boolean val) {
+            this.accountNonExpired = val;
+            return this;
+        }
+
+        public Builder withAccountNonLocked(Boolean val) {
+            this.accountNonLocked = val;
+            return this;
+        }
+
+        public Builder withCredentialsNonExpired(Boolean val) {
+            this.credentialsNonExpired = val;
+            return this;
+        }
+
+        public Builder withEnabled(Boolean val) {
+            this.enabled = val;
+            return this;
+        }
+
+        public User build() {
+            return new User(this);
+        }
+    }
 }

@@ -7,6 +7,7 @@ import ftp.core.common.model.File;
 import ftp.core.common.model.User;
 import ftp.core.common.model.dto.DataTransferObject;
 import ftp.core.common.model.dto.FileWithSharedUsersDto;
+import ftp.core.common.util.DtoUtil;
 import ftp.core.exception.JsonException;
 import ftp.core.service.face.JsonService;
 import ftp.core.service.face.tx.FileService;
@@ -51,8 +52,7 @@ public class SharedWithUsersFilesHandler implements JsonTypedHandler {
         final List<Long> files = this.fileService.getSharedFilesWithUsersIds(userId, firstResultAsInt, maxResultsAsInt);
         for (final Long fileId : files) {
             final File file = this.fileService.findWithSharedUsers(fileId);
-            final FileWithSharedUsersDto fileDto = new FileWithSharedUsersDto(file.getCreator().getNickName(), file.getName(), file.getDownloadHash(),
-                    file.getDeleteHash(), file.getFileSize(), file.getTimestamp().toString(), file.getFileType());
+            final FileWithSharedUsersDto fileDto = DtoUtil.toFileWithSharedUsersDto(file);
             final Set<String> sharedWithUsers = file.getSharedWithUsers();
             if (sharedWithUsers != null && !sharedWithUsers.isEmpty()) {
                 for (final String user : sharedWithUsers) {
