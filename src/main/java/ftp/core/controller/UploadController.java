@@ -11,10 +11,10 @@ import ftp.core.common.util.ServerUtil;
 import ftp.core.config.ServerConfigurator;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
+import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.service.impl.AuthenticationService;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
 import org.apache.commons.io.FilenameUtils;
@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.json.JSONObject;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -56,8 +57,6 @@ public class UploadController {
     @Resource
     private JsonParser jsonParser;
 
-    @Resource
-    private AuthenticationService authenticationService;
 
     @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS}, method = RequestMethod.GET)
     public ModelAndView getUploadPage(final HttpServletRequest request, final HttpServletResponse response)
@@ -73,7 +72,7 @@ public class UploadController {
             throw new FtpServerException(e.getMessage());
         }
     }
-
+    @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS}, method = RequestMethod.POST)
     public String profilePicUpdate(final HttpServletRequest request, final HttpServletResponse response,
                                    @RequestParam("files[]") final MultipartFile file) throws IOException {
@@ -99,6 +98,7 @@ public class UploadController {
         });
     }
 
+    @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS}, method = RequestMethod.POST)
     public String uploadFile(final HttpServletRequest request, final HttpServletResponse response,
                              @RequestParam("files[]") final MultipartFile file, @RequestParam("modifier") final String modifier,
@@ -168,7 +168,6 @@ public class UploadController {
 
 
     private String handleRequest(HttpRequestParameters parameters, Supplier<String> supplier) {
-        this.authenticationService.authenticateClient(parameters.getRequest(), parameters.getResponse());
         JsonErrorDto jsonErrorDto = null;
         String errorMessage;
         MultipartFile file = parameters.getFile();

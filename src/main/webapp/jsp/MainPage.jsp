@@ -723,6 +723,7 @@ p,:focus {
                 }
             };
         request.open("POST", profilePicUpdateUrl);
+        request.setRequestHeader("X-CSRF-TOKEN", getCSRF());
         request.send(formData);
 
         }

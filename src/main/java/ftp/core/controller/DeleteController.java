@@ -7,12 +7,14 @@ import ftp.core.common.model.dto.DeletedFileDto;
 import ftp.core.common.util.ServerUtil;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
+import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.impl.AuthenticationService;
 import ftp.core.service.impl.EventService;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,10 +37,7 @@ public class DeleteController {
     @Resource
     private EventService eventService;
 
-	@Resource
-	private AuthenticationService authenticationService;
-
-
+    @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.DELETE_FILE_ALIAS}, method = RequestMethod.GET)
     public void deleteFiles(final HttpServletResponse response, @PathVariable final String deleteHash) {
         try {

@@ -33,8 +33,6 @@ public class DownloadController {
     private UserService userService;
     @Resource
     private FileService fileService;
-	@Resource
-	private AuthenticationService authenticationService;
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.DOWNLOAD_FILE_ALIAS + "*"}, method = RequestMethod.GET)
@@ -48,9 +46,9 @@ public class DownloadController {
         return null;
     }
 
+    @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS + "{filename}"}, method = RequestMethod.GET)
     public ModelAndView getProfilePic(final HttpServletResponse response, @PathVariable String filename) {
-
         try {
             filename += ".jpg";
             final java.io.File file = new java.io.File(ServerConfigurator.getProfilePicsFolder(), filename);

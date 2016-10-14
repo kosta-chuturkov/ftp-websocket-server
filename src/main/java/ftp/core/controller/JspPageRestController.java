@@ -1,21 +1,18 @@
 package ftp.core.controller;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import ftp.core.common.model.File;
-import ftp.core.common.model.User;
-import ftp.core.common.model.dto.DataTransferObject;
 import ftp.core.common.model.dto.ModifiedUserDto;
-import ftp.core.common.util.DtoUtil;
 import ftp.core.common.util.ServerUtil;
 import ftp.core.constants.APIAliases;
+import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.impl.AuthenticationService;
 import ftp.core.service.impl.EventService;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -38,14 +35,11 @@ public class JspPageRestController {
     private FileService fileService;
     @Resource
     private EventService eventService;
-    @Resource
-    private AuthenticationService authenticationService;
 
-
+    @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS}, method = RequestMethod.POST)
     public String usrs(final HttpServletRequest request, final HttpServletResponse response,
                        @NotNull @ModelAttribute("q") final String userNickName) throws IOException {
-        this.authenticationService.authenticateClient(request, response);
         final int port = request.getServerPort();
         final String host = request.getServerName();
         final String serverContextAddress = ServerUtil.getProtocol(request) + host + ":" + port;
@@ -73,11 +67,11 @@ public class JspPageRestController {
     }
 
 
+    @Secured(Authorities.USER)
     @RequestMapping(value = {
             APIAliases.UPDATE_USERS_FILE_IS_SHARED_TO_ALIAS}, method = RequestMethod.POST, consumes = "application/json")
     public void updateUsers(final HttpServletRequest request, final HttpServletResponse response, @PathVariable final String deleteHash, @RequestBody final Set<ModifiedUserDto> modifiedUserDto) {
         try {
-            this.authenticationService.authenticateClient(request, response);
             this.fileService.updateUsers(deleteHash, modifiedUserDto);
         } catch (final Exception e) {
             logger.error("errror occured", e);

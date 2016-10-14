@@ -57,9 +57,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Resource
     private RememberMeServices rememberMeServices;
 
-    @Resource
-    private AuthenticationService authenticationService;
-
 	@Bean(name = "passwordEncoder")
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
