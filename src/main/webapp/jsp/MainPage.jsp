@@ -316,7 +316,7 @@ p,:focus {
 			<div id="toplinks">
 				<div class="left">
 					<strong>Cloud Server Main Page</strong> &nbsp;|&nbsp; <a class="uploadButton"
-						href="<c:url value="/api/upload" />"><strong>Upload Files</strong></a>&nbsp;|&nbsp;
+						href="<c:url value="/api/pageupload" />"><strong>Upload Files</strong></a>&nbsp;|&nbsp;
 						<strong><%=user%></strong>&nbsp;|&nbsp;
 						&nbsp;|&nbsp;<label id="storageInfo"><%=storage%> left from <%=maxStorage%>.</label>
 				</div>
