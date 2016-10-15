@@ -11,14 +11,12 @@ import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.service.impl.AuthenticationService;
 import org.apache.log4j.Logger;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -36,28 +34,16 @@ public class DownloadController {
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.DOWNLOAD_FILE_ALIAS + "*"}, method = RequestMethod.GET)
-    public ModelAndView downloadFile(final HttpServletRequest request, final HttpServletResponse response) {
-        try {
-			sendFile(request, response);
-        } catch (final Exception e) {
-            logger.error("error occured", e);
-            return new ModelAndView(ServerConstants.RESOURCE_NOT_FOUND_PAGE).addObject("errorMsg", e.getMessage());
-        }
-        return null;
+    public void downloadFile(final HttpServletRequest request, final HttpServletResponse response) {
+        sendFile(request, response);
     }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS + "{filename}"}, method = RequestMethod.GET)
-    public ModelAndView getProfilePic(final HttpServletResponse response, @PathVariable String filename) {
-        try {
-            filename += ".jpg";
-            final java.io.File file = new java.io.File(ServerConfigurator.getProfilePicsFolder(), filename);
-            ServerUtil.sendResourceByName(response, file.getAbsolutePath(), filename);
-        } catch (final Exception e) {
-            logger.error("error occured", e);
-            return new ModelAndView(ServerConstants.RESOURCE_NOT_FOUND_PAGE).addObject("errorMsg", e.getMessage());
-        }
-        return null;
+    public void getProfilePic(final HttpServletResponse response, @PathVariable String filename) {
+        filename += ".jpg";
+        final java.io.File file = new java.io.File(ServerConfigurator.getProfilePicsFolder(), filename);
+        ServerUtil.sendResourceByName(response, file.getAbsolutePath(), filename);
     }
 
 
@@ -70,22 +56,26 @@ public class DownloadController {
         }
         final String requesterEmail = current.getEmail();
         final String requesterNickName = current.getNickName();
+        final File fileByDownloadHash = getFile(downloadHash);
+        final Date timestamp = fileByDownloadHash.getTimestamp();
+        final String fileName = fileByDownloadHash.getName();
+        final FileType fileType = fileByDownloadHash.getFileType();
+        String locationFolderName = "";
+        if (this.fileService.isFileCreator(fileByDownloadHash.getId(), requesterNickName)) {
+            locationFolderName = requesterEmail;
+        } else {
+            locationFolderName = getFolderNameByFileType(requesterNickName, fileByDownloadHash, fileType);
+        }
+        final String downloadPath = buildDownloadPath(timestamp, fileName, locationFolderName);
+        ServerUtil.sendResourceByName(response, downloadPath, fileByDownloadHash.getName());
+    }
+
+    private File getFile(String downloadHash) {
         final File fileByDownloadHash = this.fileService.getFileByDownloadHash(downloadHash);
         if (fileByDownloadHash == null) {
-            ServerUtil.sendJsonErrorResponce(response, "Unable to get requested file.");
-        } else {
-            final Date timestamp = fileByDownloadHash.getTimestamp();
-            final String fileName = fileByDownloadHash.getName();
-            final FileType fileType = fileByDownloadHash.getFileType();
-            String locationFolderName = "";
-            if (this.fileService.isFileCreator(fileByDownloadHash.getId(), requesterNickName)) {
-                locationFolderName = requesterEmail;
-            } else {
-                locationFolderName = getFolderNameByFileType(requesterNickName, fileByDownloadHash, fileType);
-            }
-            final String downloadPath = buildDownloadPath(timestamp, fileName, locationFolderName);
-            ServerUtil.sendResourceByName(response, downloadPath, fileByDownloadHash.getName());
+            throw new RuntimeException("Unable to get requested file.");
         }
+        return fileByDownloadHash;
     }
 
     private String buildDownloadPath(Date timestamp, String fileName, String locationFolderName) {

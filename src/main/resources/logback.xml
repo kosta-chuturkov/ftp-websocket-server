@@ -1,55 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
 
-	<!-- CONSOLE LOGGING -->
-	<!-- %d{dd-MM-yyyy HH:mm:ss} [%thread] %5p %logger{39} : %m%n -->
-    <property name="CONSOLE_LOG_PATTERN"
-              value="%d{HH:mm:ss} %-5p %class{0}.%method:%L - %m%n"/>
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-        <Target>System.out</Target>
-        <encoder>
-            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
-        </encoder>
-    </appender>
-    <logger name="com.epam.techtalks" additivity="false" level="TRACE">
-        <appender-ref ref="console"/>
-    </logger>
-    <root level="WARN">
-        <appender-ref ref="console"/>
+<configuration scan="true">
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+
+    <logger name="ftp.core" level="#logback.loglevel#"/>
+
+    <logger name="javax.activation" level="WARN"/>
+    <logger name="javax.mail" level="WARN"/>
+    <logger name="javax.xml.bind" level="WARN"/>
+    <logger name="ch.qos.logback" level="WARN"/>
+    <logger name="com.codahale.metrics" level="WARN"/>
+    <logger name="com.ryantenney" level="WARN"/>
+    <logger name="com.sun" level="WARN"/>
+    <logger name="com.zaxxer" level="WARN"/>
+    <logger name="net.sf.ehcache" level="WARN"/>
+    <logger name="org.apache" level="WARN"/>
+    <logger name="org.apache.catalina.startup.DigesterFactory" level="OFF"/>
+    <logger name="org.bson" level="WARN"/>
+    <logger name="org.hibernate.validator" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.hibernate.ejb.HibernatePersistence" level="OFF"/>
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.springframework.web" level="WARN"/>
+    <logger name="org.springframework.security" level="WARN"/>
+    <logger name="org.springframework.cache" level="WARN"/>
+    <logger name="org.thymeleaf" level="WARN"/>
+    <logger name="org.xnio" level="WARN"/>
+    <logger name="springfox" level="WARN"/>
+    <logger name="sun.rmi" level="WARN"/>
+    <logger name="liquibase" level="WARN"/>
+    <logger name="sun.rmi.transport" level="WARN"/>
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <root level="#logback.loglevel#">
+        <appender-ref ref="CONSOLE"/>
     </root>
-    
-    <!-- FILE LOGGING IN JSON FORMAT-->
-    <property name="PROJECT_ID" value="techtalks"/>
-    <appender name="jsonFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>logs/techtalks.json</File>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <maxIndex>1</maxIndex>
-            <FileNamePattern>logs/${PROJECT_ID}_%i.json</FileNamePattern>
-        </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>5MB</MaxFileSize>
-        </triggeringPolicy>
-    </appender>
-    <logger name="com.epam.techtalks" additivity="false" level="INFO">
-        <appender-ref ref="jsonFile"/>
-    </logger>
-    <root level="WARN">
-        <appender-ref ref="jsonFile"/>
-    </root>
-    
-    <!-- FILE LOGGING NORMAL -->
-	<appender name="logFile" class="ch.qos.logback.core.FileAppender">
-	    <file>techtalks.log</file>
-	    <encoder>
-	      <pattern>%d{HH:mm:ss} %-5p %class{0}.%method:%L - %m%n</pattern>
-	    </encoder>
-	</appender>
-	<logger name="com.epam.techtalks" level="INFO">
-        <appender-ref ref="logFile"/>
-    </logger>
-    <root level="INFO">
-        <appender-ref ref="logFile"/>
-    </root>
-    
+
 </configuration>

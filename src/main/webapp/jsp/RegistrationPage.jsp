@@ -195,7 +195,7 @@ function validateInput(){
                 return "";
      }
      function goToLoginPage(){
-        window.location = "<c:url value="/api/main/" />"
+        window.location = "<c:url value="/api/login/" />"
      }
     var serverAddress = window.location.origin;
     var registerUrl = serverAddress + "<c:url value="/api/register" />";

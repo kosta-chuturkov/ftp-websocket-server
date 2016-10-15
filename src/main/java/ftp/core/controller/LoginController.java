@@ -1,45 +1,40 @@
 package ftp.core.controller;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import ftp.core.constants.APIAliases;
+import ftp.core.constants.ServerConstants;
+import ftp.core.service.face.tx.UserService;
 import org.apache.log4j.Logger;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-import ftp.core.common.util.ServerUtil;
-import ftp.core.constants.APIAliases;
-import ftp.core.constants.ServerConstants;
-import ftp.core.service.face.tx.FtpServerException;
-import ftp.core.service.face.tx.UserService;
+import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
-@Controller("loginController")
+import static ftp.core.common.util.ServerUtil.userHasSession;
+
+@RestController("loginController")
 public class LoginController {
 
-	private static final Logger logger = Logger.getLogger(LoginController.class);
-	@Resource
-	private UserService userService;
+    private static final Logger logger = Logger.getLogger(LoginController.class);
+    @Resource
+    private UserService userService;
 
-	@RequestMapping(value = { "/", APIAliases.LOGIN_ALIAS + "**" }, method = RequestMethod.GET)
-	public ModelAndView getLoginPage(final HttpServletRequest request, final HttpServletResponse response) {
-
-		try {
-			if (ServerUtil.userHasSession(request, true)) {
-				final RedirectView view = new RedirectView(APIAliases.MAIN_PAGE_ALIAS, true);
-				view.setExposeModelAttributes(false);
-				return new ModelAndView(view);
-			} else {
-				final ModelAndView modelAndView = new ModelAndView(ServerConstants.NEW_CLIENT_LOGIN_PAGE);
-				return modelAndView;
-			}
-		} catch (final Exception e) {
-			logger.error("errror occured", e);
-			throw new FtpServerException(e.getMessage());
-		}
-	}
-
+    @RequestMapping(value = {"/", APIAliases.LOGIN_ALIAS + "**"}, method = RequestMethod.GET)
+    public ModelAndView getLoginPage(final HttpServletRequest request, WebRequest webr) throws ServletException, IOException {
+        if (userHasSession(request, false)) {
+            final RedirectView view = new RedirectView(APIAliases.MAIN_PAGE_ALIAS, true);
+            view.setExposeModelAttributes(false);
+            return new ModelAndView(view);
+        } else {
+            final ModelAndView modelAndView = new ModelAndView(ServerConstants.NEW_CLIENT_LOGIN_PAGE);
+            return modelAndView;
+        }
+    }
 }
+

@@ -18,14 +18,15 @@ import java.io.IOException;
 public class AjaxAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     @Override
-	public void onAuthenticationSuccess(final HttpServletRequest request, final HttpServletResponse response,
-			final Authentication authentication)
-        throws IOException, ServletException {
-		final User springSecurityUser = (User) authentication.getPrincipal();
-		final String email = springSecurityUser.getEmail();
-		final String password = springSecurityUser.getPassword();
-		final long remainingStorage = springSecurityUser.getRemainingStorage();
-        ServerUtil.startUserSession(request, email, password, remainingStorage);
+    public void onAuthenticationSuccess(final HttpServletRequest request, final HttpServletResponse response,
+                                        final Authentication authentication)
+            throws IOException, ServletException {
+        final User springSecurityUser = (User) authentication.getPrincipal();
+        final String email = springSecurityUser.getEmail();
+        final String password = springSecurityUser.getPassword();
+        final String nickName = springSecurityUser.getNickName();
+        final long remainingStorage = springSecurityUser.getRemainingStorage();
+        ServerUtil.startUserSession(request, response, nickName, email, password, remainingStorage);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

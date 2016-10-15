@@ -10,7 +10,6 @@ import ftp.core.constants.ServerConstants;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.service.impl.AuthenticationService;
 import ftp.core.service.impl.EventService;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -40,43 +39,42 @@ public class DeleteController {
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.DELETE_FILE_ALIAS}, method = RequestMethod.GET)
     public void deleteFiles(final HttpServletResponse response, @PathVariable final String deleteHash) {
-        try {
-			deleteFile(response, deleteHash);
-        } catch (final Exception e) {
-            logger.error("errror occured", e);
-            ServerUtil.sendJsonErrorResponce(response, e.getMessage());
-        }
+        deleteFile(response, deleteHash);
     }
 
     private void deleteFile(final HttpServletResponse response, final String deleteHash) {
         final User current = User.getCurrent();
         final String nickName = current.getNickName();
+        final File findByDeleteHash = getFile(deleteHash, nickName);
+        final String downloadHash = findByDeleteHash.getDownloadHash();
+        final Set<String> sharedWithUsers = findByDeleteHash.getSharedWithUsers();
+        final List<String> usersToBeNotifiedFileDeleted = Lists.newArrayList(sharedWithUsers);
+        usersToBeNotifiedFileDeleted.add(current.getNickName());
+        final long fileSize = findByDeleteHash.getFileSize();
+        final String name = findByDeleteHash.getName();
+        final Date timestamp = findByDeleteHash.getTimestamp();
+
+        this.fileService.delete(findByDeleteHash.getId());
+
+        current.setRemainingStorage(current.getRemainingStorage() + fileSize);
+        this.userService.update(current);
+        final User updatedUser = this.userService.findOne(current.getId());
+        final String storageInfo = FileUtils.byteCountToDisplaySize(updatedUser.getRemainingStorage()) + " left from "
+                + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT) + ".";
+        ServerUtil.sendOkResponce(response, name, storageInfo);
+        final String deletePath = ServerConstants.SERVER_STORAGE_FOLDER_NAME.concat("/").concat(updatedUser.getEmail())
+                .concat("/").concat(timestamp.getTime() + "_" + name);
+        final java.io.File fileToDelete = new java.io.File(deletePath);
+        ServerUtil.deleteFile(fileToDelete);
+        this.eventService.fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
+    }
+
+    private File getFile(String deleteHash, String nickName) {
         final File findByDeleteHash = this.fileService.findByDeleteHash(deleteHash, nickName);
         if (findByDeleteHash == null) {
-            ServerUtil.sendJsonErrorResponce(response, "File does not exist.");
-        } else {
-            final String downloadHash = findByDeleteHash.getDownloadHash();
-            final Set<String> sharedWithUsers = findByDeleteHash.getSharedWithUsers();
-            final List<String> usersToBeNotifiedFileDeleted = Lists.newArrayList(sharedWithUsers);
-            usersToBeNotifiedFileDeleted.add(current.getNickName());
-            final long fileSize = findByDeleteHash.getFileSize();
-            final String name = findByDeleteHash.getName();
-            final Date timestamp = findByDeleteHash.getTimestamp();
-
-            this.fileService.delete(findByDeleteHash.getId());
-
-            current.setRemainingStorage(current.getRemainingStorage() + fileSize);
-            this.userService.update(current);
-            final User updatedUser = this.userService.findOne(current.getId());
-            final String storageInfo = FileUtils.byteCountToDisplaySize(updatedUser.getRemainingStorage()) + " left from "
-                    + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT) + ".";
-            ServerUtil.sendOkResponce(response, name, storageInfo);
-            final String deletePath = ServerConstants.SERVER_STORAGE_FOLDER_NAME.concat("/").concat(updatedUser.getEmail())
-                    .concat("/").concat(timestamp.getTime() + "_" + name);
-            final java.io.File fileToDelete = new java.io.File(deletePath);
-            ServerUtil.deleteFile(fileToDelete);
-            this.eventService.fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
+            throw new RuntimeException("File does not exist.");
         }
+        return findByDeleteHash;
     }
 
 }

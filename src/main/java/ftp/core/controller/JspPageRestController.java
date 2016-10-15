@@ -8,10 +8,8 @@ import ftp.core.constants.APIAliases;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.service.impl.AuthenticationService;
 import ftp.core.service.impl.EventService;
 import org.apache.log4j.Logger;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,33 +69,7 @@ public class JspPageRestController {
     @RequestMapping(value = {
             APIAliases.UPDATE_USERS_FILE_IS_SHARED_TO_ALIAS}, method = RequestMethod.POST, consumes = "application/json")
     public void updateUsers(final HttpServletRequest request, final HttpServletResponse response, @PathVariable final String deleteHash, @RequestBody final Set<ModifiedUserDto> modifiedUserDto) {
-        try {
-            this.fileService.updateUsers(deleteHash, modifiedUserDto);
-        } catch (final Exception e) {
-            logger.error("errror occured", e);
-            ServerUtil.sendJsonErrorResponce(response, e.getMessage());
-        }
-    }
-
-
-    @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public final class ResourceNotFoundException extends RuntimeException {
-
-        public ResourceNotFoundException() {
-            super();
-        }
-
-        public ResourceNotFoundException(final String message, final Throwable cause) {
-            super(message, cause);
-        }
-
-        public ResourceNotFoundException(final String message) {
-            super(message);
-        }
-
-        public ResourceNotFoundException(final Throwable cause) {
-            super(cause);
-        }
+        this.fileService.updateUsers(deleteHash, modifiedUserDto);
     }
 
 }

@@ -71,7 +71,7 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
             final String response = this.gson.toJson(jsonResponse);
             session.sendMessage(new TextMessage(response));
         } catch (final Exception e) {
-            this.logger.error(e);
+            this.logger.error("error handling ws message", e);
             final JsonResponse jsonResponse;
             if (request == null) {
                 jsonResponse = new JsonResponse();
@@ -82,7 +82,6 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
                 jsonResponse.setResponseMethod(request.getMethod());
             }
             session.sendMessage(new TextMessage(this.gson.toJson(jsonResponse)));
-            e.printStackTrace();
         }
     }
 

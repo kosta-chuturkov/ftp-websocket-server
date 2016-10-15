@@ -13,7 +13,7 @@ public class ServerConstants {
     public static final String DELETE_ALIAS = "delete/";
     public static final String EMAIL_PARAMETER = "email";
     public static final String JSESSIONID_PARAMETER = "JSESSIONID";
-    public static final String SESSION_ID_PARAMETER = "sessionId";
+    public static final String SESSION_ID_PARAMETER = "sid";
     public static final String STORAGE_PARAMETER = "storage";
     public static final String MAX_STORAGE_PARAMETER = "maxStorage";
     public static final String PASSWORD = "PREFID";

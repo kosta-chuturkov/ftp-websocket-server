@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -60,42 +61,36 @@ public class UploadController {
 
     @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS}, method = RequestMethod.GET)
     public ModelAndView getUploadPage(final HttpServletRequest request, final HttpServletResponse response)
-            throws IOException {
-        try {
-            if (ServerUtil.userHasSession(request, true)) {
-                return new ModelAndView(ServerConstants.UPLOAD_PAGE);
-            } else {
-                final ModelAndView modelAndView = new ModelAndView("redirect:" + APIAliases.LOGIN_ALIAS);
-                return modelAndView;
-            }
-        } catch (final Exception e) {
-            throw new FtpServerException(e.getMessage());
+            throws IOException, ServletException {
+        if (ServerUtil.userHasSession(request, true)) {
+            return new ModelAndView(ServerConstants.UPLOAD_PAGE);
+        } else {
+            final ModelAndView modelAndView = new ModelAndView("redirect:" + APIAliases.LOGIN_ALIAS);
+            return modelAndView;
         }
+
     }
+
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS}, method = RequestMethod.POST)
     public String profilePicUpdate(final HttpServletRequest request, final HttpServletResponse response,
                                    @RequestParam("files[]") final MultipartFile file) throws IOException {
-        return handleRequest(new HttpRequestParameters(request, response, file), () -> {
-            try {
-                final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
-                final String extension = FilenameUtils.getExtension(fileName);
-                checkFileExtention(extension);
-                final String serverFileName = User.getCurrent().getNickName() + "." + extension;
-                final String imageUrlAddress = buildImageUrlAddress(request, serverFileName);
 
-                final File targetFile = createFileInFolder(serverFileName, ServerConfigurator.getProfilePicsFolder());
-                transferToTargetFile(file, targetFile);
+        final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
+        final String extension = FilenameUtils.getExtension(fileName);
+        checkFileExtention(extension);
+        final String serverFileName = User.getCurrent().getNickName() + "." + extension;
+        final String imageUrlAddress = buildImageUrlAddress(request, serverFileName);
 
-                createImageThumbnail(targetFile, 50, 50);
-                final JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("imageUrl", imageUrlAddress);
-                return jsonObject.toString();
-            } catch (Exception e) {
-                logger.error(e);
-                throw new RuntimeException(e);
-            }
-        });
+        final File targetFile = createFileInFolder(serverFileName, ServerConfigurator.getProfilePicsFolder());
+        transferToTargetFile(file, targetFile);
+
+        createImageThumbnail(targetFile, 50, 50);
+        final JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("imageUrl", imageUrlAddress);
+        return jsonObject.toString();
+
+
     }
 
     @Secured(Authorities.USER)
@@ -104,33 +99,27 @@ public class UploadController {
                              @RequestParam("files[]") final MultipartFile file, @RequestParam("modifier") final String modifier,
                              @RequestParam("nickName") final String userNickNames) throws IOException {
 
-        return handleRequest(new HttpRequestParameters(request, response, file), () -> {
-            try {
-                final int port = request.getServerPort();
-                final String host = request.getServerName();
-                final String contextPath = request.getContextPath();
-                final String serverContextAddress = getProtocol(request) + host + ":" + port + contextPath
-                        + APIAliases.DOWNLOAD_FILE_ALIAS;
-                final Long token = User.getCurrent().getToken();
-                final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
-                final long currentTime = System.currentTimeMillis();
-                final String tempFileName = new Long(currentTime).toString();
-                final String serverFileName = tempFileName + "_" + fileName;
-                final String deleteHash = ServerUtil.hash(ServerUtil.hash(serverFileName + token) + ServerConstants.DELETE_SALT);
-                final String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
+        final int port = request.getServerPort();
+        final String host = request.getServerName();
+        final String contextPath = request.getContextPath();
+        final String serverContextAddress = getProtocol(request) + host + ":" + port + contextPath
+                + APIAliases.DOWNLOAD_FILE_ALIAS;
+        final Long token = User.getCurrent().getToken();
+        final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
+        final long currentTime = System.currentTimeMillis();
+        final String tempFileName = new Long(currentTime).toString();
+        final String serverFileName = tempFileName + "_" + fileName;
+        final String deleteHash = ServerUtil.hash(ServerUtil.hash(serverFileName + token) + ServerConstants.DELETE_SALT);
+        final String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
 
-                final Set<String> users = getFileSharedUsersAsSet(userNickNames);
-                this.fileService.createFileRecord(fileName, currentTime, getModifier(modifier), users, file.getSize(),
-                        deleteHash, downloadHash);
-                final File userFolder = getUserFolder(User.getCurrent().getEmail());
-                final File targetFile = createFileInFolder(serverFileName, userFolder);
-                transferToTargetFile(file, targetFile);
-                return buildResponseObject(file, serverContextAddress, fileName, deleteHash, downloadHash).toString();
-            } catch (Exception e) {
-                logger.error(e);
-                throw new RuntimeException(e);
-            }
-        });
+        final Set<String> users = getFileSharedUsersAsSet(userNickNames);
+        this.fileService.createFileRecord(fileName, currentTime, getModifier(modifier), users, file.getSize(),
+                deleteHash, downloadHash);
+        final File userFolder = getUserFolder(User.getCurrent().getEmail());
+        final File targetFile = createFileInFolder(serverFileName, userFolder);
+        transferToTargetFile(file, targetFile);
+        return buildResponseObject(file, serverContextAddress, fileName, deleteHash, downloadHash).toString();
+
     }
 
     private String buildErrorResponse(String errorMessage) {

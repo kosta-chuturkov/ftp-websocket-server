@@ -2,8 +2,6 @@ package ftp.core.common.util;
 
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
-import ftp.core.common.model.User;
-import ftp.core.common.model.dto.JsonErrorDto;
 import ftp.core.common.model.dto.ResponseModelAdapter;
 import ftp.core.config.ServerConfigurator;
 import ftp.core.constants.APIAliases;
@@ -11,7 +9,6 @@ import ftp.core.constants.ServerConstants;
 import ftp.core.service.face.tx.FtpServerException;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -103,8 +100,8 @@ public class ServerUtil {
         return false;
     }
 
-    public static void startUserSession(final HttpServletRequest request, final String email, final String password, final long storage) {
-        final HttpSession session = request.getSession(false);
+    public static void startUserSession(final HttpServletRequest request, HttpServletResponse response, String nickName, final String email, final String password, final long storage) {
+        final HttpSession session = request.getSession();
         final int port = request.getServerPort();
         final String host = request.getServerName();
         final String serverContextAddress = ServerUtil.getProtocol(request) + host + ":" + port;
@@ -113,11 +110,14 @@ public class ServerUtil {
         session.setAttribute(ServerConstants.PASSWORD, password);
         session.setAttribute(ServerConstants.HOST, request.getServerName());
         session.setAttribute(ServerConstants.PORT, request.getServerPort());
-        session.setAttribute(ServerConstants.PROFILE_PICTURE_PARAM, getAvatarUrl(serverContextAddress, profilePicAddress, User.getCurrent().getNickName()));
+        String avatarUrl = getAvatarUrl(serverContextAddress, profilePicAddress, nickName);
+        session.setAttribute(ServerConstants.PROFILE_PICTURE_PARAM, avatarUrl);
         session.setAttribute(ServerConstants.STORAGE_PARAMETER, FileUtils.byteCountToDisplaySize(storage));
         session.setAttribute(ServerConstants.MAX_STORAGE_PARAMETER,
                 FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT));
         session.setMaxInactiveInterval(30 * 60);
+        response.addCookie(new Cookie(ServerConstants.SESSION_ID_PARAMETER, session.getId()));
+
 
     }
 
@@ -168,22 +168,6 @@ public class ServerUtil {
             return null;
         }
         return buffer.toString();
-    }
-
-    public static void sendJsonErrorResponce(final HttpServletResponse response, final String message) {
-        response.setContentType("application/json");
-        final PrintWriter writer;
-        try {
-            writer = response.getWriter();
-        } catch (final IOException e) {
-            throw new FtpServerException(e.getMessage());
-        }
-        JsonErrorDto errorDto = new JsonErrorDto.Builder().withError(message).build();
-        ResponseModelAdapter build = new ResponseModelAdapter.Builder().withBaseFileDto(errorDto).build();
-
-
-        writer.write(geAstJsonObject(build).toString());
-        IOUtils.closeQuietly(writer);
     }
 
     public static JSONObject geAstJsonObject(final ResponseModelAdapter dtoWrapper) {
@@ -250,7 +234,6 @@ public class ServerUtil {
             parent.put("files", json);
             parent.put("storedBytes", storedBytes);
         } catch (final Exception e) {
-            logger.error("errror occured", e);
             throw new FtpServerException(e.getMessage());
         } finally {
             if (writer != null) {

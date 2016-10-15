@@ -28,7 +28,7 @@ public class CustomLocalSessionFactoryBean extends LocalSessionFactoryBean {
 					resources = pathMatchingResourcePatternResolver.getResources(resourcesPath);
 					if (resources == null || resources.length == 0) {
 						final String errorMessage = "No resources found on path:" + resourcesPath;
-						logger.error(errorMessage);
+						logger.error("error getting resources", new Exception(errorMessage));
 						throw new Exception(errorMessage);
 					}
 					URI resourceUri = null;

@@ -91,5 +91,4 @@ dependencies {
     compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
 
 
-
 }

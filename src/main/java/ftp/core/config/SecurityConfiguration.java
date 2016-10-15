@@ -4,9 +4,7 @@ import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
 import ftp.core.security.*;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.service.impl.AuthenticationService;
 import ftp.core.web.filter.CsrfCookieGeneratorFilter;
-import ftp.core.web.filter.MyFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,41 +49,41 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Resource
     private UserDetailsService userDetailsService;
 
-	@Resource
-	private UserService userService;
+    @Resource
+    private UserService userService;
 
     @Resource
     private RememberMeServices rememberMeServices;
 
-	@Bean(name = "passwordEncoder")
+    @Bean(name = "passwordEncoder")
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-	@Bean
-	public SaltSource saltSource() {
-		final ReflectionSaltSource reflectionSaltSource = new ReflectionSaltSource();
-		reflectionSaltSource.setUserPropertyToUse("getToken");
-		return reflectionSaltSource;
-	}
+    @Bean
+    public SaltSource saltSource() {
+        final ReflectionSaltSource reflectionSaltSource = new ReflectionSaltSource();
+        reflectionSaltSource.setUserPropertyToUse("getToken");
+        return reflectionSaltSource;
+    }
 
-	@Bean
-	public DaoAuthenticationProvider daoAuthenticationProvider() {
-		final DaoAuthenticationProvider daoAuthenticationProvider = new CusomDaoAuthenticationProvider(
-				this.userService);
-		daoAuthenticationProvider.setUserDetailsService(this.userDetailsService);
-		daoAuthenticationProvider.setPasswordEncoder(this.passwordEncoder());
-		return daoAuthenticationProvider;
-	}
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        final DaoAuthenticationProvider daoAuthenticationProvider = new CusomDaoAuthenticationProvider(
+                this.userService);
+        daoAuthenticationProvider.setUserDetailsService(this.userDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(this.passwordEncoder());
+        return daoAuthenticationProvider;
+    }
 
-	@Autowired
-	public void configureGlobal(final AuthenticationManagerBuilder auth,
-			final DaoAuthenticationProvider daoAuthenticationProvider) throws Exception {
-		auth.authenticationProvider(daoAuthenticationProvider);
+    @Autowired
+    public void configureGlobal(final AuthenticationManagerBuilder auth,
+                                final DaoAuthenticationProvider daoAuthenticationProvider) throws Exception {
+        auth.authenticationProvider(daoAuthenticationProvider);
     }
 
     @Override
-	public void configure(final WebSecurity web) throws Exception {
+    public void configure(final WebSecurity web) throws Exception {
         web.ignoring()
                 .antMatchers(HttpMethod.OPTIONS, "/**")
                 .antMatchers("/app/**/*.{js,html}")
@@ -98,7 +96,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-	protected void configure(final HttpSecurity http) throws Exception {
+    protected void configure(final HttpSecurity http) throws Exception {
         http.requiresChannel().anyRequest().requiresSecure().and()
                 .csrf()
                 .and()
@@ -113,7 +111,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .key(ServerConstants.REMEMBER_ME_SECURITY_KEY)
                 .and()
                 .formLogin()
-				.loginProcessingUrl(APIAliases.LOGIN_ALIAS)
+                .loginProcessingUrl(APIAliases.LOGIN_ALIAS)
                 .successHandler(this.ajaxAuthenticationSuccessHandler)
                 .failureHandler(this.ajaxAuthenticationFailureHandler)
                 .usernameParameter("email")
@@ -131,11 +129,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .disable()
                 .and()
                 .authorizeRequests()
-				.antMatchers(APIAliases.REGISTRATION_ALIAS).permitAll()
+                .antMatchers(APIAliases.REGISTRATION_ALIAS).permitAll()
                 .antMatchers(APIAliases.LOGIN_ALIAS).permitAll()
                 .antMatchers(APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS).permitAll()
-.antMatchers("/api/**")
-				.authenticated();
+                .antMatchers("/api/**")
+                .authenticated();
 
     }
 
@@ -143,8 +141,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
         return new SecurityEvaluationContextExtension();
     }
-
-
 
 
 }
