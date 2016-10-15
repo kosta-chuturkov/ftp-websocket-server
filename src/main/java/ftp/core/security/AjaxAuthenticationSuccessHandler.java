@@ -1,7 +1,7 @@
 package ftp.core.security;
 
-import ftp.core.common.model.User;
-import ftp.core.common.util.ServerUtil;
+import ftp.core.model.entities.User;
+import ftp.core.util.ServerUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;

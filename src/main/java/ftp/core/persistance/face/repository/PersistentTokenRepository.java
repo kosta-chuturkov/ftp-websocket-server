@@ -1,6 +1,6 @@
 package ftp.core.persistance.face.repository;
 
-import ftp.core.common.model.PersistentToken;
+import ftp.core.model.entities.PersistentToken;
 import ftp.core.persistance.face.generic.repository.GenericRepository;
 
 /**

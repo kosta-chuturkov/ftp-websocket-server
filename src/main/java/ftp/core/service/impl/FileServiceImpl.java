@@ -1,21 +1,21 @@
 package ftp.core.service.impl;
 
 import com.google.common.collect.Sets;
-import ftp.core.common.model.AbstractEntity;
-import ftp.core.common.model.File;
-import ftp.core.common.model.File.FileType;
-import ftp.core.common.model.User;
-import ftp.core.common.model.dto.DataTransferObject;
-import ftp.core.common.model.dto.DeletedFileDto;
-import ftp.core.common.model.dto.ModifiedUserDto;
-import ftp.core.common.model.dto.SharedFileDto;
-import ftp.core.common.util.DtoUtil;
 import ftp.core.constants.ServerConstants;
+import ftp.core.model.dto.DataTransferObject;
+import ftp.core.model.dto.DeletedFileDto;
+import ftp.core.model.dto.ModifiedUserDto;
+import ftp.core.model.dto.SharedFileDto;
+import ftp.core.model.entities.AbstractEntity;
+import ftp.core.model.entities.File;
+import ftp.core.model.entities.File.FileType;
+import ftp.core.model.entities.User;
 import ftp.core.persistance.face.repository.FileRepository;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
+import ftp.core.util.DtoUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.stereotype.Service;
@@ -72,14 +72,14 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
                     "You are exceeding your upload limit:" + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT)
                             + ". You have: " + FileUtils.byteCountToDisplaySize(remainingStorage) + " remainig storage.");
         }
-        final ftp.core.common.model.File file = new ftp.core.common.model.File.Builder()
+        final File file = new File.Builder()
                 .withName(fileNameEscaped)
                 .withTimestamp(new Date(timestamp))
                 .withDownloadHash(downloadHash)
                 .withDeleteHash(deleteHash)
                 .withFileSize(fileSize)
                 .withCreator(currentUser)
-                .withFileType(ftp.core.common.model.File.FileType.getById(modifier))
+                .withFileType(File.FileType.getById(modifier))
                 .build();
         final Long savedFileId = save(file);
         if (savedFileId != null) {

@@ -1,9 +1,9 @@
 package ftp.core.controller;
 
-import ftp.core.common.util.ServerUtil;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
 import ftp.core.service.face.tx.UserService;
+import ftp.core.util.ServerUtil;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

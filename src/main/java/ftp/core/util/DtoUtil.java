@@ -1,9 +1,9 @@
-package ftp.core.common.util;
+package ftp.core.util;
 
-import ftp.core.common.model.File;
-import ftp.core.common.model.dto.FileWithSharedUsersDto;
-import ftp.core.common.model.dto.SharedFileDto;
-import ftp.core.common.model.dto.UploadedFileDto;
+import ftp.core.model.dto.FileWithSharedUsersDto;
+import ftp.core.model.dto.SharedFileDto;
+import ftp.core.model.dto.UploadedFileDto;
+import ftp.core.model.entities.File;
 
 /**
  * Created by Kosta_Chuturkov on 10/13/2016.
@@ -23,7 +23,7 @@ public class DtoUtil {
     }
 
     public static FileWithSharedUsersDto toFileWithSharedUsersDto(File file) {
-        return  new FileWithSharedUsersDto.Builder()
+        return new FileWithSharedUsersDto.Builder()
                 .withSharingUserName(file.getCreator().getNickName())
                 .withName(file.getName())
                 .withDownloadHash(file.getDownloadHash())

@@ -1,9 +1,8 @@
 package ftp.core.service.face.tx;
 
-import ftp.core.common.model.File;
-import ftp.core.common.model.User;
+import ftp.core.model.entities.File;
+import ftp.core.model.entities.User;
 import ftp.core.persistance.face.generic.service.GenericService;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -31,5 +30,5 @@ public interface UserService extends GenericService<User, Long> {
 
     File addFileToUser(final Long fileId, final Long userId);
 
-	String getUserSaltedPassword(final String rawPassword, final Long token);
+    String getUserSaltedPassword(final String rawPassword, final Long token);
 }

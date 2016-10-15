@@ -1,6 +1,6 @@
 package ftp.core.persistance.hibernate.repository;
 
-import ftp.core.common.model.File;
+import ftp.core.model.entities.File;
 import ftp.core.persistance.face.generic.repository.GenericHibernateRepository;
 import ftp.core.persistance.face.repository.FileRepository;
 import org.hibernate.Query;

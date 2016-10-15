@@ -2,19 +2,19 @@ package ftp.core.controller;
 
 import com.google.common.collect.Sets;
 import com.google.gson.*;
-import ftp.core.common.model.User;
-import ftp.core.common.model.dto.JsonErrorDto;
-import ftp.core.common.model.dto.JsonFileDto;
-import ftp.core.common.model.dto.ResponseModelAdapter;
-import ftp.core.common.util.HttpRequestParameters;
-import ftp.core.common.util.ServerUtil;
 import ftp.core.config.ServerConfigurator;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
+import ftp.core.model.dto.JsonErrorDto;
+import ftp.core.model.dto.JsonFileDto;
+import ftp.core.model.dto.ResponseModelAdapter;
+import ftp.core.model.entities.User;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
+import ftp.core.util.HttpRequestParameters;
+import ftp.core.util.ServerUtil;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
 import org.apache.commons.io.FilenameUtils;
@@ -39,7 +39,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static ftp.core.common.util.ServerUtil.getProtocol;
+import static ftp.core.util.ServerUtil.getProtocol;
 
 @RestController
 public class UploadController {
@@ -224,7 +224,7 @@ public class UploadController {
     }
 
     private boolean checkModifier(final int modifier) {
-        return ftp.core.common.model.File.FileType.getById(modifier) == null;
+        return ftp.core.model.entities.File.FileType.getById(modifier) == null;
     }
 
     private File getUserFolder(final String userName) {

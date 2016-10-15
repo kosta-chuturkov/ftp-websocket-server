@@ -1,6 +1,6 @@
 package ftp.core.persistance.face.repository;
 
-import ftp.core.common.model.Authority;
+import ftp.core.model.entities.Authority;
 import ftp.core.persistance.face.generic.repository.GenericRepository;
 
 /**

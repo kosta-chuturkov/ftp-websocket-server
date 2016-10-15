@@ -1,4 +1,4 @@
-package ftp.core.common.model;
+package ftp.core.model.entities;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

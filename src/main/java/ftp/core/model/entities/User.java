@@ -1,4 +1,4 @@
-package ftp.core.common.model;
+package ftp.core.model.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Sets;
@@ -31,7 +31,7 @@ public class User extends AbstractEntity<Long> implements UserDetails {
 
     @NotNull
     @NotEmpty
-	@JsonIgnore
+    @JsonIgnore
     @Column(name = "pass", length = 64)
     private String password;
 
@@ -39,34 +39,34 @@ public class User extends AbstractEntity<Long> implements UserDetails {
     private long remainingStorage;
 
     @Column(name = "token")
-	@JsonIgnore
+    @JsonIgnore
     private Long token;
 
     @OneToMany
     @JoinColumn(name = "user_id")
     private Set<File> uploadedFiles = Sets.newHashSet();
 
-	@JsonIgnore
+    @JsonIgnore
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
-	@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-	private Set<Authority> authorities;
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<Authority> authorities;
 
-	@JsonIgnore
-	@Column(name = "account_non_expired")
-	private Boolean accountNonExpired = Boolean.TRUE;
+    @JsonIgnore
+    @Column(name = "account_non_expired")
+    private Boolean accountNonExpired = Boolean.TRUE;
 
-	@JsonIgnore
-	@Column(name = "account_non_locked")
-	private Boolean accountNonLocked = Boolean.TRUE;
+    @JsonIgnore
+    @Column(name = "account_non_locked")
+    private Boolean accountNonLocked = Boolean.TRUE;
 
-	@JsonIgnore
-	@Column(name = "credentials_non_expired")
-	private Boolean credentialsNonExpired = Boolean.TRUE;
+    @JsonIgnore
+    @Column(name = "credentials_non_expired")
+    private Boolean credentialsNonExpired = Boolean.TRUE;
 
-	@JsonIgnore
-	@Column(name = "enabled")
-	private Boolean enabled = Boolean.TRUE;
+    @JsonIgnore
+    @Column(name = "enabled")
+    private Boolean enabled = Boolean.TRUE;
 
     public User() {
         this.authorities = Sets.newHashSet();
@@ -95,17 +95,17 @@ public class User extends AbstractEntity<Long> implements UserDetails {
         if (authentication != null) {
             if (authentication.getPrincipal() instanceof UserDetails) {
                 final User springSecurityUser = (User) authentication.getPrincipal();
-               return springSecurityUser;
+                return springSecurityUser;
             } else if (authentication.getPrincipal() instanceof String) {
                 userName = (String) authentication.getPrincipal();
-                throw new RuntimeException("Request now allowed as: ["+userName+"]. You must login first.");
+                throw new RuntimeException("Request now allowed as: [" + userName + "]. You must login first.");
             }
         }
         return null;
     }
 
-    public void addAuthority(Authority authority){
-        if(!this.authorities.contains(authority)){
+    public void addAuthority(Authority authority) {
+        if (!this.authorities.contains(authority)) {
             this.authorities.add(authority);
         }
     }
@@ -130,55 +130,55 @@ public class User extends AbstractEntity<Long> implements UserDetails {
         this.email = email;
     }
 
-	@Override
+    @Override
     public String getPassword() {
         return this.password;
-	}
+    }
 
     public void setPassword(final String password) {
         this.password = password;
     }
 
-	@Override
-	public String getUsername() {
-		return getEmail();
-	}
+    @Override
+    public String getUsername() {
+        return getEmail();
+    }
 
-	@Override
-	public boolean isAccountNonExpired() {
-		return this.accountNonExpired;
-	}
+    @Override
+    public boolean isAccountNonExpired() {
+        return this.accountNonExpired;
+    }
 
-	public void setAccountNonExpired(final boolean accountNonExpired) {
-		this.accountNonExpired = accountNonExpired;
-	}
+    public void setAccountNonExpired(final boolean accountNonExpired) {
+        this.accountNonExpired = accountNonExpired;
+    }
 
-	@Override
-	public boolean isAccountNonLocked() {
-		return this.accountNonLocked;
-	}
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.accountNonLocked;
+    }
 
-	public void setAccountNonLocked(final boolean accountNonLocked) {
-		this.accountNonLocked = accountNonLocked;
-	}
+    public void setAccountNonLocked(final boolean accountNonLocked) {
+        this.accountNonLocked = accountNonLocked;
+    }
 
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return this.credentialsNonExpired;
-	}
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return this.credentialsNonExpired;
+    }
 
-	public void setCredentialsNonExpired(final boolean credentialsNonExpired) {
-		this.credentialsNonExpired = credentialsNonExpired;
-	}
+    public void setCredentialsNonExpired(final boolean credentialsNonExpired) {
+        this.credentialsNonExpired = credentialsNonExpired;
+    }
 
-	@Override
-	public boolean isEnabled() {
-		return this.enabled;
-	}
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
+    }
 
-	public void setEnabled(final boolean enabled) {
-		this.enabled = enabled;
-	}
+    public void setEnabled(final boolean enabled) {
+        this.enabled = enabled;
+    }
 
     public long getRemainingStorage() {
         return this.remainingStorage;
@@ -204,14 +204,14 @@ public class User extends AbstractEntity<Long> implements UserDetails {
         this.uploadedFiles = uploadedFiles;
     }
 
-	@Override
-	public Set<Authority> getAuthorities() {
-		return this.authorities;
-	}
+    @Override
+    public Set<Authority> getAuthorities() {
+        return this.authorities;
+    }
 
-	public void setAuthorities(final Set<Authority> authorities) {
-		this.authorities = authorities;
-	}
+    public void setAuthorities(final Set<Authority> authorities) {
+        this.authorities = authorities;
+    }
 
     public boolean addUploadedFile(final File file) {
         if (!this.uploadedFiles.contains(file)) {

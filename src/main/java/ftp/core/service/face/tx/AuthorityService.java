@@ -1,6 +1,6 @@
 package ftp.core.service.face.tx;
 
-import ftp.core.common.model.Authority;
+import ftp.core.model.entities.Authority;
 import ftp.core.persistance.face.generic.service.GenericService;
 
 /**

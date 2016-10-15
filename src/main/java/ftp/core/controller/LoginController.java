@@ -16,7 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-import static ftp.core.common.util.ServerUtil.userHasSession;
+import static ftp.core.util.ServerUtil.userHasSession;
 
 @RestController("loginController")
 public class LoginController {

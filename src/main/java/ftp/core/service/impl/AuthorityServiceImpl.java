@@ -1,6 +1,6 @@
 package ftp.core.service.impl;
 
-import ftp.core.common.model.Authority;
+import ftp.core.model.entities.Authority;
 import ftp.core.service.face.tx.AuthorityService;
 import ftp.core.service.generic.AbstractGenericService;
 import org.springframework.stereotype.Service;

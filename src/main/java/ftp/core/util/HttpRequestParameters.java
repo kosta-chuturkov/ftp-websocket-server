@@ -1,4 +1,4 @@
-package ftp.core.common.util;
+package ftp.core.util;
 
 import org.springframework.web.multipart.MultipartFile;
 

@@ -1,6 +1,6 @@
-package ftp.core.common.model.dto;
+package ftp.core.model.dto;
 
-import ftp.core.common.model.File;
+import ftp.core.model.entities.File;
 
 /**
  * Contains info about an uploaded file

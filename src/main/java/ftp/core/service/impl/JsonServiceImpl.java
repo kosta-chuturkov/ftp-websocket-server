@@ -1,8 +1,8 @@
 package ftp.core.service.impl;
 
 import com.google.gson.Gson;
-import ftp.core.common.model.dto.DataTransferObject;
-import ftp.core.common.model.dto.ResponseModelAdapter;
+import ftp.core.model.dto.DataTransferObject;
+import ftp.core.model.dto.ResponseModelAdapter;
 import ftp.core.service.face.JsonService;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.websocket.dto.JsonResponse;
@@ -27,7 +27,7 @@ public class JsonServiceImpl implements JsonService {
     private FileService fileService;
 
 
-	public JsonResponse getJsonResponse(final String method, final Collection<DataTransferObject> data) {
+    public JsonResponse getJsonResponse(final String method, final Collection<DataTransferObject> data) {
         final JsonResponse jsonResponse = new JsonResponse();
         jsonResponse.setResponseMethod(method);
         jsonResponse.setResult(this.gson.toJson(data));

@@ -1,64 +1,62 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
-	version="2.0">
-	<package>ftp.core.common.model</package>
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+                 version="2.0">
+    <package>ftp.core.model.entities</package>
 
-	<named-query name="User.findByEmailAndPassword">
-		<query>
-			<![CDATA[
+    <named-query name="User.findByEmailAndPassword">
+        <query>
+            <![CDATA[
 				select usr
 				from User usr
 		    	where 
 		    	usr.email= ? and 
 		    	usr.password= ?
 			]]>
-		</query>
-	</named-query>
-	
-	<named-query name="User.getTokenByEmail">
-		<query>
-			<![CDATA[
+        </query>
+    </named-query>
+
+    <named-query name="User.getTokenByEmail">
+        <query>
+            <![CDATA[
 				select user.token
 				from User user
 		    	where user.email=:email
 			]]>
-		</query>
-	</named-query>
-	
-	<named-query name="User.getUserByNickName">
-		<query>
-			<![CDATA[
+        </query>
+    </named-query>
+
+    <named-query name="User.getUserByNickName">
+        <query>
+            <![CDATA[
 				select user
 				from User user
 		    	where user.nickName=:nickName
 			]]>
-		</query>
-	</named-query>
-	
-	<named-query name="User.getUserByEmail">
-		<query>
-			<![CDATA[
+        </query>
+    </named-query>
+
+    <named-query name="User.getUserByEmail">
+        <query>
+            <![CDATA[
 				select user
 				from User user
 		    	where user.email=:email
 			]]>
-		</query>
-	</named-query>
-	
-	
-	<named-query name="User.getUserByNickLike">
-		<query>
-			<![CDATA[
+        </query>
+    </named-query>
+
+
+    <named-query name="User.getUserByNickLike">
+        <query>
+            <![CDATA[
 				select user.nickName
 				from User user
 		    	where user.nickName like :userNickName
 			]]>
-		</query>
-	</named-query>
-	
-	
-	
+        </query>
+    </named-query>
+
 
 </entity-mappings>

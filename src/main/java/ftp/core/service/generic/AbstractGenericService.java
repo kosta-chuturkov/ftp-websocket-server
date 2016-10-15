@@ -1,6 +1,6 @@
 package ftp.core.service.generic;
 
-import ftp.core.common.model.AbstractEntity;
+import ftp.core.model.entities.AbstractEntity;
 import ftp.core.persistance.face.generic.repository.GenericRepository;
 import ftp.core.persistance.face.generic.service.GenericService;
 import ftp.core.service.face.tx.FtpServerException;

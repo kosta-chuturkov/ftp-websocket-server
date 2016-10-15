@@ -1,8 +1,8 @@
 package ftp.core.controller;
 
 import com.google.gson.Gson;
-import ftp.core.common.model.dto.JsonErrorDto;
-import ftp.core.common.model.dto.ResponseModelAdapter;
+import ftp.core.model.dto.JsonErrorDto;
+import ftp.core.model.dto.ResponseModelAdapter;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;

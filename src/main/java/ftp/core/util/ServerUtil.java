@@ -1,11 +1,11 @@
-package ftp.core.common.util;
+package ftp.core.util;
 
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
-import ftp.core.common.model.dto.ResponseModelAdapter;
 import ftp.core.config.ServerConfigurator;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
+import ftp.core.model.dto.ResponseModelAdapter;
 import ftp.core.service.face.tx.FtpServerException;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;

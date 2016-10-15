@@ -1,9 +1,9 @@
 package ftp.core.controller;
 
-import ftp.core.common.util.ServerUtil;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
 import ftp.core.security.Authorities;
+import ftp.core.util.ServerUtil;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,11 +16,11 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class LogOutController {
 
-	@Secured(Authorities.USER)
-	@RequestMapping(value = {APIAliases.LOGOUT_ALIAS + "**"}, method = RequestMethod.GET)
-	public ModelAndView logClientOut(final HttpServletRequest request, final HttpServletResponse response){
-		ServerUtil.invalidateSession(request, response);
-		final ModelAndView modelAndView = new ModelAndView(ServerConstants.NEW_CLIENT_LOGIN_PAGE);
-		return modelAndView;
-	}
+    @Secured(Authorities.USER)
+    @RequestMapping(value = {APIAliases.LOGOUT_ALIAS + "**"}, method = RequestMethod.GET)
+    public ModelAndView logClientOut(final HttpServletRequest request, final HttpServletResponse response) {
+        ServerUtil.invalidateSession(request, response);
+        final ModelAndView modelAndView = new ModelAndView(ServerConstants.NEW_CLIENT_LOGIN_PAGE);
+        return modelAndView;
+    }
 }

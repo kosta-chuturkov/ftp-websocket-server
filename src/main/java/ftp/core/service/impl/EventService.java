@@ -1,8 +1,8 @@
 package ftp.core.service.impl;
 
 import com.google.gson.Gson;
-import ftp.core.common.model.dto.DataTransferObject;
-import ftp.core.common.model.dto.DeletedFileDto;
+import ftp.core.model.dto.DataTransferObject;
+import ftp.core.model.dto.DeletedFileDto;
 import ftp.core.websocket.dto.JsonResponse;
 import ftp.core.websocket.handler.Handlers;
 import org.springframework.stereotype.Service;

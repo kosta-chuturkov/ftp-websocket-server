@@ -3,13 +3,13 @@ package ftp.core.websocket.handler;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import ftp.core.common.model.File;
-import ftp.core.common.model.User;
-import ftp.core.common.model.dto.DataTransferObject;
-import ftp.core.common.util.DtoUtil;
 import ftp.core.exception.JsonException;
+import ftp.core.model.dto.DataTransferObject;
+import ftp.core.model.entities.File;
+import ftp.core.model.entities.User;
 import ftp.core.service.face.JsonService;
 import ftp.core.service.face.tx.FileService;
+import ftp.core.util.DtoUtil;
 import ftp.core.websocket.api.JsonTypedHandler;
 import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
@@ -36,7 +36,7 @@ public class PrivateFilesHandler implements JsonTypedHandler {
         final String method = jsonRequest.getMethod();
         final JsonElement firstResult = params.get("firstResult");
         final JsonElement maxResults = params.get("maxResults");
-		final List<DataTransferObject> fileDtos = Lists.newArrayList();
+        final List<DataTransferObject> fileDtos = Lists.newArrayList();
         if (firstResult == null || maxResults == null) {
             throw new JsonException("Expected maxResult and firstResult parameters", method);
         }
@@ -49,9 +49,9 @@ public class PrivateFilesHandler implements JsonTypedHandler {
         final Integer maxResultsAsInt = maxResults.getAsInt();
         final List<File> files = this.fileService.getPrivateFilesForUser(nickName, firstResultAsInt, maxResultsAsInt);
         for (final File file : files) {
-			fileDtos.add(DtoUtil.toUploadedFileDto(file));
+            fileDtos.add(DtoUtil.toUploadedFileDto(file));
         }
-		return this.jsonService.getJsonResponse(method, fileDtos);
+        return this.jsonService.getJsonResponse(method, fileDtos);
     }
 
 

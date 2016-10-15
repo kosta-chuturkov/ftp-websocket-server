@@ -1,4 +1,4 @@
-package ftp.core.common.model.dto;
+package ftp.core.model.dto;
 
 /**
  * Object containing the base fields for files

@@ -2,13 +2,13 @@ package ftp.core.controller;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import ftp.core.common.model.dto.ModifiedUserDto;
-import ftp.core.common.util.ServerUtil;
 import ftp.core.constants.APIAliases;
+import ftp.core.model.dto.ModifiedUserDto;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.impl.EventService;
+import ftp.core.util.ServerUtil;
 import org.apache.log4j.Logger;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import static ftp.core.common.util.ServerUtil.getAvatarUrl;
+import static ftp.core.util.ServerUtil.getAvatarUrl;
 
 @RestController
 public class JspPageRestController {

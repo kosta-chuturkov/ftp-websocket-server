@@ -1,6 +1,6 @@
 package ftp.core.security;
 
-import ftp.core.common.model.User;
+import ftp.core.model.entities.User;
 import ftp.core.persistance.face.repository.UserRepository;
 import ftp.core.service.face.tx.UserService;
 import org.slf4j.Logger;
@@ -22,29 +22,29 @@ import java.util.Locale;
 @Component("userDetailsService")
 public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
 
-	private final Logger log = LoggerFactory.getLogger(UserDetailsService.class);
+    private final Logger log = LoggerFactory.getLogger(UserDetailsService.class);
 
-	@Resource
-	private UserRepository userRepository;
+    @Resource
+    private UserRepository userRepository;
 
-	@Resource
-	private UserService userService;
+    @Resource
+    private UserService userService;
 
-	@Override
-	@Transactional
-	public UserDetails loadUserByUsername(final String login) {
-		this.log.debug("Authenticating {}", login);
-		final String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
-		final User userFromDatabase = this.userRepository.getUserByEmail(lowercaseLogin);
-		if (userFromDatabase != null) {
-			SecurityContext context = SecurityContextHolder.getContext();
-			Authentication authentication = context.getAuthentication();
-			//authentication.getPrincipal()
-			return userFromDatabase;
-		} else {
-			throw new UsernameNotFoundException("Invalid credentials");
-		}
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(final String login) {
+        this.log.debug("Authenticating {}", login);
+        final String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
+        final User userFromDatabase = this.userRepository.getUserByEmail(lowercaseLogin);
+        if (userFromDatabase != null) {
+            SecurityContext context = SecurityContextHolder.getContext();
+            Authentication authentication = context.getAuthentication();
+            //authentication.getPrincipal()
+            return userFromDatabase;
+        } else {
+            throw new UsernameNotFoundException("Invalid credentials");
+        }
 
-	}
+    }
 
 }

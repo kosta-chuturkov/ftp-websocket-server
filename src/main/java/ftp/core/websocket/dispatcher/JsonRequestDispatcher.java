@@ -1,9 +1,9 @@
 package ftp.core.websocket.dispatcher;
 
 import com.google.gson.Gson;
-import ftp.core.common.model.User;
 import ftp.core.constants.ServerConstants;
 import ftp.core.listener.SessionToConsumerMapper;
+import ftp.core.model.entities.User;
 import ftp.core.reactor.NotificationDispatcher;
 import ftp.core.service.impl.EventService;
 import ftp.core.websocket.api.JsonTypedHandler;

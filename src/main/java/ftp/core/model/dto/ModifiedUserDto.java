@@ -1,4 +1,4 @@
-package ftp.core.common.model.dto;
+package ftp.core.model.dto;
 
 /**
  * Created by kosta on 1.6.2016 г..

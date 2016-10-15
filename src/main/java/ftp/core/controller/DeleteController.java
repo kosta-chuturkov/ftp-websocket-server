@@ -1,16 +1,16 @@
 package ftp.core.controller;
 
 import com.google.common.collect.Lists;
-import ftp.core.common.model.File;
-import ftp.core.common.model.User;
-import ftp.core.common.model.dto.DeletedFileDto;
-import ftp.core.common.util.ServerUtil;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
+import ftp.core.model.dto.DeletedFileDto;
+import ftp.core.model.entities.File;
+import ftp.core.model.entities.User;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.impl.EventService;
+import ftp.core.util.ServerUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.security.access.annotation.Secured;

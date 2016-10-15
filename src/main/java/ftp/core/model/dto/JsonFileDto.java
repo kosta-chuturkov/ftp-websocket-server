@@ -1,4 +1,4 @@
-package ftp.core.common.model.dto;
+package ftp.core.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

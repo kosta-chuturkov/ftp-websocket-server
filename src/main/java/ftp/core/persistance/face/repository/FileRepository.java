@@ -1,6 +1,6 @@
 package ftp.core.persistance.face.repository;
 
-import ftp.core.common.model.File;
+import ftp.core.model.entities.File;
 import ftp.core.persistance.face.generic.repository.GenericRepository;
 
 import java.util.List;
