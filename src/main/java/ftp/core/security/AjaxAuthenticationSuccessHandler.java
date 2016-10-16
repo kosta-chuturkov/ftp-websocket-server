@@ -26,7 +26,7 @@ public class AjaxAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
         final String password = springSecurityUser.getPassword();
         final String nickName = springSecurityUser.getNickName();
         final long remainingStorage = springSecurityUser.getRemainingStorage();
-        ServerUtil.startUserSession(request, response, nickName, email, password, remainingStorage);
+        ServerUtil.setSessionProperties(request, response, nickName, email, password, remainingStorage);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

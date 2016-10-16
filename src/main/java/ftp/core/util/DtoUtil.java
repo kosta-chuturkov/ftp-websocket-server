@@ -8,7 +8,11 @@ import ftp.core.model.entities.File;
 /**
  * Created by Kosta_Chuturkov on 10/13/2016.
  */
-public class DtoUtil {
+public final class DtoUtil {
+
+    private DtoUtil() {
+
+    }
 
     public static UploadedFileDto toUploadedFileDto(File file) {
         return new UploadedFileDto.Builder()

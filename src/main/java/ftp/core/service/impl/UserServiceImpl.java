@@ -23,6 +23,8 @@ import java.util.List;
 @Service("userService")
 public class UserServiceImpl extends AbstractGenericService<User, Long> implements UserService {
 
+    static final String SALT = "fKWCH(1UafNFK&QK-Vg`FEG(sAE5f^Q.vEA-+Wj?]Sbc+<crP,x]7M/+S}dnb-,^";
+
     @Resource
     private UserRepository userRepository;
 
@@ -37,7 +39,7 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 
     @Override
     public String getUserSaltedPassword(final String rawPassword, final Long token) {
-        return ServerUtil.SALT + rawPassword + token.toString();
+        return SALT + rawPassword + token.toString();
     }
 
     public String encodePassword(final String rawPassword) {

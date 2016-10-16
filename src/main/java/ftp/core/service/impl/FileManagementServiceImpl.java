@@ -18,12 +18,12 @@ import ftp.core.service.face.tx.UserService;
 import ftp.core.util.ServerUtil;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
+import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -38,6 +38,8 @@ import static ftp.core.util.ServerUtil.getProtocol;
 
 @Service("fileManagementService")
 public class FileManagementServiceImpl implements FileManagementService {
+
+    final Set<String> ALLOWED_EXTENTIONS = Sets.newHashSet("jpg");
     @Resource
     private UserService userService;
     @Resource
@@ -46,6 +48,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     private EventService eventService;
     @Resource
     private Gson gson;
+
     @Resource
     private JsonParser jsonParser;
 
@@ -96,7 +99,7 @@ public class FileManagementServiceImpl implements FileManagementService {
 
     }
 
-    private void transferToTargetFile(@RequestParam("files[]") MultipartFile file, java.io.File targetFile) throws IOException {
+    private void transferToTargetFile(MultipartFile file, java.io.File targetFile) throws IOException {
         file.transferTo(targetFile);
     }
 
@@ -115,7 +118,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     private void checkFileExtention(String extension) {
-        if (!ServerUtil.ALLOWED_EXTENTIONS.contains(extension)) {
+        if (!ALLOWED_EXTENTIONS.contains(extension)) {
             throw new FtpServerException("Image expected...");
         }
     }
@@ -208,7 +211,9 @@ public class FileManagementServiceImpl implements FileManagementService {
         final String deletePath = ServerConstants.SERVER_STORAGE_FOLDER_NAME.concat("/").concat(updatedUser.getEmail())
                 .concat("/").concat(timestamp.getTime() + "_" + name);
         final java.io.File fileToDelete = new java.io.File(deletePath);
-        ServerUtil.deleteFile(fileToDelete);
+        if (fileToDelete != null && fileToDelete.exists()) {
+            FileDeleteStrategy.FORCE.deleteQuietly(fileToDelete);
+        }
         this.eventService.fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
     }
 

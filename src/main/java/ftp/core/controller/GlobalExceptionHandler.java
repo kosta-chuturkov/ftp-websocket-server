@@ -18,10 +18,12 @@ public class GlobalExceptionHandler {
     private static final Logger logger = Logger.getLogger(GlobalExceptionHandler.class);
     Gson gson = new Gson();
 
-    public String getAsJson(final ResponseModelAdapter dtoWrapper) {
+    public String getExpectedAsJsonModelFromClient(String message, String storedBytes) {
         final JSONObject parent = new JSONObject();
         final JSONArray json = new JSONArray();
-        final JSONObject jsonObject = new JSONObject(this.gson.toJson(dtoWrapper));
+        JsonErrorDto errorDto = new JsonErrorDto.Builder().withError(message).build();
+        ResponseModelAdapter response = new ResponseModelAdapter.Builder().withBaseFileDto(errorDto).withStoredBytes(storedBytes).build();
+        final JSONObject jsonObject = new JSONObject(this.gson.toJson(response));
         json.put(jsonObject.get("baseFileDto"));
         parent.put("files", json);
         return parent.toString();
@@ -32,8 +34,6 @@ public class GlobalExceptionHandler {
     @ResponseBody
     ResponseEntity<String> handleException(Exception ex) {
         logger.error("error", ex);
-        JsonErrorDto errorDto = new JsonErrorDto.Builder().withError(ex.getMessage()).build();
-        ResponseModelAdapter response = new ResponseModelAdapter.Builder().withBaseFileDto(errorDto).build();
-        return new ResponseEntity<>(getAsJson(response), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(getExpectedAsJsonModelFromClient(ex.getMessage(), null), HttpStatus.BAD_REQUEST);
     }
 }

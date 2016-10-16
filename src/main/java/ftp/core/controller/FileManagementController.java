@@ -30,7 +30,6 @@ public class FileManagementController {
     public String uploadFile(final HttpServletRequest request,
                              @RequestParam("files[]") final MultipartFile file, @RequestParam("modifier") final String modifier,
                              @RequestParam("nickName") final String userNickNames) throws IOException {
-
         return fileManagementService.uploadFile(request, file, modifier, userNickNames);
     }
 

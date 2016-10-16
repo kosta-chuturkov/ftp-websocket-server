@@ -1,18 +1,15 @@
 package ftp.core.util;
 
-import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import ftp.core.config.ServerConfigurator;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.ResponseModelAdapter;
 import ftp.core.service.face.tx.FtpServerException;
-import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -20,13 +17,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.security.MessageDigest;
-import java.util.Set;
 
-public class ServerUtil {
+public final class ServerUtil {
 
-    public static final Set<String> ALLOWED_EXTENTIONS = Sets.newHashSet("jpg");
+    private ServerUtil() {
 
-    public static final String SALT = "fKWCH(1UafNFK&QK-Vg`FEG(sAE5f^Q.vEA-+Wj?]Sbc+<crP,x]7M/+S}dnb-,^";
+    }
 
     private static final Logger logger = Logger.getLogger(ServerUtil.class);
     private static Gson GSON = new Gson();
@@ -69,7 +65,7 @@ public class ServerUtil {
         return false;
     }
 
-    public static void startUserSession(final HttpServletRequest request, HttpServletResponse response, String nickName, final String email, final String password, final long storage) {
+    public static void setSessionProperties(final HttpServletRequest request, HttpServletResponse response, String nickName, final String email, final String password, final long storage) {
         final HttpSession session = request.getSession();
         final int port = request.getServerPort();
         final String host = request.getServerName();
@@ -79,7 +75,7 @@ public class ServerUtil {
         session.setAttribute(ServerConstants.PASSWORD, password);
         session.setAttribute(ServerConstants.HOST, request.getServerName());
         session.setAttribute(ServerConstants.PORT, request.getServerPort());
-        String avatarUrl = getAvatarUrl(serverContextAddress, profilePicAddress, nickName);
+        String avatarUrl = getProfilePicUrl(serverContextAddress, profilePicAddress, nickName);
         session.setAttribute(ServerConstants.PROFILE_PICTURE_PARAM, avatarUrl);
         session.setAttribute(ServerConstants.STORAGE_PARAMETER, FileUtils.byteCountToDisplaySize(storage));
         session.setAttribute(ServerConstants.MAX_STORAGE_PARAMETER,
@@ -90,7 +86,7 @@ public class ServerUtil {
 
     }
 
-    public static String getAvatarUrl(final String serverContextAddress, final String profilePicAddress, final String user) {
+    public static String getProfilePicUrl(final String serverContextAddress, final String profilePicAddress, final String user) {
         final String avatarUrl;
         final java.io.File file = new java.io.File(ServerConfigurator.getProfilePicsFolder(), user + ".jpg");
         if (file.exists()) {
@@ -113,12 +109,6 @@ public class ServerUtil {
         final HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
-        }
-    }
-
-    public static void deleteFile(final File fileToDelete) {
-        if (fileToDelete != null && fileToDelete.exists()) {
-            FileDeleteStrategy.FORCE.deleteQuietly(fileToDelete);
         }
     }
 
@@ -169,23 +159,18 @@ public class ServerUtil {
         response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
         response.setHeader("Expires", "0"); // Proxies.
         response.setHeader("Content-Disposition", "inline; filename=" + fileName);
-        writeToOsFromIs(osWriter, resIs);
-    }
-
-    public static ModelAndView writeToOsFromIs(final OutputStream os, final InputStream is) {
         try {
             final byte[] buffer = new byte[ServerConstants.DEFAULT_BUFFER_SIZE];
             int bytesRead;
-            while ((bytesRead = is.read(buffer, 0, buffer.length)) > 0) {
-                os.write(buffer, 0, bytesRead);
+            while ((bytesRead = resIs.read(buffer, 0, buffer.length)) > 0) {
+                osWriter.write(buffer, 0, bytesRead);
             }
-            os.flush();
-            os.close();
+            osWriter.flush();
+            osWriter.close();
         } catch (final IOException e) {
             logger.error("errror occured", e);
             throw new FtpServerException("Resource sending failed.");
         }
-        return null;
     }
 
     public static void sendOkResponce(final HttpServletResponse response, final String fileName, final String storedBytes) {
@@ -211,6 +196,4 @@ public class ServerUtil {
             }
         }
     }
-
-
 }

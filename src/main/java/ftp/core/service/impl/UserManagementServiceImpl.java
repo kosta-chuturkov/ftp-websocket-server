@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import static ftp.core.util.ServerUtil.getAvatarUrl;
+import static ftp.core.util.ServerUtil.getProfilePicUrl;
 
 @Service("userManagementService")
 public class UserManagementServiceImpl implements UserManagementService {
@@ -51,7 +51,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             userObject.addProperty("full_name", user);
             final JsonObject owner = new JsonObject();
             owner.addProperty("id", Math.random());
-            owner.addProperty("avatar_url", getAvatarUrl(serverContextAddress, profilePicAddress, user));
+            owner.addProperty("avatar_url", getProfilePicUrl(serverContextAddress, profilePicAddress, user));
             userObject.add("owner", owner);
             jsonArrayWrapper.add(userObject);
         }
