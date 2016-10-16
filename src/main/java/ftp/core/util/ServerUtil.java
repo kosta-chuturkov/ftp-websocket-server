@@ -14,7 +14,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,36 +30,6 @@ public class ServerUtil {
 
     private static final Logger logger = Logger.getLogger(ServerUtil.class);
     private static Gson GSON = new Gson();
-
-
-    public static boolean userHasSession(final HttpServletRequest request, final boolean checkAttributes)
-            throws ServletException, IOException {
-        final HttpSession session = request.getSession(false);
-        if (session == null) {
-            return false;
-        }
-        final Cookie[] cookies = request.getCookies();
-        if (checkAttributes) {
-            final String email = (String) session.getAttribute(ServerConstants.EMAIL_PARAMETER);
-            final String password = (String) session.getAttribute(ServerConstants.PASSWORD);
-            if (!isEmailValid(email) || !isPasswordValid(password)) {
-                return false;
-            }
-        }
-        if (cookies != null) {
-            for (int i = 0; i < cookies.length; i++) {
-                final String value = cookies[i].getValue();
-                final String name = cookies[i].getName();
-                if (name != null && (name.equals(ServerConstants.SESSION_ID_PARAMETER)
-                        || name.equals(ServerConstants.JSESSIONID_PARAMETER))) {
-                    if (value != null && value.equals(session.getId())) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
 
     public static String getProtocol(final HttpServletRequest request) {
         final boolean isSecure = request.isSecure();

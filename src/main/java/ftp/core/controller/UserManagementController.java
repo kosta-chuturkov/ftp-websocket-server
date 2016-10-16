@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @RestController
 public class UserManagementController {
@@ -34,5 +37,20 @@ public class UserManagementController {
         userManagementService.updateUsers(deleteHash, modifiedUserDto);
     }
 
+    @RequestMapping("/responseb")
+    public
+    @ResponseBody
+    Future<String> future() {
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        return executorService.submit(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return "Executed...";
+        });
+
+    }
 
 }

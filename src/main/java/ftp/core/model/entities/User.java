@@ -18,7 +18,6 @@ import java.util.Set;
 @Table(name = "users")
 public class User extends AbstractEntity<Long> implements UserDetails {
 
-    private static final ThreadLocal<User> current = new ThreadLocal<>();
     @NotNull
     @NotEmpty
     @Column(name = "nickname", length = 32)
@@ -108,10 +107,6 @@ public class User extends AbstractEntity<Long> implements UserDetails {
         if (!this.authorities.contains(authority)) {
             this.authorities.add(authority);
         }
-    }
-
-    public static void setCurrent(final User current) {
-        User.current.set(current);
     }
 
     public String getNickName() {

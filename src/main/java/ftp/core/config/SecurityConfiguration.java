@@ -131,6 +131,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(APIAliases.REGISTRATION_ALIAS).permitAll()
                 .antMatchers(APIAliases.LOGIN_ALIAS).permitAll()
+                .antMatchers("/responseb").permitAll()
                 .antMatchers(APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS).permitAll()
                 .antMatchers("/api/**")
                 .authenticated();
