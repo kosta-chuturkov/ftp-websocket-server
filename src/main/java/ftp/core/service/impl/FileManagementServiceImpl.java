@@ -11,7 +11,6 @@ import ftp.core.model.dto.JsonFileDto;
 import ftp.core.model.dto.ResponseModelAdapter;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
-import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
@@ -23,11 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.json.JSONObject;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,8 +49,6 @@ public class FileManagementServiceImpl implements FileManagementService {
     @Resource
     private JsonParser jsonParser;
 
-    @Secured(Authorities.USER)
-    @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS}, method = RequestMethod.POST)
     public String updateProfilePicture(final HttpServletRequest request,
                                        final MultipartFile file) throws IOException {
 
@@ -76,8 +69,6 @@ public class FileManagementServiceImpl implements FileManagementService {
 
     }
 
-    @Secured(Authorities.USER)
-    @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS}, method = RequestMethod.POST)
     public String uploadFile(final HttpServletRequest request,
                              final MultipartFile file, String modifier,
                              final String userNickNames) throws IOException {
@@ -129,7 +120,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         }
     }
 
-    private JSONObject buildResponseObject(@RequestParam("files[]") MultipartFile file, String serverContextAddress, String fileName, String deleteHash, String downloadHash) {
+    private JSONObject buildResponseObject(MultipartFile file, String serverContextAddress, String fileName, String deleteHash, String downloadHash) {
         JsonFileDto dtoWrapper = new JsonFileDto.Builder()
                 .withName(StringEscapeUtils.escapeHtml(fileName))
                 .withSize(Long.toString(file.getSize()))
@@ -194,9 +185,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
 
-    @Secured(Authorities.USER)
-    @RequestMapping(value = {APIAliases.DELETE_FILE_ALIAS}, method = RequestMethod.GET)
-    public void deleteFiles(final HttpServletResponse response, @PathVariable final String deleteHash) {
+    public void deleteFiles(final HttpServletResponse response, final String deleteHash) {
         final User current = User.getCurrent();
         final String nickName = current.getNickName();
         final File findByDeleteHash = getFile(deleteHash, nickName);
@@ -231,15 +220,11 @@ public class FileManagementServiceImpl implements FileManagementService {
         return findByDeleteHash;
     }
 
-    @Secured(Authorities.USER)
-    @RequestMapping(value = {APIAliases.DOWNLOAD_FILE_ALIAS + "*"}, method = RequestMethod.GET)
     public void downloadFile(final HttpServletRequest request, final HttpServletResponse response) {
         sendFile(request, response);
     }
 
-    @Secured(Authorities.USER)
-    @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS + "{filename}"}, method = RequestMethod.GET)
-    public void getProfilePic(final HttpServletResponse response, @PathVariable String filename) {
+    public void getProfilePic(final HttpServletResponse response, String filename) {
         filename += ".jpg";
         final java.io.File file = new java.io.File(ServerConfigurator.getProfilePicsFolder(), filename);
         ServerUtil.sendResourceByName(response, file.getAbsolutePath(), filename);
