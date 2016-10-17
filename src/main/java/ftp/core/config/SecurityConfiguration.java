@@ -6,6 +6,8 @@ import ftp.core.security.*;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.web.filter.CsrfCookieGeneratorFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -31,9 +33,8 @@ import javax.annotation.Resource;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+@AutoConfigureOrder(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-
     @Resource
     private AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
 
