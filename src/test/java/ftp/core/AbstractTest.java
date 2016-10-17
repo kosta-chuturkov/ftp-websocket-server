@@ -1,6 +1,5 @@
 package ftp.core;
 
-import ftp.core.boot.BootLoader;
 import ftp.core.model.entities.User;
 import ftp.core.profiles.Profiles;
 import ftp.core.service.face.tx.UserService;
@@ -20,7 +19,7 @@ import javax.sql.DataSource;
 import java.sql.Statement;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ActiveProfiles(value = { Profiles.TEST })
+@ActiveProfiles(value = {Profiles.TEST})
 @SpringBootTest(classes = BootLoader.class)
 public abstract class AbstractTest {
 
@@ -39,7 +38,7 @@ public abstract class AbstractTest {
 
     @Before
     public void setUp() throws Exception {
-        this.user = this.userService.registerUser("admin@gmail.com","admin1234","admin","admin1234");
+        this.user = this.userService.registerUser("admin@gmail.com", "admin1234", "admin", "admin1234");
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
     }
 

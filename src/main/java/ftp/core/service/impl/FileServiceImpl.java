@@ -60,7 +60,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
         if (findOne != null) {
             final File file = (File) findOne;
             file.addUser(userToAdd);
-            update(file);
+            save(file);
         }
     }
 
@@ -83,14 +83,14 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
                 .withCreator(currentUser)
                 .withFileType(File.FileType.getById(modifier))
                 .build();
-        final Long savedFileId = save(file);
-        if (savedFileId != null) {
+        final File savedFile = saveAndFlush(file);
+        if (savedFile != null) {
             this.userService.updateRemainingStorageForUser(fileSize, currentUser.getId(), remainingStorage);
             if (modifier == FileType.SHARED.getType()) {
                 for (final String user : users) {
                     final User userToShareTheFileWith = this.userService.checkAndGetUserToSendFilesTo(user);
-                    addUserToFile(savedFileId, userToShareTheFileWith.getNickName());
-                    this.userService.addFileToUser(savedFileId, currentUser.getId());
+                    addUserToFile(savedFile.getId(), userToShareTheFileWith.getNickName());
+                    this.userService.addFileToUser(savedFile.getId(), currentUser.getId());
                     final DataTransferObject fileDto = new SharedFileDto.Builder()
                             .withSharingUserName(file.getCreator().getNickName())
                             .withName(file.getName())
@@ -157,7 +157,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
         final Set<String> persistentSharedToUsers = Sets.newHashSet(file.getSharedWithUsers());
         persistentSharedToUsers.removeAll(userNickNames);
         file.setSharedWithUsers(userNickNames);
-        update(file);
+        saveAndFlush(file);
         this.eventService.fireRemovedFileEvent(persistentSharedToUsers, new DeletedFileDto(downloadHash));
         return file;
     }
