@@ -5,14 +5,12 @@ import ftp.core.listener.SessionToConsumerMapper;
 import ftp.core.model.entities.User;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.util.ServerUtil;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Enumeration;
@@ -21,14 +19,16 @@ import java.util.Map;
 /**
  * Created by Kosta_Chuturkov on 2/25/2016.
  */
-@Configuration
 public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 
-    @Resource
     private UserService userService;
 
-    @Resource
     private SessionToConsumerMapper sessionToConsumerMapper;
+
+    public HandshakeInterceptor(UserService userService, SessionToConsumerMapper sessionToConsumerMapper) {
+        this.userService = userService;
+        this.sessionToConsumerMapper = sessionToConsumerMapper;
+    }
 
     @Override
     public boolean beforeHandshake(final ServerHttpRequest request,

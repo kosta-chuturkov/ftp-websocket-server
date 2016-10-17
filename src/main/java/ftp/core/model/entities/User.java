@@ -14,6 +14,25 @@ import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
+@NamedQueries(value = {
+        @NamedQuery(name="User.findByEmailAndPassword",query ="select usr\n" +
+                "\t\t\t\tfrom User usr\n" +
+                "\t\t    \twhere \n" +
+                "\t\t    \tusr.email= ? and \n" +
+                "\t\t    \tusr.password= ?"),
+        @NamedQuery(name="User.getTokenByEmail",query ="select user.token\n" +
+                "\t\t\t\tfrom User user\n" +
+                "\t\t    \twhere user.email=:email"),
+        @NamedQuery(name="User.getUserByNickName",query ="select user\n" +
+                "\t\t\t\tfrom User user\n" +
+                "\t\t    \twhere user.nickName=:nickName"),
+        @NamedQuery(name="User.getUserByEmail",query ="select user\n" +
+                "\t\t\t\tfrom User user\n" +
+                "\t\t    \twhere user.email=:email"),
+        @NamedQuery(name="User.getUserByNickLike",query ="select user.nickName\n" +
+                "\t\t\t\tfrom User user\n" +
+                "\t\t    \twhere user.nickName like :userNickName"),
+})
 @Entity
 @Table(name = "users")
 public class User extends AbstractEntity<Long> implements UserDetails {

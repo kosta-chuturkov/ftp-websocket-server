@@ -1,21 +1,21 @@
 package ftp.core.persistance.face.generic.repository;
 
-import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.hibernate.*;
+import com.google.common.collect.Sets;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Sets;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.persistence.EntityManagerFactory;
+import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.util.Collection;
+import java.util.List;
 
 @Transactional
 @Repository
@@ -25,6 +25,12 @@ public abstract class GenericHibernateRepository<T, ID extends Serializable>
     private final static String unchecked = "unchecked";
 	private final Class<T> persistentClass;
     @Resource
+    private EntityManagerFactory factory;
+
+    @PostConstruct
+    public void init(){
+        this.sessionFactory = this.factory.unwrap(SessionFactory.class);
+    }
     private SessionFactory sessionFactory;
 
     public GenericHibernateRepository() {
@@ -56,25 +62,6 @@ public abstract class GenericHibernateRepository<T, ID extends Serializable>
                 save(entity);
             }
         }
-    }
-
-    protected Query getNamedQuery(final String queryName, final Object... values) {
-        final Query query = getCurrentSession().getNamedQuery(queryName);
-        for (int i = 0; i < values.length; i++) {
-            query.setParameter(i, values[i]);
-        }
-        return query;
-    }
-
-    protected Query getNamedQueryWithListParameter(final String queryName, final Map<String, Set<Integer>> paramNameToValue) {
-        final Query query = getCurrentSession().getNamedQuery(queryName);
-        Set<Integer> paramValue = null;
-        for (final String paramName : paramNameToValue.keySet()) {
-            paramValue = paramNameToValue.get(paramName);
-            query.setParameterList(paramName, paramValue);
-        }
-
-        return query;
     }
 
     @Override
@@ -139,11 +126,6 @@ public abstract class GenericHibernateRepository<T, ID extends Serializable>
     @Override
     public T merge(final T entity) {
         return (T) getCurrentSession().merge(entity);
-    }
-
-    protected boolean isFilterEnabled(final String filterName) {
-        final Filter enabledFilter = getCurrentSession().getEnabledFilter(filterName);
-        return enabledFilter != null;
     }
 
     @Override

@@ -1,8 +1,7 @@
 package ftp.core.service.face.tx;
 
-import ftp.core.base.AbstractTest;
+import ftp.core.AbstractTest;
 import ftp.core.model.entities.User;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,7 +12,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * Created by Kosta_Chuturkov on 10/17/2016.
  */
-@Ignore
 public class UserServiceTest extends AbstractTest{
 
     @Autowired

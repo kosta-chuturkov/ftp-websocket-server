@@ -4,8 +4,9 @@ import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
 import ftp.core.persistance.face.generic.service.GenericService;
 
+import javax.transaction.Transactional;
 import java.util.List;
-
+@Transactional
 public interface UserService extends GenericService<User, Long> {
 
     User findByEmailAndPassword(String email, String password);

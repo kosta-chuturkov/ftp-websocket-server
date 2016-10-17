@@ -2,7 +2,10 @@ package ftp.core.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ftp.core.listener.SessionToConsumerMapper;
+import ftp.core.service.face.tx.UserService;
 import ftp.core.websocket.dispatcher.JsonRequestDispatcher;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
@@ -21,6 +24,13 @@ import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 @EnableWebMvc
 @EnableWebSocket
 public class WebSocketConfiguration extends WebMvcConfigurerAdapter implements WebSocketConfigurer {
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private SessionToConsumerMapper sessionToConsumerMapper;
+
     @Override
     public void registerWebSocketHandlers(final WebSocketHandlerRegistry registry) {
         registry.addHandler(echoWebSocketHandler(), "/echo");
@@ -36,7 +46,7 @@ public class WebSocketConfiguration extends WebMvcConfigurerAdapter implements W
 
     @Bean
     public org.springframework.web.socket.server.HandshakeInterceptor handshakeInterceptor() {
-        return new HandshakeInterceptor();
+        return new HandshakeInterceptor(this.userService, this.sessionToConsumerMapper);
     }
 
     // Allow serving HTML files through the default Servlet

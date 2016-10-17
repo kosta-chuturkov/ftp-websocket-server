@@ -4,9 +4,11 @@ import ftp.core.model.dto.ModifiedUserDto;
 import ftp.core.model.entities.File;
 import ftp.core.persistance.face.generic.service.GenericService;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
+@Transactional
 public interface FileService extends GenericService<File, Long> {
     File getFileByDownloadHash(String downloadHash);
 

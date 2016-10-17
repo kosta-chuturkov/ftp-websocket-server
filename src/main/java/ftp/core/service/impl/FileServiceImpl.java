@@ -21,11 +21,13 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 @Service("fileService")
+@Transactional
 public class FileServiceImpl extends AbstractGenericService<File, Long> implements FileService {
 
     @Resource

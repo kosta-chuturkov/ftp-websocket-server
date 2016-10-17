@@ -10,7 +10,6 @@
         <property name="suffix" value=".jsp"/>
     </bean>
 
-    <import resource="classpath:/persistence/hibernate-ApplicationContext.xml"/>
     <import resource="classpath:/persistence/dao-ApplicationContext.xml"/>
     <import resource="classpath:/service/service-ApplicationContext.xml"/>
 
