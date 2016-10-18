@@ -1,8 +1,7 @@
 package ftp.core.service.generic;
 
 import ftp.core.model.entities.AbstractEntity;
-import ftp.core.persistance.face.generic.repository.GenericRepository;
-import ftp.core.persistance.face.generic.service.GenericService;
+import ftp.core.repository.generic.GenericRepository;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

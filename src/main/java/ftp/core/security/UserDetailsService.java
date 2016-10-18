@@ -1,7 +1,7 @@
 package ftp.core.security;
 
 import ftp.core.model.entities.User;
-import ftp.core.persistance.face.repository.UserRepository;
+import ftp.core.repository.UserRepository;
 import ftp.core.service.face.tx.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

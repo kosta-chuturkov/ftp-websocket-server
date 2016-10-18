@@ -1,7 +1,7 @@
 package ftp.core.service.face.tx;
 
 import ftp.core.model.entities.Authority;
-import ftp.core.persistance.face.generic.service.GenericService;
+import ftp.core.service.generic.GenericService;
 
 import javax.transaction.Transactional;
 

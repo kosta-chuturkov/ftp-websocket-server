@@ -10,7 +10,7 @@ import ftp.core.model.entities.AbstractEntity;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.File.FileType;
 import ftp.core.model.entities.User;
-import ftp.core.persistance.face.repository.FileRepository;
+import ftp.core.repository.FileRepository;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;

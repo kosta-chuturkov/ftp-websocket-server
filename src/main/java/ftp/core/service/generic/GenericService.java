@@ -1,4 +1,4 @@
-package ftp.core.persistance.face.generic.service;
+package ftp.core.service.generic;
 
 import ftp.core.model.entities.AbstractEntity;
 import org.springframework.data.domain.Example;

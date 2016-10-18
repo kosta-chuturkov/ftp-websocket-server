@@ -2,7 +2,7 @@ package ftp.core.service.face.tx;
 
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
-import ftp.core.persistance.face.generic.service.GenericService;
+import ftp.core.service.generic.GenericService;
 
 import javax.transaction.Transactional;
 import java.util.List;
