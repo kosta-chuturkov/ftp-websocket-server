@@ -13,8 +13,9 @@ public interface StorageService {
     void storeProfilePicture(InputStream inputStream, String fileName);
 
     /**
-     *  Loads a resource from the file system
-     * @param filename he name of the file to load.
+     * Loads a resource from the file system
+     *
+     * @param filename          he name of the file to load.
      * @param destinationFolder folder containing the file
      * @return loader resource
      * @throws FileNotFoundException if the file does not exist or is not readable
@@ -25,6 +26,7 @@ public interface StorageService {
 
     /**
      * Loads a resource form a given path. Allows checking if the resource exists
+     *
      * @param resourcePath Path to load the resource from
      * @return loaded resource
      */

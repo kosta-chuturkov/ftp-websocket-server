@@ -10,7 +10,7 @@ public class JsonRequest {
     private String method;
 
     private JsonObject params;
-    
+
     public JsonRequest(final String method, final JsonObject params) {
         this.method = method;
         this.params = params;

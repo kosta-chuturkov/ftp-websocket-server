@@ -6,6 +6,7 @@ import ftp.core.service.generic.GenericService;
 
 import javax.transaction.Transactional;
 import java.util.List;
+
 @Transactional
 public interface UserService extends GenericService<User, Long> {
 

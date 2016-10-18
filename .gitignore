@@ -3,6 +3,7 @@
 .target
 .settings/
 bin/
+logs/
 .target/
 .gradle/
 build/

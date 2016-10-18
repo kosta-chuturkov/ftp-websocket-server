@@ -17,24 +17,24 @@ public interface FileRepository extends JpaRepository<File, Long> {
     File findByDeleteHashAndCreatorNickName(String deleteHash, String creatorNickName);
 
     @Query("select file " +
-                    " from File file" +
+            " from File file" +
             "               left outer join fetch file.sharedWithUsers swu" +
             "               where :userNickName in(swu)" +
             "               and file.fileType = ftp.core.model.entities.File$FileType.SHARED")
-    List<File> findAllSharedFilesByUserNickName(@Param("userNickName")String userNickName, Pageable pageable);
+    List<File> findAllSharedFilesByUserNickName(@Param("userNickName") String userNickName, Pageable pageable);
 
     @Query("select file " +
             "   from File file" +
             "               left outer join fetch file.sharedWithUsers swu" +
             "               where :userNickName in(swu)" +
             "               and file.fileType = ftp.core.model.entities.File$FileType.PRIVATE")
-    List<File> findAllPrivateFilesByUserNickName(@Param("userNickName")String userNickName, Pageable pageable);
+    List<File> findAllPrivateFilesByUserNickName(@Param("userNickName") String userNickName, Pageable pageable);
 
     @Query("select fls.id " +
             "    from User usr" +
             "    left outer join usr.uploadedFiles fls" +
             "    where fls.fileType = ftp.core.model.entities.File$FileType.SHARED" +
             "    and usr.id=:userId")
-    List<Long> findSharedFilesIdsByUserId(@Param("userId")Long userId, Pageable pageable);
+    List<Long> findSharedFilesIdsByUserId(@Param("userId") Long userId, Pageable pageable);
 
 }

@@ -12,7 +12,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * Created by Kosta_Chuturkov on 10/17/2016.
  */
-public class UserServiceTest extends AbstractTest{
+public class UserServiceTest extends AbstractTest {
 
     @Autowired
     private UserService userService;
@@ -26,9 +26,9 @@ public class UserServiceTest extends AbstractTest{
         User admin = this.userService.getUserByNickName("admin");
 
         //then
-        assertThat(admin,is(notNullValue()));
-        assertThat(admin.getEmail(),is(user.getEmail()));
-        assertThat(admin.getNickName(),is(user.getNickName()));
+        assertThat(admin, is(notNullValue()));
+        assertThat(admin.getEmail(), is(user.getEmail()));
+        assertThat(admin.getNickName(), is(user.getNickName()));
     }
 
     @Test

@@ -13,6 +13,7 @@ import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
+
 @Entity
 @Table(name = "users")
 public class User extends AbstractEntity<Long> implements UserDetails {

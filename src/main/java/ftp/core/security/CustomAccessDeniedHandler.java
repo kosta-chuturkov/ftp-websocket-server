@@ -13,7 +13,7 @@ import java.io.IOException;
 
 /**
  * An implementation of AccessDeniedHandler by wrapping the AccessDeniedHandlerImpl.
- *
+ * <p>
  * In addition to sending a 403 (SC_FORBIDDEN) HTTP error code, it will remove the invalid CSRF cookie from the browser
  * side when a CsrfException occurs. In this way the browser side application, e.g. JavaScript code, can
  * distinguish the CsrfException from other AccessDeniedExceptions and perform more specific operations. For instance,
@@ -45,7 +45,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
      * The error page to use. Must begin with a "/" and is interpreted relative to the current context root.
      *
      * @param errorPage the dispatcher path to display
-     *
      * @throws IllegalArgumentException if the argument doesn't comply with the above limitations
      * @see AccessDeniedHandlerImpl#setErrorPage(String)
      */
