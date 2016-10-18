@@ -81,6 +81,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         this.storageService.storeProfilePicture(file.getInputStream(), serverFileName);
         org.springframework.core.io.Resource profilePicture = this.storageService.loadProfilePicture(nickName);
         createImageThumbnail(profilePicture.getFile(), 50, 50);
+        profilePicture.getInputStream().close();
         final JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("imageUrl", getProfilePicUrl(nickName, ServerUtil.getServerContextAddress(request)));
         return jsonObject.toString();
@@ -279,6 +280,7 @@ public class FileManagementServiceImpl implements FileManagementService {
                 responseOutputStream.write(buffer, 0, bytesRead);
             }
             flushAndClose(responseOutputStream);
+            resourceInputStream.close();
         } catch (final IOException e) {
             logger.error("errror occured", e);
             throw new FtpServerException("Resource sending failed.");

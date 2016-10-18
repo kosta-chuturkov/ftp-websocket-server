@@ -38,7 +38,7 @@ public class FileSystemStorageService implements StorageService {
         try {
             File dest = Paths.get(this.rootLocation.toFile().getName(), destinationFolder).toFile();
             createDirIfNotExsists(dest);
-            Files.copy(inputStream, dest.toPath().resolve(newFileName));
+            copyFileToDestination(inputStream, dest.toPath().resolve(newFileName), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file " + newFileName, e);
         }
@@ -47,10 +47,16 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public void storeProfilePicture(InputStream inputStream, String fileName) {
         try {
-            Files.copy(inputStream, this.profilePictureLocation.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+            StandardCopyOption replaceExisting = StandardCopyOption.REPLACE_EXISTING;
+            copyFileToDestination(inputStream, this.profilePictureLocation.resolve(fileName), replaceExisting);
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file " + fileName, e);
         }
+    }
+
+    private void copyFileToDestination(InputStream inputStream, Path destination, StandardCopyOption replaceExisting) throws IOException {
+        Files.copy(inputStream, this.profilePictureLocation.resolve(destination), replaceExisting);
+        inputStream.close();
     }
 
     public Path load(String filename, String destinationFolder) {
