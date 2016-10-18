@@ -13,11 +13,11 @@ import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
 import ftp.core.util.ServerUtil;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.security.SecureRandom;
 import java.util.List;
@@ -28,19 +28,23 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 
     static final String SALT = "fKWCH(1UafNFK&QK-Vg`FEG(sAE5f^Q.vEA-+Wj?]Sbc+<crP,x]7M/+S}dnb-,^";
 
-    @Resource
     private UserRepository userRepository;
 
-    @Resource
     private FileRepository fileRepository;
 
-    @Resource
     private PasswordEncoder passwordEncoder;
 
-    @Resource
     private AuthorityService authorityService;
 
     private SecureRandom random = new SecureRandom();
+
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository, FileRepository fileRepository, PasswordEncoder passwordEncoder, AuthorityService authorityService) {
+        this.userRepository = userRepository;
+        this.fileRepository = fileRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authorityService = authorityService;
+    }
 
     @Override
     public String getUserSaltedPassword(final String rawPassword, final Long token) {

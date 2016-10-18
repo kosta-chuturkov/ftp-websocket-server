@@ -55,10 +55,8 @@ public class FileManagementServiceImpl implements FileManagementService {
     private EventService eventService;
     @Resource
     private Gson gson;
-
     @Resource
     private JsonParser jsonParser;
-
     @Resource
     private StorageService storageService;
     private FtpConfigurationProperties ftpConfigurationProperties;
