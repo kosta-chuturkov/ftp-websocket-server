@@ -1,23 +1,40 @@
 package ftp.core.repository;
 
 import ftp.core.model.entities.File;
-import ftp.core.repository.generic.GenericRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface FileRepository extends GenericRepository<File, Long> {
+public interface FileRepository extends JpaRepository<File, Long> {
 
-    File getFileByDownloadHash(String downloadHash);
+    File findByDownloadHash(String downloadHash);
 
-    void deleteFile(String deleteHash, String creatorNickName);
+    void deleteByDeleteHashAndCreatorNickName(String deleteHash, String creatorNickName);
 
-    File findByDeleteHash(String deleteHash, String creatorNickName);
+    File findByDeleteHashAndCreatorNickName(String deleteHash, String creatorNickName);
 
-    List<File> getSharedFilesForUser(String userNickName, int firstResult, int maxResults);
+    @Query("select file " +
+                    " from File file" +
+            "               left outer join fetch file.sharedWithUsers swu" +
+            "               where :userNickName in(swu)" +
+            "               and file.fileType = ftp.core.model.entities.File$FileType.SHARED")
+    List<File> findAllSharedFilesByUserNickName(@Param("userNickName")String userNickName, Pageable pageable);
 
-    List<File> getPrivateFilesForUser(String userNickName, int firstResult, int maxResults);
+    @Query("select file " +
+            "   from File file" +
+            "               left outer join fetch file.sharedWithUsers swu" +
+            "               where :userNickName in(swu)" +
+            "               and file.fileType = ftp.core.model.entities.File$FileType.PRIVATE")
+    List<File> findAllPrivateFilesByUserNickName(@Param("userNickName")String userNickName, Pageable pageable);
 
-    List<Long> getSharedFilesWithUsers(Long userId, int firstResult, int maxResults);
+    @Query("select fls.id " +
+            "    from User usr" +
+            "    left outer join usr.uploadedFiles fls" +
+            "    where fls.fileType = ftp.core.model.entities.File$FileType.SHARED" +
+            "    and usr.id=:userId")
+    List<Long> findSharedFilesIdsByUserId(@Param("userId")Long userId, Pageable pageable);
 
-    File findWithSharedUsers(Long fileId);
 }

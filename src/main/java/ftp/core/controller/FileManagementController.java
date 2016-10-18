@@ -22,7 +22,7 @@ public class FileManagementController {
     @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS}, method = RequestMethod.POST)
     public String profilePicUpdate(final HttpServletRequest request,
                                    @RequestParam("files[]") final MultipartFile file) throws IOException {
-        return fileManagementService.updateProfilePicture(request, file);
+        return this.fileManagementService.updateProfilePicture(request, file);
     }
 
     @Secured(Authorities.USER)
@@ -30,24 +30,24 @@ public class FileManagementController {
     public String uploadFile(final HttpServletRequest request,
                              @RequestParam("files[]") final MultipartFile file, @RequestParam("modifier") final String modifier,
                              @RequestParam("nickName") final String userNickNames) throws IOException {
-        return fileManagementService.uploadFile(request, file, modifier, userNickNames);
+        return this.fileManagementService.uploadFile(request, file, modifier, userNickNames);
     }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.DELETE_FILE_ALIAS}, method = RequestMethod.GET)
     public void deleteFiles(final HttpServletResponse response, @PathVariable final String deleteHash) {
-        fileManagementService.deleteFiles(response, deleteHash);
+        this.fileManagementService.deleteFiles(response, deleteHash);
     }
 
     @Secured(Authorities.USER)
-    @RequestMapping(value = {APIAliases.DOWNLOAD_FILE_ALIAS + "*"}, method = RequestMethod.GET)
-    public void downloadFile(final HttpServletRequest request, final HttpServletResponse response) {
-        fileManagementService.downloadFile(request, response);
+    @RequestMapping(value = {APIAliases.DOWNLOAD_FILE_ALIAS + "{downloadHash}"}, method = RequestMethod.GET)
+    public void downloadFile(@PathVariable String downloadHash, final HttpServletResponse response) {
+        this.fileManagementService.downloadFile(downloadHash, response);
     }
 
     @Secured(Authorities.USER)
-    @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS + "{filename}"}, method = RequestMethod.GET)
-    public void getProfilePic(final HttpServletResponse response, @PathVariable String filename) {
-        fileManagementService.getProfilePic(response, filename);
+    @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS + "{userName}"}, method = RequestMethod.GET)
+    public void getProfilePic(final HttpServletResponse response, @PathVariable String userName) {
+        this.fileManagementService.sendProfilePicture(response, userName);
     }
 }

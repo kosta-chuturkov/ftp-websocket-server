@@ -1,12 +1,9 @@
 package ftp.core.util;
 
 import com.google.gson.Gson;
-import ftp.core.config.ServerConfigurator;
-import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.ResponseModelAdapter;
 import ftp.core.service.face.tx.FtpServerException;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,7 +12,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.*;
+import java.io.PrintWriter;
 import java.security.MessageDigest;
 
 public final class ServerUtil {
@@ -65,36 +62,11 @@ public final class ServerUtil {
         return false;
     }
 
-    public static void setSessionProperties(final HttpServletRequest request, HttpServletResponse response, String nickName, final String email, final String password, final long storage) {
-        final HttpSession session = request.getSession();
+
+    public static String getServerContextAddress(HttpServletRequest request) {
         final int port = request.getServerPort();
         final String host = request.getServerName();
-        final String serverContextAddress = ServerUtil.getProtocol(request) + host + ":" + port;
-        final String profilePicAddress = serverContextAddress + APIAliases.PROFILE_PIC_ALIAS;
-        session.setAttribute(ServerConstants.EMAIL_PARAMETER, email);
-        session.setAttribute(ServerConstants.PASSWORD, password);
-        session.setAttribute(ServerConstants.HOST, request.getServerName());
-        session.setAttribute(ServerConstants.PORT, request.getServerPort());
-        String avatarUrl = getProfilePicUrl(serverContextAddress, profilePicAddress, nickName);
-        session.setAttribute(ServerConstants.PROFILE_PICTURE_PARAM, avatarUrl);
-        session.setAttribute(ServerConstants.STORAGE_PARAMETER, FileUtils.byteCountToDisplaySize(storage));
-        session.setAttribute(ServerConstants.MAX_STORAGE_PARAMETER,
-                FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT));
-        session.setMaxInactiveInterval(30 * 60);
-        response.addCookie(new Cookie(ServerConstants.SESSION_ID_PARAMETER, session.getId()));
-
-
-    }
-
-    public static String getProfilePicUrl(final String serverContextAddress, final String profilePicAddress, final String user) {
-        final String avatarUrl;
-        final java.io.File file = new java.io.File(ServerConfigurator.getProfilePicsFolder(), user + ".jpg");
-        if (file.exists()) {
-            avatarUrl = profilePicAddress + user + ".jpg";
-        } else {
-            avatarUrl = serverContextAddress + "/resources/images/default.jpg";
-        }
-        return avatarUrl;
+        return getProtocol(request) + host + ":" + port;
     }
 
     public static void invalidateSession(final HttpServletRequest request, final HttpServletResponse response) {
@@ -141,36 +113,6 @@ public final class ServerUtil {
     public static String getSessionParam(final HttpServletRequest request, final String paramName) {
         final HttpSession session = request.getSession(false);
         return session == null ? null : (String) session.getAttribute(paramName);
-    }
-
-    public static void sendResourceByName(final HttpServletResponse response, final String filePath, final String fileName) {
-        InputStream resIs = null;
-        OutputStream osWriter = null;
-        try {
-            resIs = new FileInputStream(filePath);
-            osWriter = response.getOutputStream();
-        } catch (final IOException e) {
-            System.out.println(e.getMessage());
-        }
-        final String contentType = ServerConfigurator.CONTENT_TYPES.get(filePath.substring(filePath.lastIndexOf(".") + 1));
-        response.setHeader("Content-Type", contentType == null ? "application/octet-stream" : contentType);
-        response.setHeader("Connection", "close");
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-        response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-        response.setHeader("Expires", "0"); // Proxies.
-        response.setHeader("Content-Disposition", "inline; filename=" + fileName);
-        try {
-            final byte[] buffer = new byte[ServerConstants.DEFAULT_BUFFER_SIZE];
-            int bytesRead;
-            while ((bytesRead = resIs.read(buffer, 0, buffer.length)) > 0) {
-                osWriter.write(buffer, 0, bytesRead);
-            }
-            osWriter.flush();
-            osWriter.close();
-        } catch (final IOException e) {
-            logger.error("errror occured", e);
-            throw new FtpServerException("Resource sending failed.");
-        }
     }
 
     public static void sendOkResponce(final HttpServletResponse response, final String fileName, final String storedBytes) {

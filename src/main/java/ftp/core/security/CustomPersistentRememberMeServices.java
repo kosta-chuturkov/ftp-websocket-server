@@ -113,7 +113,7 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
 
         final String login = successfulAuthentication.getName();
         this.log.debug("Creating new persistent login for user {}", login);
-        final User user = this.userRepository.getUserByEmail(login);
+        final User user = this.userRepository.findByEmail(login);
         if (user != null) {
             final PersistentToken persistentToken = new PersistentToken();
             persistentToken.setSeries(generateSeriesData());

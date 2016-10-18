@@ -13,40 +13,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-@NamedQueries(value = {
-        @NamedQuery(name="File.getFileByDownloadHash",query ="select file\n" +
-                "\t\t\t\tfrom File file\n" +
-                "\t\t\t\tjoin fetch file.creator\n" +
-                "\t\t\t\twhere file.downloadHash=:downloadHash"),
-        @NamedQuery(name="File.getSharedWithUsers",query ="select file\n" +
-                "\t\t\t\tfrom File file\n" +
-                "\t\t\t\tleft join fetch file.sharedWithUsers\n" +
-                "\t\t\t\twhere file.id=:fileId"),
-        @NamedQuery(name="File.deleteFile",query ="delete \n" +
-                "\t\t\t\tfrom File file\n" +
-                "\t\t\t\twhere file.deleteHash=:deleteHash\n" +
-                "\t\t\t\tand file.creator.nickName=:creatorNickName"),
-        @NamedQuery(name="File.findByDeleteHash",query ="select file \n" +
-                "\t\t\t\tfrom File file\n" +
-                "\t\t\t\twhere file.deleteHash=:deleteHash\n" +
-                "\t\t\t\tand file.creator.nickName = :creatorNickName"),
-        @NamedQuery(name="File.getSharedFilesForUser",query ="select file \n" +
-                "\t\t\t\tfrom File file\n" +
-                "\t\t\t\tleft outer join fetch file.sharedWithUsers swu\n" +
-                "\t\t\t\twhere :userNickName in(swu)\n" +
-                "\t\t\t\tand file.fileType = ftp.core.model.entities.File$FileType.SHARED"),
-        @NamedQuery(name="File.getPrivateFilesForUser",query ="select file \n" +
-                "\t\t\t\tfrom File file\n" +
-                "\t\t\t    left join file.creator crtr\n" +
-                "\t\t\t    where crtr.nickName=:userNickName\n" +
-                "\t\t\t\tand file.fileType = ftp.core.model.entities.File$FileType.PRIVATE"),
-        @NamedQuery(name="File.getSharedFilesWithUsers",query ="select fls.id\n" +
-                "\t\t\t    from User usr\n" +
-                "\t\t\t    left outer join usr.uploadedFiles fls\n" +
-                "\t\t\t    where fls.fileType = ftp.core.model.entities.File$FileType.SHARED\n" +
-                "\t\t\t    and usr.id=:userId")
-})
 @Entity
 @Table(name = "files")
 public class File extends AbstractEntity<Long> {

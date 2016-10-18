@@ -1,6 +1,5 @@
 package ftp.core.service.face;
 
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,10 +14,15 @@ public interface FileManagementService {
                       MultipartFile file, String modifier,
                       String userNickNames) throws IOException;
 
-    void deleteFiles(final HttpServletResponse response, @PathVariable final String deleteHash);
+    void deleteFiles(HttpServletResponse response, String deleteHash);
 
-    void downloadFile(final HttpServletRequest request, final HttpServletResponse response);
+    void downloadFile(String downloadHash, HttpServletResponse response);
 
-    void getProfilePic(final HttpServletResponse response, @PathVariable String filename);
+    void sendProfilePicture(HttpServletResponse response, String filename);
+
+    void sendResourceByName(HttpServletResponse response, org.springframework.core.io.Resource resource);
+
+    String getProfilePicUrl(final String userName, String serverContext);
+
 
 }

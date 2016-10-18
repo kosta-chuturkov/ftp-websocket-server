@@ -18,6 +18,7 @@ import ftp.core.service.generic.AbstractGenericService;
 import ftp.core.util.DtoUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -41,17 +42,17 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 
     @Override
     public File getFileByDownloadHash(final String downloadHash) {
-        return this.fileRepository.getFileByDownloadHash(downloadHash);
+        return this.fileRepository.findByDownloadHash(downloadHash);
     }
 
     @Override
     public void deleteFile(final String deleteHash, final String creatorNickName) {
-        this.fileRepository.deleteFile(deleteHash, creatorNickName);
+        this.fileRepository.deleteByDeleteHashAndCreatorNickName(deleteHash, creatorNickName);
     }
 
     @Override
     public File findByDeleteHash(final String deleteHash, final String creatorNickName) {
-        return this.fileRepository.findByDeleteHash(deleteHash, creatorNickName);
+        return this.fileRepository.findByDeleteHashAndCreatorNickName(deleteHash, creatorNickName);
     }
 
     @Override
@@ -129,22 +130,22 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 
     @Override
     public List<File> getSharedFilesForUser(final String userNickName, final int firstResult, final int maxResults) {
-        return this.fileRepository.getSharedFilesForUser(userNickName, firstResult, maxResults);
+        return this.fileRepository.findAllSharedFilesByUserNickName(userNickName, new PageRequest(firstResult, maxResults));
     }
 
     @Override
     public List<File> getPrivateFilesForUser(final String userNickName, final int firstResult, final int maxResults) {
-        return this.fileRepository.getPrivateFilesForUser(userNickName, firstResult, maxResults);
+        return this.fileRepository.findAllPrivateFilesByUserNickName(userNickName, new PageRequest(firstResult, maxResults));
     }
 
     @Override
     public List<Long> getSharedFilesWithUsersIds(final Long userId, final int firstResult, final int maxResults) {
-        return this.fileRepository.getSharedFilesWithUsers(userId, firstResult, maxResults);
+        return this.fileRepository.findSharedFilesIdsByUserId(userId, new PageRequest(firstResult, maxResults));
     }
 
     @Override
     public File findWithSharedUsers(final Long fileId) {
-        return this.fileRepository.findWithSharedUsers(fileId);
+        return this.fileRepository.findOne(fileId);
     }
 
     @Override

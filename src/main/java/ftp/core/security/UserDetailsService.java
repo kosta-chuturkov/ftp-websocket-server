@@ -35,7 +35,7 @@ public class UserDetailsService implements org.springframework.security.core.use
     public UserDetails loadUserByUsername(final String login) {
         this.log.debug("Authenticating {}", login);
         final String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
-        final User userFromDatabase = this.userRepository.getUserByEmail(lowercaseLogin);
+        final User userFromDatabase = this.userRepository.findByEmail(lowercaseLogin);
         if (userFromDatabase != null) {
             SecurityContext context = SecurityContextHolder.getContext();
             Authentication authentication = context.getAuthentication();

@@ -1,14 +1,20 @@
 package ftp.core.security;
 
+import ftp.core.constants.ServerConstants;
 import ftp.core.model.entities.User;
+import ftp.core.service.face.FileManagementService;
 import ftp.core.util.ServerUtil;
+import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
@@ -16,6 +22,9 @@ import java.io.IOException;
  */
 @Component
 public class AjaxAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+    @Autowired
+    private FileManagementService fileManagementService;
 
     @Override
     public void onAuthenticationSuccess(final HttpServletRequest request, final HttpServletResponse response,
@@ -26,9 +35,25 @@ public class AjaxAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
         final String password = springSecurityUser.getPassword();
         final String nickName = springSecurityUser.getNickName();
         final long remainingStorage = springSecurityUser.getRemainingStorage();
-        ServerUtil.setSessionProperties(request, response, nickName, email, password, remainingStorage);
+        setSessionProperties(request, response, nickName, email, password, remainingStorage);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 
+    public void setSessionProperties(final HttpServletRequest request, HttpServletResponse response, String nickName, final String email, final String password, final long storage) {
+        final HttpSession session = request.getSession();
+        session.setAttribute(ServerConstants.EMAIL_PARAMETER, email);
+        session.setAttribute(ServerConstants.PASSWORD, password);
+        session.setAttribute(ServerConstants.HOST, request.getServerName());
+        session.setAttribute(ServerConstants.PORT, request.getServerPort());
+        String profilePicUrl = this.fileManagementService.getProfilePicUrl(nickName, ServerUtil.getServerContextAddress(request));
+        session.setAttribute(ServerConstants.PROFILE_PICTURE_PARAM, profilePicUrl);
+        session.setAttribute(ServerConstants.STORAGE_PARAMETER, FileUtils.byteCountToDisplaySize(storage));
+        session.setAttribute(ServerConstants.MAX_STORAGE_PARAMETER,
+                FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT));
+        session.setMaxInactiveInterval(30 * 60);
+        response.addCookie(new Cookie(ServerConstants.SESSION_ID_PARAMETER, session.getId()));
+
+
+    }
 
 }

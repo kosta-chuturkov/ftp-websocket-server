@@ -46,10 +46,9 @@ public class SharedWithUsersFilesHandler implements JsonTypedHandler {
         if (current == null) {
             throw new JsonException("Session has expired. Log in again....", method);
         }
-        final Long userId = current.getId();
         final Integer firstResultAsInt = firstResult.getAsInt();
         final Integer maxResultsAsInt = maxResults.getAsInt();
-        final List<Long> files = this.fileService.getSharedFilesWithUsersIds(userId, firstResultAsInt, maxResultsAsInt);
+        final List<Long> files = this.fileService.getSharedFilesWithUsersIds(current.getId(), firstResultAsInt, maxResultsAsInt);
         for (final Long fileId : files) {
             final File file = this.fileService.findWithSharedUsers(fileId);
             final FileWithSharedUsersDto fileDto = DtoUtil.toFileWithSharedUsersDto(file);

@@ -1,11 +1,11 @@
 package ftp.core.repository;
 
 import ftp.core.model.entities.PersistentToken;
-import ftp.core.repository.generic.GenericRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * Spring Data JPA generic for the PersistentToken entity.
  */
-public interface PersistentTokenRepository extends GenericRepository<PersistentToken, String> {
+public interface PersistentTokenRepository extends JpaRepository<PersistentToken, String> {
 
 }

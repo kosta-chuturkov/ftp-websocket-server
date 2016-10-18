@@ -25,6 +25,9 @@ apply plugin: 'propdeps-eclipse'
 group = 'ftp-websocket-server'
 version = '0.0.1-SNAPSHOT'
 
+processResources {
+    expand(project.properties)
+}
 
 springBoot {
     mainClass = 'ftp.core.BootLoader'
@@ -54,8 +57,6 @@ dependencies {
     compile(group: 'org.hibernate', name: 'hibernate-ehcache', version: '4.3.11.Final') {
         exclude(module: 'ehcache-core')
     }
-    compile group: 'io.dropwizard.metrics', name: 'metrics-ehcache', version: '3.1.2'
-
     compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.6.Final'
     compile group: 'org.hibernate', name: 'hibernate-validator', version: '5.0.3.Final'
     compile group: 'javax.transaction', name: 'jta', version: '1.1'

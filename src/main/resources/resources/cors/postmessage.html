@@ -20,10 +20,10 @@
 <body>
 <script>
 /*jslint unparam: true, regexp: true */
-/*global $, Blob, FormData, location */
+/*global $, Blob, FormData, rootStorageFolderName */
 'use strict';
 var origin = /^http:\/\/example.org/,
-    target = new RegExp('^(http(s)?:)?\\/\\/' + location.host + '\\/');
+    target = new RegExp('^(http(s)?:)?\\/\\/' + rootStorageFolderName.host + '\\/');
 $(window).on('message', function (e) {
     e = e.originalEvent;
     var s = e.data,

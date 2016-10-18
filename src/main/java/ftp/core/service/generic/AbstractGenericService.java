@@ -1,7 +1,6 @@
 package ftp.core.service.generic;
 
 import ftp.core.model.entities.AbstractEntity;
-import ftp.core.repository.generic.GenericRepository;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -9,6 +8,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
@@ -32,8 +32,8 @@ public class AbstractGenericService<T extends AbstractEntity, ID extends Seriali
         this.applicationContext = applicationContext;
     }
 
-    private GenericRepository<T, ID> getRepository() {
-        return this.applicationContext.getBean(getDaoName(this.persistentClass), GenericRepository.class);
+    protected JpaRepository<T, ID> getRepository() {
+        return this.applicationContext.getBean(getDaoName(this.persistentClass), JpaRepository.class);
     }
 
     private String getDaoName(final Class<T> entityClass) {

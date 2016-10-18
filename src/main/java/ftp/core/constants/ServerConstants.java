@@ -17,7 +17,6 @@ public class ServerConstants {
     public static final String STORAGE_PARAMETER = "storage";
     public static final String MAX_STORAGE_PARAMETER = "maxStorage";
     public static final String PASSWORD = "PREFID";
-    public static final String SERVER_STORAGE_FOLDER_NAME = "D:/ServerFileStorage";
     public static final int DEFAULT_BUFFER_SIZE = 1024;
     public static final int MAXIMUM_PASSWORD_lENGTH = 64;
     public static final String CONTENT_TYPES_FILE = "/resources/content_types.txt";

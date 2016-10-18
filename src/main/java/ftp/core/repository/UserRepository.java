@@ -1,21 +1,19 @@
 package ftp.core.repository;
 
 import ftp.core.model.entities.User;
-import ftp.core.repository.generic.GenericRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface UserRepository extends GenericRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByEmailAndPassword(String email, String password);
 
-    Long getTokenByEmail(String email);
+    Long findTokenByEmail(String email);
 
-    Long getRandomTokenFromDB();
+    User findByNickName(String nickName);
 
-    User getUserByNickName(String nickName);
+    User findByEmail(String email);
 
-    User getUserByEmail(String email);
-
-    List<String> getUserByNickLike(String userNickName);
+    List<String> findByNickNameLike(String userNickName);
 }

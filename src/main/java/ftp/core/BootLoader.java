@@ -1,9 +1,11 @@
 package ftp.core;
 
+import ftp.core.config.FtpConfigurationProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 
@@ -12,6 +14,7 @@ import java.net.UnknownHostException;
 
 @ComponentScan
 @EnableAutoConfiguration
+@EnableConfigurationProperties({FtpConfigurationProperties.class})
 public class BootLoader {
 
     private static final Logger log = LoggerFactory.getLogger(BootLoader.class);

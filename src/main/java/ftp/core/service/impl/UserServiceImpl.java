@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
+import java.security.SecureRandom;
 import java.util.List;
 
 @Service("userService")
@@ -38,6 +39,8 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 
     @Resource
     private AuthorityService authorityService;
+
+    private SecureRandom random = new SecureRandom();
 
     @Override
     public String getUserSaltedPassword(final String rawPassword, final Long token) {
@@ -66,22 +69,22 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 
     @Override
     public Long getTokenByEmail(final String email) {
-        return this.userRepository.getTokenByEmail(email);
+        return this.userRepository.findTokenByEmail(email);
     }
 
     @Override
     public Long getRandomTokenFromDB() {
-        return this.userRepository.getRandomTokenFromDB();
+        return Math.round(this.random.nextDouble() * 1000000);
     }
 
     @Override
     public User getUserByNickName(final String nickName) {
-        return this.userRepository.getUserByNickName(nickName);
+        return this.userRepository.findByNickName(nickName);
     }
 
     @Override
     public User getUserByEmail(final String email) {
-        return this.userRepository.getUserByEmail(email);
+        return this.userRepository.findByEmail(email);
     }
 
     public void updateRemainingStorageForUser(final long fileSize, final Long userId, long remainingStorage) {
@@ -109,7 +112,7 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 
     @Override
     public List<String> getUserByNickLike(final String userNickName) {
-        return this.userRepository.getUserByNickLike(userNickName);
+        return this.userRepository.findByNickNameLike(userNickName);
     }
 
     @Override
