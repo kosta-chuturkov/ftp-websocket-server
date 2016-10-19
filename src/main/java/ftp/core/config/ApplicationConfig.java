@@ -63,6 +63,7 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter {
         }
     }
 
+
     public Map<String, String> getContentTypes() {
         return this.contentTypes;
     }

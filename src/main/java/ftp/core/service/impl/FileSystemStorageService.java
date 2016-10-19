@@ -4,10 +4,12 @@ import ftp.core.config.FtpConfigurationProperties;
 import ftp.core.service.face.StorageService;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,12 +26,25 @@ public class FileSystemStorageService implements StorageService {
     private final Path rootLocation;
     private final Path profilePictureLocation;
 
+    private ApplicationContext context;
 
     @Autowired
-    public FileSystemStorageService(FtpConfigurationProperties ftpConfigurationProperties) {
+    public FileSystemStorageService(FtpConfigurationProperties ftpConfigurationProperties, ApplicationContext context) {
+        this.context = context;
         String rootStorageFolderName = ftpConfigurationProperties.getStorage().getRootStorageFolderName();
         this.rootLocation = Paths.get(rootStorageFolderName);
         this.profilePictureLocation = Paths.get(rootStorageFolderName, ftpConfigurationProperties.getStorage().getProfilePicturesFolderName());
+    }
+
+    @PostConstruct
+    public void initialize(){
+        String multipartFileLocation = this.context.getEnvironment().getProperty("spring.http.multipart.location");
+        if (multipartFileLocation != null) {
+            File tempFlder = new File(multipartFileLocation);
+            if (!tempFlder.exists()) {
+                tempFlder.mkdirs();
+            }
+        }
         init();
     }
 
