@@ -36,8 +36,8 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS}, method = RequestMethod.POST)
-    public String getUserInfo(final HttpServletRequest request, final HttpServletResponse response,
-                              final String userNickName) throws IOException {
+    public String getUserDetails(final HttpServletRequest request, final HttpServletResponse response,
+                                 final String userNickName) throws IOException {
         final JsonObject jsonResponse = new JsonObject();
 
         final List<String> users = this.userService.getUserByNickLike(userNickName);

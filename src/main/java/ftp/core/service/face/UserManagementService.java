@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.util.Set;
 
 public interface UserManagementService {
-    String getUserInfo(HttpServletRequest request, HttpServletResponse response,
-                       String userNickName) throws IOException;
+    String getUserDetails(HttpServletRequest request, HttpServletResponse response,
+                          String userNickName) throws IOException;
 
     void updateUsers(String deleteHash, Set<ModifiedUserDto> modifiedUserDto);
 

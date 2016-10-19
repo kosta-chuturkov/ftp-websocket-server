@@ -13,7 +13,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -43,7 +42,7 @@ public class PageNavigationController {
     }
 
     @RequestMapping(value = {"/", APIAliases.LOGIN_ALIAS + "**"}, method = RequestMethod.GET)
-    public ModelAndView getLoginPage(final HttpServletRequest request, WebRequest webr) throws ServletException, IOException {
+    public ModelAndView getLoginPage() throws ServletException, IOException {
         if (SecurityUtils.isAuthenticated()) {
             final RedirectView view = new RedirectView(APIAliases.MAIN_PAGE_ALIAS, true);
             view.setExposeModelAttributes(false);
@@ -55,7 +54,7 @@ public class PageNavigationController {
     }
 
     @RequestMapping(value = {APIAliases.MAIN_PAGE_ALIAS}, method = RequestMethod.GET)
-    public ModelAndView getMainPage(final HttpServletRequest request) throws IOException, ServletException {
+    public ModelAndView getMainPage() throws IOException, ServletException {
         if (SecurityUtils.isAuthenticated()) {
             return new ModelAndView(ServerConstants.MAIN_PAGE);
         } else {
@@ -63,8 +62,8 @@ public class PageNavigationController {
         }
     }
 
-    @RequestMapping(value = {APIAliases.UPLOAD_PAGE_ALIAS}, method = RequestMethod.GET)
-    public ModelAndView getUploadPage(final HttpServletRequest request, final HttpServletResponse response)
+    @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS+"*"}, method = RequestMethod.GET)
+    public ModelAndView getUploadPage()
             throws IOException, ServletException {
         if (SecurityUtils.isAuthenticated()) {
             return new ModelAndView(ServerConstants.UPLOAD_PAGE);
@@ -76,7 +75,7 @@ public class PageNavigationController {
     }
 
     @RequestMapping(value = {APIAliases.REGISTRATION_ALIAS}, method = RequestMethod.GET)
-    public ModelAndView getRegistrationPage(final HttpServletRequest request)
+    public ModelAndView getRegistrationPage()
             throws IOException, ServletException {
         if (SecurityUtils.isAuthenticated()) {
             final RedirectView view = new

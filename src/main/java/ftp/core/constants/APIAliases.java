@@ -28,7 +28,7 @@ public class APIAliases {
 
     public static final String REGISTRATION_ALIAS = ROOT_PREFIX + "/register";
 
-    public static final String UPLOAD_FILE_ALIAS = ROOT_PREFIX + "/upload";
+    public static final String UPLOAD_FILE_ALIAS = ROOT_PREFIX + "/upload/";
 
     public static final String UPLOAD_PAGE_ALIAS = ROOT_PREFIX + "/pageupload";
 

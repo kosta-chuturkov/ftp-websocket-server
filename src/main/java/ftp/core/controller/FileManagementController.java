@@ -29,7 +29,7 @@ public class FileManagementController {
     }
 
     @Secured(Authorities.USER)
-    @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS}, method = RequestMethod.POST)
+    @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS+"*"}, method = RequestMethod.POST)
     public String uploadFile(final HttpServletRequest request,
                              @RequestParam("files[]") final MultipartFile file, @RequestParam("modifier") final String modifier,
                              @RequestParam("nickName") final String userNickNames) throws IOException {
@@ -38,42 +38,39 @@ public class FileManagementController {
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.DELETE_FILE_ALIAS}, method = RequestMethod.GET)
-    public void deleteFiles(final HttpServletResponse response, @PathVariable final String deleteHash) {
+    public void deleteFiles(final HttpServletResponse response,@NotNull @PathVariable final String deleteHash) {
         this.fileManagementService.deleteFiles(response, deleteHash);
     }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.DOWNLOAD_FILE_ALIAS + "{downloadHash}"}, method = RequestMethod.GET)
-    public void downloadFile(@PathVariable String downloadHash, final HttpServletResponse response) {
+    public void downloadFile(@NotNull @PathVariable String downloadHash, final HttpServletResponse response) {
         this.fileManagementService.downloadFile(downloadHash, response);
     }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS + "{userName}"}, method = RequestMethod.GET)
-    public void getProfilePic(final HttpServletResponse response, @PathVariable String userName) {
+    public void getProfilePic(final HttpServletResponse response,@NotNull @PathVariable String userName) {
         this.fileManagementService.sendProfilePicture(response, userName);
     }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.GET_FILES_SHARED_WITH_ME_ALIAS}, method = RequestMethod.POST)
-    public List<DataTransferObject> getSharedFiles(final HttpServletRequest request, final HttpServletResponse response,
-                                                   @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+    public List<DataTransferObject> getSharedFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
                                                    @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
         return this.fileManagementService.getSharedFiles(firstResult, maxResults);
     }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.GET_PRIVATE_FILES_ALIAS}, method = RequestMethod.POST)
-    public List<DataTransferObject> getPrivateFiles(final HttpServletRequest request, final HttpServletResponse response,
-                                                    @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+    public List<DataTransferObject> getPrivateFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
                                                     @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
         return this.fileManagementService.getPrivateFiles(firstResult, maxResults);
     }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.GET_UPLOADED_FILES_ALIAS}, method = RequestMethod.POST)
-    public List<DataTransferObject> getUploadedFiles(final HttpServletRequest request, final HttpServletResponse response,
-                                                     @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+    public List<DataTransferObject> getUploadedFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
                                                      @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
         return this.fileManagementService.getUploadedFiles(firstResult, maxResults);
     }
