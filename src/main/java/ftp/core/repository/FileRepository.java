@@ -20,21 +20,21 @@ public interface FileRepository extends JpaRepository<File, Long> {
             " from File file" +
             "               left outer join fetch file.sharedWithUsers swu" +
             "               where :userNickName in(swu)" +
-            "               and file.fileType = ftp.core.model.entities.File$FileType.SHARED")
-    List<File> findAllSharedFilesByUserNickName(@Param("userNickName") String userNickName, Pageable pageable);
+            "               and file.fileType = :fileType")
+    List<File> findAllSharedFilesByUserNickNameAndFileType(@Param("userNickName") String userNickName, @Param("fileType") File.FileType fileType, Pageable pageable);
 
     @Query("select file " +
             "   from File file" +
             "               left outer join fetch file.sharedWithUsers swu" +
             "               where :userNickName in(swu)" +
-            "               and file.fileType = ftp.core.model.entities.File$FileType.PRIVATE")
-    List<File> findAllPrivateFilesByUserNickName(@Param("userNickName") String userNickName, Pageable pageable);
+            "               and file.fileType = :fileType")
+    List<File> findAllPrivateFilesByUserNickNameAndFileType(@Param("userNickName") String userNickName,@Param("fileType") File.FileType fileType, Pageable pageable);
 
     @Query("select fls.id " +
             "    from User usr" +
             "    left outer join usr.uploadedFiles fls" +
-            "    where fls.fileType = ftp.core.model.entities.File$FileType.SHARED" +
+            "    where fls.fileType = :fileType" +
             "    and usr.id=:userId")
-    List<Long> findSharedFilesIdsByUserId(@Param("userId") Long userId, Pageable pageable);
+    List<Long> findSharedFilesIdsByUserIdAndFileType(@Param("userId") Long userId,@Param("fileType") File.FileType fileType, Pageable pageable);
 
 }

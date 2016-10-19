@@ -36,7 +36,7 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public void store(InputStream inputStream, String newFileName, String destinationFolder) {
         try {
-            File dest = Paths.get(this.rootLocation.toFile().getName(), destinationFolder).toFile();
+            File dest = Paths.get(this.rootLocation.toFile().getAbsolutePath(), destinationFolder).toFile();
             createDirIfNotExsists(dest);
             copyFileToDestination(inputStream, dest.toPath().resolve(newFileName), StandardCopyOption.REPLACE_EXISTING);
             inputStream.close();
@@ -61,7 +61,7 @@ public class FileSystemStorageService implements StorageService {
     }
 
     public Path load(String filename, String destinationFolder) {
-        Path path = Paths.get(this.rootLocation.toFile().getName(), destinationFolder);
+        Path path = Paths.get(this.rootLocation.toFile().getAbsolutePath(), destinationFolder);
         return path.resolve(filename);
     }
 

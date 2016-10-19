@@ -130,17 +130,17 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
 
     @Override
     public List<File> getSharedFilesForUser(final String userNickName, final int firstResult, final int maxResults) {
-        return this.fileRepository.findAllSharedFilesByUserNickName(userNickName, new PageRequest(firstResult, maxResults));
+        return this.fileRepository.findAllSharedFilesByUserNickNameAndFileType(userNickName, FileType.SHARED, new PageRequest(firstResult, maxResults));
     }
 
     @Override
     public List<File> getPrivateFilesForUser(final String userNickName, final int firstResult, final int maxResults) {
-        return this.fileRepository.findAllPrivateFilesByUserNickName(userNickName, new PageRequest(firstResult, maxResults));
+        return this.fileRepository.findAllPrivateFilesByUserNickNameAndFileType(userNickName, FileType.PRIVATE, new PageRequest(firstResult, maxResults));
     }
 
     @Override
     public List<Long> getSharedFilesWithUsersIds(final Long userId, final int firstResult, final int maxResults) {
-        return this.fileRepository.findSharedFilesIdsByUserId(userId, new PageRequest(firstResult, maxResults));
+        return this.fileRepository.findSharedFilesIdsByUserIdAndFileType(userId, FileType.SHARED, new PageRequest(firstResult, maxResults));
     }
 
     @Override
