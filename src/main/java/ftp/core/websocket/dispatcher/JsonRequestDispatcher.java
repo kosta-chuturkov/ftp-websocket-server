@@ -67,7 +67,7 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
             setCurrentUser(session);
             final String methodToHandle = request.getMethod();
             final JsonTypedHandler handlerByType = this.jsonHandlerFactory.getHandlerByType(methodToHandle);
-            final JsonResponse jsonResponse = handlerByType.getJsonResponse(request);
+            final JsonResponse jsonResponse = handlerByType.handleRequestAndReturnJson(request);
             final String response = this.gson.toJson(jsonResponse);
             session.sendMessage(new TextMessage(response));
         } catch (final Exception e) {

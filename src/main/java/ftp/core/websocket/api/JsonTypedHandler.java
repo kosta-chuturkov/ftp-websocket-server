@@ -9,7 +9,7 @@ import ftp.core.websocket.handler.Handlers;
  */
 public interface JsonTypedHandler {
 
-    JsonResponse getJsonResponse(JsonRequest jsonRequest);
+    JsonResponse handleRequestAndReturnJson(JsonRequest jsonRequest);
 
     Handlers getHandlerType();
 }

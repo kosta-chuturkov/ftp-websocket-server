@@ -1,10 +1,12 @@
 package ftp.core.service.face;
 
+import ftp.core.model.dto.DataTransferObject;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 public interface FileManagementService {
 
@@ -24,5 +26,9 @@ public interface FileManagementService {
 
     String getProfilePicUrl(final String userName, String serverContext);
 
+    List<DataTransferObject> getSharedFiles(Integer firstResult, Integer maxResults);
 
+    List<DataTransferObject> getPrivateFiles(Integer firstResult, Integer maxResults);
+
+    List<DataTransferObject> getUploadedFiles(Integer firstResult, Integer maxResults);
 }

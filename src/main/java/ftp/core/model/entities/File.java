@@ -138,6 +138,9 @@ public class File extends AbstractEntity<Long> {
     }
 
     public Set<String> getSharedWithUsers() {
+        if(this.sharedWithUsers ==null){
+            return Sets.newHashSet();
+        }
         return this.sharedWithUsers;
     }
 

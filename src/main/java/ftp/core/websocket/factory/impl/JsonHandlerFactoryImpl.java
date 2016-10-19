@@ -39,27 +39,23 @@ public class JsonHandlerFactoryImpl implements JsonHandlerFactory, BeanPostProce
 
     @Override
     public Object postProcessAfterInitialization(final Object bean, final String beanName) throws BeansException {
-        for (final Class<?> declaredInterface : bean.getClass().getInterfaces()) {
-            if (!declaredInterface.equals(JsonTypedHandler.class)) {
-                return bean;
-            }
+       if(!(bean instanceof JsonTypedHandler))return bean;
 
-            final JsonTypedHandler jsonTypedHandler = (JsonTypedHandler) bean;
+        final JsonTypedHandler jsonTypedHandler = (JsonTypedHandler) bean;
 
-            final String handlerType = jsonTypedHandler
-                    .getHandlerType().getHandlerName();
+        final String handlerType = jsonTypedHandler
+                .getHandlerType().getHandlerName();
 
-            if (this.typedHandlerMap.containsKey(handlerType)) {
-                final Class<?> existClass = this.typedHandlerMap.get(handlerType).getClass();
+        if (this.typedHandlerMap.containsKey(handlerType)) {
+            final Class<?> existClass = this.typedHandlerMap.get(handlerType).getClass();
 
-                throw new FtpServerException(String.format("Duplication of beans of type 'JsonTypedHandler' that implement logic for the same entity type, entityTypeName:%1$s, existingBean:%2$s, newBean:%3$s",
-                        handlerType,
-                        existClass,
-                        jsonTypedHandler.getClass()));
-            }
-            this.logger.debug("Registering handler with type: " + handlerType);
-            this.typedHandlerMap.put(handlerType, jsonTypedHandler);
+            throw new FtpServerException(String.format("Duplication of beans of type 'JsonTypedHandler' that implement logic for the same entity type, entityTypeName:%1$s, existingBean:%2$s, newBean:%3$s",
+                    handlerType,
+                    existClass,
+                    jsonTypedHandler.getClass()));
         }
+        this.logger.debug("Registering handler with type: " + handlerType);
+        this.typedHandlerMap.put(handlerType, jsonTypedHandler);
         return bean;
     }
 }

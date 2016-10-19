@@ -12,9 +12,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class DefaultHandler implements JsonTypedHandler {
 
-
     @Override
-    public JsonResponse getJsonResponse(final JsonRequest jsonRequest) {
+    public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
         final JsonObject response = new JsonObject();
         response.addProperty("error", "Method not supported.");
         return new JsonResponse(Handlers.DEFAULT_HANDLER, response.toString());

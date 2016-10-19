@@ -11,13 +11,12 @@ import org.springframework.stereotype.Service;
  * Created by Kosta_Chuturkov on 2/24/2016.
  */
 @Service
-public class SharedWithMeHandler extends BaseJsonRequestHandler {
-
+public class UploadedFilesHandler extends BaseJsonRequestHandler {
 
     private FileManagementService fileManagementService;
 
     @Autowired
-    public SharedWithMeHandler(JsonService jsonService, FileManagementService fileManagementService) {
+    public UploadedFilesHandler(JsonService jsonService, FileManagementService fileManagementService) {
         super(jsonService);
         this.fileManagementService = fileManagementService;
     }
@@ -25,11 +24,11 @@ public class SharedWithMeHandler extends BaseJsonRequestHandler {
     @Override
     public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
         return super.handle(jsonRequest,
-                (firstResult, maxResults) -> this.fileManagementService.getSharedFiles(firstResult, maxResults));
+                (firstResult, maxResults) -> this.fileManagementService.getUploadedFiles(firstResult, maxResults));
     }
 
     @Override
     public Handlers getHandlerType() {
-        return Handlers.FILES_SHARED_WITH_ME_HANDLER;
+        return Handlers.FILES_I_SHARED_HANDLER;
     }
 }

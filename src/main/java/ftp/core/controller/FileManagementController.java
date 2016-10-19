@@ -1,6 +1,7 @@
 package ftp.core.controller;
 
 import ftp.core.constants.APIAliases;
+import ftp.core.model.dto.DataTransferObject;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
 import org.springframework.security.access.annotation.Secured;
@@ -10,7 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 public class FileManagementController {
@@ -49,5 +52,29 @@ public class FileManagementController {
     @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS + "{userName}"}, method = RequestMethod.GET)
     public void getProfilePic(final HttpServletResponse response, @PathVariable String userName) {
         this.fileManagementService.sendProfilePicture(response, userName);
+    }
+
+    @Secured(Authorities.USER)
+    @RequestMapping(value = {APIAliases.GET_FILES_SHARED_WITH_ME_ALIAS}, method = RequestMethod.POST)
+    public List<DataTransferObject> getSharedFiles(final HttpServletRequest request, final HttpServletResponse response,
+                                                   @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                                   @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
+        return this.fileManagementService.getSharedFiles(firstResult, maxResults);
+    }
+
+    @Secured(Authorities.USER)
+    @RequestMapping(value = {APIAliases.GET_PRIVATE_FILES_ALIAS}, method = RequestMethod.POST)
+    public List<DataTransferObject> getPrivateFiles(final HttpServletRequest request, final HttpServletResponse response,
+                                                    @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                                    @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
+        return this.fileManagementService.getPrivateFiles(firstResult, maxResults);
+    }
+
+    @Secured(Authorities.USER)
+    @RequestMapping(value = {APIAliases.GET_UPLOADED_FILES_ALIAS}, method = RequestMethod.POST)
+    public List<DataTransferObject> getUploadedFiles(final HttpServletRequest request, final HttpServletResponse response,
+                                                     @NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                                     @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
+        return this.fileManagementService.getUploadedFiles(firstResult, maxResults);
     }
 }

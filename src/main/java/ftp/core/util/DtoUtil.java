@@ -27,7 +27,7 @@ public final class DtoUtil {
     }
 
     public static FileWithSharedUsersDto toFileWithSharedUsersDto(File file) {
-        return new FileWithSharedUsersDto.Builder()
+        FileWithSharedUsersDto dto = new FileWithSharedUsersDto.Builder()
                 .withSharingUserName(file.getCreator().getNickName())
                 .withName(file.getName())
                 .withDownloadHash(file.getDownloadHash())
@@ -36,6 +36,12 @@ public final class DtoUtil {
                 .withTimestamp(file.getTimestamp().toString())
                 .withFileType(file.getFileType())
                 .build();
+
+        file.getSharedWithUsers()
+                .stream()
+                .forEach(s -> dto.addSharedUser(s));
+
+        return dto;
     }
 
     public static SharedFileDto toSharedFileDto(File file) {

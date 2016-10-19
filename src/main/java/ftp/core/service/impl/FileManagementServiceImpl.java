@@ -7,6 +7,7 @@ import ftp.core.config.ApplicationConfig;
 import ftp.core.config.FtpConfigurationProperties;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
+import ftp.core.model.dto.DataTransferObject;
 import ftp.core.model.dto.DeletedFileDto;
 import ftp.core.model.dto.JsonFileDto;
 import ftp.core.model.dto.ResponseModelAdapter;
@@ -17,6 +18,7 @@ import ftp.core.service.face.StorageService;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
+import ftp.core.util.DtoUtil;
 import ftp.core.util.ServerUtil;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
@@ -39,6 +41,7 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static ftp.core.util.ServerUtil.getProtocol;
 
@@ -295,6 +298,33 @@ public class FileManagementServiceImpl implements FileManagementService {
             relativePicturePath = "/resources/images/default.jpg";
         }
         return serverContext.concat(relativePicturePath);
+    }
+
+    @Override
+    public List<DataTransferObject> getSharedFiles(Integer firstResult, Integer maxResults) {
+        return this.fileService
+                .getSharedFilesForUser(User.getCurrent().getNickName(), firstResult, maxResults)
+                .stream()
+                .map((DtoUtil::toSharedFileDto))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DataTransferObject> getPrivateFiles(Integer firstResult, Integer maxResults) {
+        return this.fileService
+                .getPrivateFilesForUser(User.getCurrent().getNickName(), firstResult, maxResults)
+                .stream()
+                .map((DtoUtil::toUploadedFileDto))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DataTransferObject> getUploadedFiles(Integer firstResult, Integer maxResults) {
+        return this.fileService
+                .getSharedFilesWithUsersIds(User.getCurrent().getId(), firstResult, maxResults)
+                .stream()
+                .map(aLong -> DtoUtil.toFileWithSharedUsersDto(this.fileService.findWithSharedUsers(aLong)))
+                .collect(Collectors.toList());
     }
 
     private byte[] createBuffer() {
