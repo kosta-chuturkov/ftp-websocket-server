@@ -1,6 +1,7 @@
 package ftp.core.repository;
 
 import ftp.core.model.entities.User;
+import ftp.core.repository.projections.NickNameProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -15,5 +16,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByEmail(String email);
 
-    List<String> findByNickNameLike(String userNickName);
+    List<NickNameProjection> findByNickNameLike(String userNickName);
 }

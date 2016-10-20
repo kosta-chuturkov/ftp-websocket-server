@@ -28,13 +28,13 @@ public interface FileRepository extends JpaRepository<File, Long> {
             "               left outer join fetch file.sharedWithUsers swu" +
             "               where :userNickName in(swu)" +
             "               and file.fileType = :fileType")
-    List<File> findAllPrivateFilesByUserNickNameAndFileType(@Param("userNickName") String userNickName,@Param("fileType") File.FileType fileType, Pageable pageable);
+    List<File> findAllPrivateFilesByUserNickNameAndFileType(@Param("userNickName") String userNickName, @Param("fileType") File.FileType fileType, Pageable pageable);
 
     @Query("select fls.id " +
             "    from User usr" +
             "    left outer join usr.uploadedFiles fls" +
             "    where fls.fileType = :fileType" +
             "    and usr.id=:userId")
-    List<Long> findSharedFilesIdsByUserIdAndFileType(@Param("userId") Long userId,@Param("fileType") File.FileType fileType, Pageable pageable);
+    List<Long> findSharedFilesIdsByUserIdAndFileType(@Param("userId") Long userId, @Param("fileType") File.FileType fileType, Pageable pageable);
 
 }

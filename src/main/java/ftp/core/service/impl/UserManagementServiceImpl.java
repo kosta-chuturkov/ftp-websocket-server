@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import ftp.core.constants.APIAliases;
 import ftp.core.model.dto.ModifiedUserDto;
+import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
 import ftp.core.service.face.UserManagementService;
@@ -39,22 +40,22 @@ public class UserManagementServiceImpl implements UserManagementService {
     public String getUserDetails(final HttpServletRequest request, final HttpServletResponse response,
                                  final String userNickName) throws IOException {
         final JsonObject jsonResponse = new JsonObject();
-
-        final List<String> users = this.userService.getUserByNickLike(userNickName);
-
         final JsonArray jsonArrayWrapper = new JsonArray();
-        for (final String userName : users) {
-            final JsonObject userObject = new JsonObject();
-            userObject.addProperty("id", userName);
-            userObject.addProperty("full_name", userName);
-            final JsonObject owner = new JsonObject();
-            owner.addProperty("id", Math.random());
-            String profilePicUrl = fileManagementService.getProfilePicUrl(userName, ServerUtil.getServerContextAddress(request));
-            owner.addProperty("avatar_url", profilePicUrl);
-            userObject.add("owner", owner);
-            jsonArrayWrapper.add(userObject);
-        }
-        jsonResponse.addProperty("total_count", users.size());
+        List<NickNameProjection> userByNickLike = this.userService.getUserByNickLike(userNickName);
+        userByNickLike
+                .forEach(userName -> {
+                    final JsonObject userObject = new JsonObject();
+                    userObject.addProperty("id", userName.getNickName());
+                    userObject.addProperty("full_name", userName.getNickName());
+                    final JsonObject owner = new JsonObject();
+                    owner.addProperty("id", Math.random());
+                    String profilePicUrl = this.fileManagementService.getProfilePicUrl(userName.getNickName(), ServerUtil.getServerContextAddress(request));
+                    owner.addProperty("avatar_url", profilePicUrl);
+                    userObject.add("owner", owner);
+                    jsonArrayWrapper.add(userObject);
+                });
+
+        jsonResponse.addProperty("total_count", userByNickLike.size());
         jsonResponse.addProperty("incomplete_results", Boolean.FALSE);
         jsonResponse.add("items", jsonArrayWrapper);
 

@@ -2,6 +2,7 @@ package ftp.core.service.face.tx;
 
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
+import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.service.generic.GenericService;
 
 import javax.transaction.Transactional;
@@ -24,7 +25,7 @@ public interface UserService extends GenericService<User, Long> {
 
     User checkAndGetUserToSendFilesTo(String userToSendFilesToNickName);
 
-    List<String> getUserByNickLike(String userNickName);
+    List<NickNameProjection> getUserByNickLike(String userNickName);
 
     void validateUserCredentials(String email, String password, String nickName, String password_repeated) throws IllegalArgumentException;
 

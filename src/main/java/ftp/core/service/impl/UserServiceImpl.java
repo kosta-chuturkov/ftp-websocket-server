@@ -6,6 +6,7 @@ import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
 import ftp.core.repository.FileRepository;
 import ftp.core.repository.UserRepository;
+import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.AuthorityService;
 import ftp.core.service.face.tx.FtpServerException;
@@ -115,8 +116,11 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
     }
 
     @Override
-    public List<String> getUserByNickLike(final String userNickName) {
-        return this.userRepository.findByNickNameLike(userNickName);
+    public List<NickNameProjection> getUserByNickLike(final String userNickName) {
+        String escapedUserName = StringEscapeUtils.escapeSql(userNickName);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("%").append(escapedUserName).append("%");
+        return this.userRepository.findByNickNameLike(stringBuilder.toString());
     }
 
     @Override
