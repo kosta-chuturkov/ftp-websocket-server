@@ -2,100 +2,59 @@ package ftp.core.model.dto;
 
 import ftp.core.model.entities.File;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 /**
- * Contains information about a shared file
+ * Created by Kosta_Chuturkov on 3/30/2016.
  */
-public class SharedFileDto implements DataTransferObject {
+public class FileWithSharedUsersWithMeDto extends PrivateFileWithMeDto {
 
-    protected long size;
+    private final Set<String> sharedToUsers = new TreeSet<>();
 
-    protected String name;
-
-    protected String timestamp;
-
-    protected String downloadHash;
-
-    protected String sharingUserName;
-
-    protected File.FileType fileType;
-
-    protected SharedFileDto() {
+    protected FileWithSharedUsersWithMeDto() {
     }
 
-    private SharedFileDto(Builder builder) {
+    private FileWithSharedUsersWithMeDto(Builder builder) {
         setSize(builder.size);
         setName(builder.name);
         setTimestamp(builder.timestamp);
         setDownloadHash(builder.downloadHash);
+        setDeleteHash(builder.deleteHash);
         setSharingUserName(builder.sharingUserName);
         setFileType(builder.fileType);
     }
 
-    public long getSize() {
-        return this.size;
+
+    public Set<String> getSharedToUsers() {
+        return this.sharedToUsers;
     }
 
-    protected void setSize(long size) {
-        this.size = size;
+    public boolean addSharedUser(final String name) {
+        if (!this.sharedToUsers.contains(name)) {
+            return this.sharedToUsers.add(name);
+        }
+        return false;
     }
-
-    public String getName() {
-        return this.name;
-    }
-
-    protected void setName(String name) {
-        this.name = name;
-    }
-
-    public String getTimestamp() {
-        return this.timestamp;
-    }
-
-    protected void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getDownloadHash() {
-        return this.downloadHash;
-    }
-
-    protected void setDownloadHash(String downloadHash) {
-        this.downloadHash = downloadHash;
-    }
-
-    public String getSharingUserName() {
-        return this.sharingUserName;
-    }
-
-    protected void setSharingUserName(String sharingUserName) {
-        this.sharingUserName = sharingUserName;
-    }
-
-    public File.FileType getFileType() {
-        return this.fileType;
-    }
-
-    protected void setFileType(File.FileType fileType) {
-        this.fileType = fileType;
-    }
-
 
     public static final class Builder {
         private long size;
         private String name;
         private String timestamp;
         private String downloadHash;
+        private String deleteHash;
         private String sharingUserName;
         private File.FileType fileType;
 
         public Builder() {
         }
 
-        public Builder(SharedFileDto copy) {
+        public Builder(FileWithSharedUsersWithMeDto copy) {
             this.size = copy.size;
             this.name = copy.name;
             this.timestamp = copy.timestamp;
             this.downloadHash = copy.downloadHash;
+            this.deleteHash = copy.getDeleteHash();
             this.sharingUserName = copy.sharingUserName;
             this.fileType = copy.fileType;
         }
@@ -120,6 +79,11 @@ public class SharedFileDto implements DataTransferObject {
             return this;
         }
 
+        public Builder withDeleteHash(String val) {
+            this.deleteHash = val;
+            return this;
+        }
+
         public Builder withSharingUserName(String val) {
             this.sharingUserName = val;
             return this;
@@ -130,8 +94,8 @@ public class SharedFileDto implements DataTransferObject {
             return this;
         }
 
-        public SharedFileDto build() {
-            return new SharedFileDto(this);
+        public FileWithSharedUsersWithMeDto build() {
+            return new FileWithSharedUsersWithMeDto(this);
         }
     }
 }

@@ -1,8 +1,8 @@
 package ftp.core.util;
 
-import ftp.core.model.dto.FileWithSharedUsersDto;
-import ftp.core.model.dto.SharedFileDto;
-import ftp.core.model.dto.UploadedFileDto;
+import ftp.core.model.dto.FileWithSharedUsersWithMeDto;
+import ftp.core.model.dto.SharedFileWithMeDto;
+import ftp.core.model.dto.PrivateFileWithMeDto;
 import ftp.core.model.entities.File;
 
 /**
@@ -14,8 +14,8 @@ public final class DtoUtil {
 
     }
 
-    public static UploadedFileDto toUploadedFileDto(File file) {
-        return new UploadedFileDto.Builder()
+    public static PrivateFileWithMeDto toPrivateFileDto(File file) {
+        return new PrivateFileWithMeDto.Builder()
                 .withSharingUserName(file.getCreator().getNickName())
                 .withName(file.getName())
                 .withDownloadHash(file.getDownloadHash())
@@ -26,8 +26,8 @@ public final class DtoUtil {
                 .build();
     }
 
-    public static FileWithSharedUsersDto toFileWithSharedUsersDto(File file) {
-        FileWithSharedUsersDto dto = new FileWithSharedUsersDto.Builder()
+    public static FileWithSharedUsersWithMeDto toSharedFileWithOtherUsersDto(File file) {
+        FileWithSharedUsersWithMeDto dto = new FileWithSharedUsersWithMeDto.Builder()
                 .withSharingUserName(file.getCreator().getNickName())
                 .withName(file.getName())
                 .withDownloadHash(file.getDownloadHash())
@@ -44,8 +44,8 @@ public final class DtoUtil {
         return dto;
     }
 
-    public static SharedFileDto toSharedFileDto(File file) {
-        return new SharedFileDto.Builder()
+    public static SharedFileWithMeDto toSharedFileWithMeDto(File file) {
+        return new SharedFileWithMeDto.Builder()
                 .withSharingUserName(file.getCreator().getNickName())
                 .withName(file.getName())
                 .withDownloadHash(file.getDownloadHash())

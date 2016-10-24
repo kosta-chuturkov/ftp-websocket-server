@@ -5,14 +5,14 @@ import ftp.core.model.entities.File;
 /**
  * Contains info about an uploaded file
  */
-public class UploadedFileDto extends SharedFileDto implements DataTransferObject {
+public class PrivateFileWithMeDto extends SharedFileWithMeDto implements DataTransferObject {
 
     private String deleteHash;
 
-    protected UploadedFileDto() {
+    protected PrivateFileWithMeDto() {
     }
 
-    private UploadedFileDto(Builder builder) {
+    private PrivateFileWithMeDto(Builder builder) {
         setSize(builder.size);
         setName(builder.name);
         setTimestamp(builder.timestamp);
@@ -43,7 +43,7 @@ public class UploadedFileDto extends SharedFileDto implements DataTransferObject
         public Builder() {
         }
 
-        public Builder(UploadedFileDto copy) {
+        public Builder(PrivateFileWithMeDto copy) {
             this.size = copy.size;
             this.name = copy.name;
             this.timestamp = copy.timestamp;
@@ -88,8 +88,8 @@ public class UploadedFileDto extends SharedFileDto implements DataTransferObject
             return this;
         }
 
-        public UploadedFileDto build() {
-            return new UploadedFileDto(this);
+        public PrivateFileWithMeDto build() {
+            return new PrivateFileWithMeDto(this);
         }
     }
 }

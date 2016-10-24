@@ -1,7 +1,5 @@
 package ftp.core.model.entities;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -10,24 +8,16 @@ import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Entity
 @Table(name = "files")
 public class File extends AbstractEntity<Long> {
 
-    public static final int PUBLIC_FILE = 1;
-
-    public static final int PRIVATE_FILE = 2;
-
-    public static final int SHARED_FILE = 3;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "file_shared_to_users", joinColumns = @JoinColumn(name = "file_id"))
     @Column(name = "nickname", length = 32)
-    private final Set<String> sharedWithUsers = Sets.newHashSet();
+    private Set<String> sharedWithUsers = Sets.newHashSet();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
@@ -56,7 +46,7 @@ public class File extends AbstractEntity<Long> {
     private Date timestamp;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated
     @Column(name = "filetype")
     private FileType fileType;
 
@@ -65,6 +55,7 @@ public class File extends AbstractEntity<Long> {
     }
 
     private File(Builder builder) {
+        setSharedWithUsers(builder.sharedWithUsers);
         setCreator(builder.creator);
         setName(builder.name);
         setDownloadHash(builder.downloadHash);
@@ -153,39 +144,12 @@ public class File extends AbstractEntity<Long> {
 
 
     public enum FileType {
-        SHARED(SHARED_FILE), PRIVATE(PRIVATE_FILE), PUBLIC(PUBLIC_FILE);
-
-        public static Map<Integer, FileType> mapping = Maps.newHashMap();
-
-        public static List<FileType> ALL = Lists.newArrayList(SHARED, PUBLIC, PRIVATE);
-
-        static {
-            mapping.put(SHARED_FILE, SHARED);
-            mapping.put(PRIVATE_FILE, PRIVATE);
-            mapping.put(PUBLIC_FILE, PUBLIC);
-        }
-
-        private int type;
-
-        private FileType(final int type) {
-            this.type = type;
-        }
-
-        public static FileType getById(final int id) {
-            return mapping.get(id);
-        }
-
-        public int getType() {
-            return this.type;
-        }
-
-        public void setType(final int type) {
-            this.type = type;
-        }
-
+        SHARED, PRIVATE
     }
 
+
     public static final class Builder {
+        private Set<String> sharedWithUsers;
         private User creator;
         private String name;
         private String downloadHash;
@@ -198,6 +162,7 @@ public class File extends AbstractEntity<Long> {
         }
 
         public Builder(File copy) {
+            this.sharedWithUsers = copy.sharedWithUsers;
             this.creator = copy.creator;
             this.name = copy.name;
             this.downloadHash = copy.downloadHash;
@@ -205,6 +170,11 @@ public class File extends AbstractEntity<Long> {
             this.fileSize = copy.fileSize;
             this.timestamp = copy.timestamp;
             this.fileType = copy.fileType;
+        }
+
+        public Builder withSharedWithUsers(Set<String> val) {
+            this.sharedWithUsers = val;
+            return this;
         }
 
         public Builder withCreator(User val) {

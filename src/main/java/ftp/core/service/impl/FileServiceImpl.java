@@ -5,7 +5,6 @@ import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.DataTransferObject;
 import ftp.core.model.dto.DeletedFileDto;
 import ftp.core.model.dto.ModifiedUserDto;
-import ftp.core.model.dto.SharedFileDto;
 import ftp.core.model.entities.AbstractEntity;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.File.FileType;
@@ -19,6 +18,7 @@ import ftp.core.util.DtoUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -26,6 +26,7 @@ import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service("fileService")
 @Transactional
@@ -46,27 +47,11 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     }
 
     @Override
-    public void deleteFile(final String deleteHash, final String creatorNickName) {
-        this.fileRepository.deleteByDeleteHashAndCreatorNickName(deleteHash, creatorNickName);
-    }
-
-    @Override
     public File findByDeleteHash(final String deleteHash, final String creatorNickName) {
         return this.fileRepository.findByDeleteHashAndCreatorNickName(deleteHash, creatorNickName);
     }
 
-    @Override
-    public void addUserToFile(final Long fileId, final String userToAdd) {
-        final AbstractEntity findOne = findOne(fileId);
-        if (findOne != null) {
-            final File file = (File) findOne;
-            file.addUser(userToAdd);
-            save(file);
-        }
-    }
-
-
-    public void createFileRecord(final String fileNameEscaped, final long timestamp, final int modifier, final Set<String> users,
+    public void createFileRecord(final String fileNameEscaped, final long timestamp, final Set<String> users,
                                  final long fileSize, final String deleteHash, final String downloadHash) {
         final User currentUser = User.getCurrent();
         final long remainingStorage = currentUser.getRemainingStorage();
@@ -75,6 +60,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
                     "You are exceeding your upload limit:" + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT)
                             + ". You have: " + FileUtils.byteCountToDisplaySize(remainingStorage) + " remainig storage.");
         }
+        Set<String> validatedUsers = validateUserNickNames(users);
         final File file = new File.Builder()
                 .withName(fileNameEscaped)
                 .withTimestamp(new Date(timestamp))
@@ -82,30 +68,38 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
                 .withDeleteHash(deleteHash)
                 .withFileSize(fileSize)
                 .withCreator(currentUser)
-                .withFileType(File.FileType.getById(modifier))
+                .withSharedWithUsers(validatedUsers)
+                .withFileType(users.isEmpty() ? FileType.PRIVATE : FileType.SHARED)
                 .build();
         final File savedFile = saveAndFlush(file);
         if (savedFile != null) {
             this.userService.updateRemainingStorageForUser(fileSize, currentUser.getId(), remainingStorage);
-            if (modifier == FileType.SHARED.getType()) {
-                for (final String user : users) {
-                    final User userToShareTheFileWith = this.userService.checkAndGetUserToSendFilesTo(user);
-                    addUserToFile(savedFile.getId(), userToShareTheFileWith.getNickName());
-                    this.userService.addFileToUser(savedFile.getId(), currentUser.getId());
-                    final DataTransferObject fileDto = new SharedFileDto.Builder()
-                            .withSharingUserName(file.getCreator().getNickName())
-                            .withName(file.getName())
-                            .withDownloadHash(file.getDownloadHash())
-                            .withSize(file.getFileSize())
-                            .withTimestamp(file.getTimestamp().toString())
-                            .withFileType(file.getFileType())
-                            .build();
-                    this.eventService.fireSharedFileEvent(user, fileDto);
-                }
+            this.userService.addFileToUser(savedFile.getId(), currentUser.getId());
+            if(!validatedUsers.isEmpty()) {
+                this.eventService.fireSharedFileEvent(validatedUsers, DtoUtil.toSharedFileWithMeDto(savedFile));
             }
         } else {
             throw new RuntimeException("Unable to add file!");
         }
+    }
+
+    private Set<String> validateUserNickNames(Set<String> users) {
+        if (users.contains(User.getCurrent().getNickName())) {
+            throw new IllegalArgumentException("Cannot share files with yourself");
+        }
+        Set<String> foundNickNames = this.userService.findByNickNameIn(users)
+                .stream()
+                .map(nickNameProjection -> nickNameProjection.getNickName())
+                .collect(Collectors.toSet());
+
+        List<String> invalidUserNames = users
+                .stream()
+                .filter(s1 -> !foundNickNames.contains(s1))
+                .collect(Collectors.toList());
+        if (!invalidUserNames.isEmpty()) {
+            throw new IllegalArgumentException("Cannot share files to users [" + invalidUserNames.toString() + "].");
+        }
+        return foundNickNames;
     }
 
     public boolean isUserFromFileSharedUsers(final Long fileId, final String nickName) {
@@ -129,23 +123,18 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     }
 
     @Override
-    public List<File> getSharedFilesForUser(final String userNickName, final int firstResult, final int maxResults) {
-        return this.fileRepository.findAllSharedFilesByUserNickNameAndFileType(userNickName, FileType.SHARED, new PageRequest(firstResult, maxResults));
+    public List<File> getFilesISharedWithOtherUsers(final String userNickName, final int firstResult, final int maxResults) {
+        return this.fileRepository.findByCreatorNickNameAndFileType(userNickName, FileType.SHARED, new PageRequest(firstResult, maxResults));
     }
 
     @Override
     public List<File> getPrivateFilesForUser(final String userNickName, final int firstResult, final int maxResults) {
-        return this.fileRepository.findAllPrivateFilesByUserNickNameAndFileType(userNickName, FileType.PRIVATE, new PageRequest(firstResult, maxResults));
+        return this.fileRepository.findByCreatorNickNameAndFileType(userNickName, FileType.PRIVATE, new PageRequest(firstResult, maxResults));
     }
 
     @Override
-    public List<Long> getSharedFilesWithUsersIds(final Long userId, final int firstResult, final int maxResults) {
-        return this.fileRepository.findSharedFilesIdsByUserIdAndFileType(userId, FileType.SHARED, new PageRequest(firstResult, maxResults));
-    }
-
-    @Override
-    public File findWithSharedUsers(final Long fileId) {
-        return this.fileRepository.findOne(fileId);
+    public List<File> getSharedFilesWithMe(String userNickName, int firstResult, int maxResults) {
+        return this.fileRepository.findSharedFilesWithMe(userNickName, FileType.SHARED, new PageRequest(firstResult, maxResults));
     }
 
     @Override
@@ -188,10 +177,15 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
         }
 
         final File file = updateUsersForFile(deleteHash, userNickNames);
-        final DataTransferObject fileDto = DtoUtil.toSharedFileDto(file);
+        final DataTransferObject fileDto = DtoUtil.toSharedFileWithMeDto(file);
         for (final String userNickName : userNickNames) {
             this.eventService.fireSharedFileEvent(userNickName, fileDto);
         }
+    }
+
+    @Override
+    public List<File> findByCreatorId(Long creatorId, Pageable pageable) {
+        return this.fileRepository.findByCreatorId(creatorId, pageable);
     }
 
 }

@@ -6,14 +6,14 @@ import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.service.generic.GenericService;
 
 import javax.transaction.Transactional;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Transactional
 public interface UserService extends GenericService<User, Long> {
 
     User findByEmailAndPassword(String email, String password);
-
-    Long getTokenByEmail(String email);
 
     Long getRandomTokenFromDB();
 
@@ -22,8 +22,6 @@ public interface UserService extends GenericService<User, Long> {
     User getUserByEmail(String email);
 
     void updateRemainingStorageForUser(long fileSize, Long userId, long remainingStorage);
-
-    User checkAndGetUserToSendFilesTo(String userToSendFilesToNickName);
 
     List<NickNameProjection> getUserByNickLike(String userNickName);
 
@@ -34,4 +32,6 @@ public interface UserService extends GenericService<User, Long> {
     File addFileToUser(final Long fileId, final Long userId);
 
     String getUserSaltedPassword(final String rawPassword, final Long token);
+
+    Set<NickNameProjection> findByNickNameIn(Collection<String> nickNames);
 }

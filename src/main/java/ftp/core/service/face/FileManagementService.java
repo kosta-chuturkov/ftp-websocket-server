@@ -13,7 +13,7 @@ public interface FileManagementService {
     String updateProfilePicture(HttpServletRequest request, MultipartFile file) throws IOException;
 
     String uploadFile(HttpServletRequest request,
-                      MultipartFile file, String modifier,
+                      MultipartFile file,
                       String userNickNames) throws IOException;
 
     void deleteFiles(HttpServletResponse response, String deleteHash);
@@ -26,9 +26,9 @@ public interface FileManagementService {
 
     String getProfilePicUrl(final String userName, String serverContext);
 
-    List<DataTransferObject> getSharedFiles(Integer firstResult, Integer maxResults);
+    List<DataTransferObject> getFilesISharedWithOtherUsers(Integer firstResult, Integer maxResults);
 
     List<DataTransferObject> getPrivateFiles(Integer firstResult, Integer maxResults);
 
-    List<DataTransferObject> getUploadedFiles(Integer firstResult, Integer maxResults);
+    List<DataTransferObject> getFilesSharedToMe(Integer firstResult, Integer maxResults);
 }

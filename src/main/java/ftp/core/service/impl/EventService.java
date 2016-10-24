@@ -33,6 +33,10 @@ public class EventService {
 
     }
 
+    public void fireSharedFileEvent(Collection<String> topics, final DataTransferObject fileDto) {
+        topics.forEach(s -> fireSharedFileEvent(s, fileDto));
+    }
+
     public void fireRemovedFileEvent(final Collection<String> usersToBeNotified, final DeletedFileDto deletedFileDto) {
         for (final String userNickName : usersToBeNotified) {
             this.eventBus.notify(userNickName, Event.wrap(new JsonResponse(Handlers.DELETED_FILE, this.gson.toJson(deletedFileDto))));

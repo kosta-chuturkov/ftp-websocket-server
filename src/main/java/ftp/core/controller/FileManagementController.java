@@ -31,9 +31,9 @@ public class FileManagementController {
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS+"*"}, method = RequestMethod.POST)
     public String uploadFile(final HttpServletRequest request,
-                             @RequestParam("files[]") final MultipartFile file, @RequestParam("modifier") final String modifier,
+                             @RequestParam("files[]") final MultipartFile file,
                              @RequestParam("nickName") final String userNickNames) throws IOException {
-        return this.fileManagementService.uploadFile(request, file, modifier, userNickNames);
+        return this.fileManagementService.uploadFile(request, file, userNickNames);
     }
 
     @Secured(Authorities.USER)
@@ -58,7 +58,7 @@ public class FileManagementController {
     @RequestMapping(value = {APIAliases.GET_FILES_SHARED_WITH_ME_ALIAS}, method = RequestMethod.POST)
     public List<DataTransferObject> getSharedFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
                                                    @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
-        return this.fileManagementService.getSharedFiles(firstResult, maxResults);
+        return this.fileManagementService.getFilesISharedWithOtherUsers(firstResult, maxResults);
     }
 
     @Secured(Authorities.USER)
@@ -72,6 +72,6 @@ public class FileManagementController {
     @RequestMapping(value = {APIAliases.GET_UPLOADED_FILES_ALIAS}, method = RequestMethod.POST)
     public List<DataTransferObject> getUploadedFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
                                                      @NotNull @ModelAttribute("maxResults") final Integer maxResults) throws IOException {
-        return this.fileManagementService.getUploadedFiles(firstResult, maxResults);
+        return this.fileManagementService.getFilesSharedToMe(firstResult, maxResults);
     }
 }

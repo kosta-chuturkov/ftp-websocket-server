@@ -9,7 +9,6 @@ import ftp.core.repository.UserRepository;
 import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.AuthorityService;
-import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
 import ftp.core.util.ServerUtil;
@@ -21,7 +20,9 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.security.SecureRandom;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Service("userService")
 @Transactional
@@ -52,6 +53,11 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
         return SALT + rawPassword + token.toString();
     }
 
+    @Override
+    public Set<NickNameProjection> findByNickNameIn(Collection<String> nickNames) {
+        return this.userRepository.findByNickNameIn(nickNames);
+    }
+
     public String encodePassword(final String rawPassword) {
         return this.passwordEncoder.encode(rawPassword);
     }
@@ -73,11 +79,6 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
     }
 
     @Override
-    public Long getTokenByEmail(final String email) {
-        return this.userRepository.findTokenByEmail(email);
-    }
-
-    @Override
     public Long getRandomTokenFromDB() {
         return Math.round(this.random.nextDouble() * 1000000);
     }
@@ -94,25 +95,9 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 
     public void updateRemainingStorageForUser(final long fileSize, final Long userId, long remainingStorage) {
         remainingStorage -= fileSize;
-        final User userById = (User) findOne(userId);
+        final User userById = findOne(userId);
         userById.setRemainingStorage(remainingStorage);
         saveAndFlush(userById);
-    }
-
-    public User checkAndGetUserToSendFilesTo(final String userToSendFilesToNickName) {
-        final String escapedUserName = StringEscapeUtils.escapeSql(userToSendFilesToNickName);
-        if (!ServerUtil.isNickNameValid(escapedUserName)) {
-            throw new FtpServerException("Provided user to share files to is invalid!");
-        }
-        if (User.getCurrent().getNickName().equals(escapedUserName)) {
-            throw new FtpServerException("You cant share files with yourself!");
-        }
-        final User userByNickName = getUserByNickName(escapedUserName);
-        if (userByNickName == null) {
-            throw new FtpServerException(
-                    "Unable to share file with user:" + escapedUserName + ".This user does not exist!");
-        }
-        return userByNickName;
     }
 
     @Override

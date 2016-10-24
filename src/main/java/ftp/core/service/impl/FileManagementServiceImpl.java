@@ -90,7 +90,7 @@ public class FileManagementServiceImpl implements FileManagementService {
 
     @Override
     public String uploadFile(final HttpServletRequest request,
-                             final MultipartFile file, String modifier,
+                             final MultipartFile file,
                              final String userNickNames) throws IOException {
 
         final int port = request.getServerPort();
@@ -107,7 +107,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         final String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
 
         final Set<String> users = getFileSharedUsersAsSet(userNickNames);
-        this.fileService.createFileRecord(fileName, currentTime, getModifier(modifier), users, file.getSize(),
+        this.fileService.createFileRecord(fileName, currentTime, users, file.getSize(),
                 deleteHash, downloadHash);
         this.storageService.store(file.getInputStream(), serverFileName, User.getCurrent().getEmail());
         return buildResponseObject(file, serverContextAddress, fileName, deleteHash, downloadHash).toString();
@@ -145,30 +145,16 @@ public class FileManagementServiceImpl implements FileManagementService {
         if (userNickNames.isEmpty()) return users;
         final JsonElement elem = this.jsonParser.parse(userNickNames);
         final JsonArray asJsonArray = elem.getAsJsonArray();
-        for (final JsonElement jsonElement : asJsonArray) {
-            final String name = jsonElement.getAsJsonObject().get("name").getAsString();
-            users.add(name);
-        }
+        asJsonArray
+                .forEach(jsonElement -> {
+                    JsonObject asJsonObject = jsonElement.getAsJsonObject();
+                    if (asJsonObject != null && asJsonObject.get("name") != null) {
+                        users.add(StringEscapeUtils.escapeSql(asJsonObject.get("name").getAsString()));
+                    } else {
+                        throw new IllegalArgumentException("Expected parameter name.");
+                    }
+                });
         return users;
-    }
-
-    private int getModifier(final String modifierString) throws IOException {
-        int modifier = -1;
-        try {
-            modifier = Integer.parseInt(modifierString);
-            if (checkModifier(modifier)) {
-                throw new FtpServerException(
-                        "Modifier parameter is incorrect:" + modifierString + ".");
-            }
-        } catch (final NumberFormatException e) {
-            throw new FtpServerException(
-                    "Modifier parameter is incorrect:" + modifierString + ":" + ".The supported type is int.");
-        }
-        return modifier;
-    }
-
-    private boolean checkModifier(final int modifier) {
-        return ftp.core.model.entities.File.FileType.getById(modifier) == null;
     }
 
     @Override
@@ -247,9 +233,6 @@ public class FileManagementServiceImpl implements FileManagementService {
             switch (fileType) {
                 case PRIVATE:
                     throw new FtpServerException("You dont have permission to access this file.");
-                case PUBLIC:
-                    locationFolderName = file.getCreator().getEmail();
-                    break;
                 case SHARED:
                     if (!this.fileService.isUserFromFileSharedUsers(file.getId(), nickName)) {
                         throw new FtpServerException(
@@ -301,11 +284,11 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public List<DataTransferObject> getSharedFiles(Integer firstResult, Integer maxResults) {
+    public List<DataTransferObject> getFilesISharedWithOtherUsers(Integer firstResult, Integer maxResults) {
         return this.fileService
-                .getSharedFilesForUser(User.getCurrent().getNickName(), firstResult, maxResults)
+                .getFilesISharedWithOtherUsers(User.getCurrent().getNickName(), firstResult, maxResults)
                 .stream()
-                .map((DtoUtil::toSharedFileDto))
+                .map((file -> DtoUtil.toSharedFileWithOtherUsersDto(file)))
                 .collect(Collectors.toList());
     }
 
@@ -314,16 +297,16 @@ public class FileManagementServiceImpl implements FileManagementService {
         return this.fileService
                 .getPrivateFilesForUser(User.getCurrent().getNickName(), firstResult, maxResults)
                 .stream()
-                .map((DtoUtil::toUploadedFileDto))
+                .map((DtoUtil::toPrivateFileDto))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<DataTransferObject> getUploadedFiles(Integer firstResult, Integer maxResults) {
+    public List<DataTransferObject> getFilesSharedToMe(Integer firstResult, Integer maxResults) {
         return this.fileService
-                .getSharedFilesWithUsersIds(User.getCurrent().getId(), firstResult, maxResults)
+                .getSharedFilesWithMe(User.getCurrent().getNickName(), firstResult, maxResults)
                 .stream()
-                .map(aLong -> DtoUtil.toFileWithSharedUsersDto(this.fileService.findWithSharedUsers(aLong)))
+                .map(file -> DtoUtil.toSharedFileWithMeDto(file))
                 .collect(Collectors.toList());
     }
 
