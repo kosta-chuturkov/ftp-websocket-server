@@ -660,7 +660,8 @@ p,:focus {
             $.ajax({
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN':getCSRF()
                 },
                 type: 'POST',
                 url: ''+path,
