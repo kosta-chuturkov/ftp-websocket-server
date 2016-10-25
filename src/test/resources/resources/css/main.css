@@ -1,0 +1,210 @@
+body {
+font-family:'Open Sans',Arial,Sans-Serif;
+font-size:15px;
+color:#333333;
+padding-bottom:80px;
+}
+
+h1,h2,h3,h4 {
+font-weight:600;
+color:#262626;
+margin-bottom:10px;
+}
+
+h1 {
+font-size:38px;
+}
+
+h2 {
+font-size:32px;
+}
+
+h3 {
+font-size:26px;
+}
+
+h4 {
+font-size:20px;
+}
+
+p {
+line-height:150%;
+}
+
+p+p {
+margin-top:15px;
+}
+
+a {
+color:#333333;
+text-decoration:none;
+}
+label {
+color:#333333;
+text-decoration:none;
+}
+a:hover {
+text-decoration:underline;
+}
+
+.text-center {
+text-align:center;
+}
+
+.full-wrap {
+max-width:100%;
+margin:auto;
+}
+
+.wrap {
+max-width:800px;
+width:100%;
+margin:0 auto;
+}
+
+.row>[class^=block-] {
+min-height:20px;
+margin-right:3%;
+float:left;
+}
+
+.row>[class^=block-]:last-child {
+margin-right:0;
+}
+
+.block-1 {
+width:5.5833333333333%;
+}
+
+.block-2 {
+width:14.166666666667%;
+}
+
+.block-2-5 {
+width:17.6%;
+}
+
+.block-3 {
+width:22.75%;
+}
+
+.block-4 {
+width:31.333333333333%;
+}
+
+.block-5 {
+width:39.916666666667%;
+}
+
+.block-6 {
+width:48.5%;
+}
+
+.block-7 {
+width:57.083333333333%;
+}
+
+.block-8 {
+width:65.666666666667%;
+}
+
+.block-9 {
+width:74.25%;
+}
+
+.block-10 {
+width:82.833333333333%;
+}
+
+.block-11 {
+width:91.416666666667%;
+}
+
+.clearfix:after {
+display:block;
+clear:both;
+content:'';
+}
+
+hr {
+height:1px;
+border:none;
+background:#FFFFFF;
+margin:40px 0;
+}
+
+.header {
+margin-bottom:30px;
+box-shadow:inset 0 -5px 10px -5px rgba(0,0,0,0.2);
+background:#282828;
+padding:30px 0 15px;
+}
+
+.site-logo,.site-logo:after {
+width:319px;
+height:39px;
+display:inline-block;
+position:relative;
+overflow:hidden;
+text-indent:-99999px;
+transition:opacity linear .15s;
+background:url(http://inspirationalpixels.com/wp-content/themes/inspirational-pixels-v4/assets/img/general/logo-sprite.png) no-repeat;
+}
+
+.site-logo:after {
+position:absolute;
+top:0;
+left:0;
+opacity:0;
+content:'';
+background-position:0 -46px;
+}
+
+.site-logo:hover:after {
+opacity:1;
+}
+
+.nav {
+padding-top:20px;
+display:inline-block;
+position:relative;
+}
+
+.nav li {
+float:left;
+display:inline-block;
+list-style:none;
+margin:0 35px;
+padding:0;
+}
+
+.nav .home {
+position:relative;
+top:-2px;
+}
+
+.nav a {
+font-size:.938em;
+font-weight:600;
+text-shadow:-1px 1px 1px black(0.4);
+text-decoration:none;
+color:#FFFFFF;
+transition:color linear .15s;
+}
+
+.nav a:hover {
+text-decoration:none;
+color:#fff;
+}
+
+.fa-icon {
+font-size:1.2em;
+}
+
+.home .fa-icon {
+font-size:1.5em;
+}
+
+.row,.block-12 {
+width:100%;
+}

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket/SockJS Echo Sample (Adapted from Tomcat's echo sample)</title>
+    <script src="/resources/sockjs-0.3.min.js"></script>
+
+    <script type="text/javascript">
+        var ws = null;
+        var url = null;
+        var transports = [];
+
+        function setConnected(connected) {
+           console.log('connected!');
+        }
+
+        function connect() {
+            if (!url) {
+                alert('Select whether to use W3C WebSocket or SockJS');
+                return;
+            }
+
+            ws = (url.indexOf('sockjs') != -1) ? 
+                new SockJS(url, undefined, {protocols_whitelist: transports}) : new WebSocket(url);
+
+            ws.onopen = function () {
+                setConnected(true);
+                console.log('Info: connection opened.');
+            };
+            ws.onmessage = function (event) {
+                console.log('Received: ' + event.data);
+            };
+            ws.onclose = function (event) {
+                setConnected(false);
+                console.log('Info: connection closed.');
+                console.log(event);
+            };
+        }
+
+        function disconnect() {
+            if (ws != null) {
+                ws.close();
+                ws = null;
+            }
+            setConnected(false);
+        }
+
+        function echo() {
+            if (ws != null) {
+                ws.send('pong message');
+            } else {
+                alert('connection not established, please connect.');
+            }
+        }
+
+        function updateUrl(urlPath) {
+            if (urlPath.indexOf('sockjs') != -1) {
+                url = urlPath;
+            }
+        }
+
+        function updateTransport(transport) {
+          transports = (transport == 'all') ?  [] : [transport];
+        }
+
+        function establishConnection(){
+           updateUrl('/sockjs/files');
+           updateTransport('websocket');
+           connect();
+           echo();
+        }
+
+
+      window.onload = function() {
+        establishConnection();
+      };
+
+
+
+
+
+
+    </script>
+</head>
+<body>
+<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websockets
+    rely on Javascript being enabled. Please enable
+    Javascript and reload this page!</h2></noscript>
+</body>
+</html>

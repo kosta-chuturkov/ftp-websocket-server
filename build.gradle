@@ -96,7 +96,9 @@ dependencies {
     // TESTS
     compile group: 'org.springframework', name: 'spring-test', version: '4.3.3.RELEASE'
     testCompile('org.springframework.batch:spring-batch-test')
+    testCompile group: 'org.springframework.security', name: 'spring-security-test'
     testCompile('org.springframework.boot:spring-boot-starter-test:1.4.1.RELEASE')
+    testCompile group: 'com.jayway.restassured', name: 'rest-assured', version: '2.9.0'
 
     // CONFIGURATION
     compile('org.springframework.boot:spring-boot-configuration-processor')

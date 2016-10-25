@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
 
-@RestController
+@RestController("fileManagementController")
 public class FileManagementController {
 
     @Resource
