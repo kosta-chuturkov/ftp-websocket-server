@@ -278,7 +278,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         if (profilePicture.exists() || profilePicture.isReadable()) {
             relativePicturePath = APIAliases.PROFILE_PIC_ALIAS + userName + ".jpg";
         } else {
-            relativePicturePath = "/resources/images/default.jpg";
+            relativePicturePath = "/images/default.jpg";
         }
         return serverContext.concat(relativePicturePath);
     }

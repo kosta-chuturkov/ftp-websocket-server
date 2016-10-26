@@ -2,6 +2,8 @@ package ftp.core.config;
 
 import com.google.common.collect.Maps;
 import ftp.core.constants.ServerConstants;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -25,6 +27,9 @@ import java.util.TimeZone;
 public class ApplicationConfig extends WebMvcConfigurerAdapter {
 
     private Map<String, String> contentTypes = Maps.newHashMap();
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @PostConstruct
     private void init() {
@@ -51,7 +56,7 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter {
 
     private void fillContentTypeTable() {
         try {
-            final InputStream is = this.getClass().getResourceAsStream(ServerConstants.CONTENT_TYPES_FILE);
+            final InputStream is = this.applicationContext.getResource(ServerConstants.CONTENT_TYPES_FILE).getInputStream(); //this.getClass().getResourceAsStream(ServerConstants.CONTENT_TYPES_FILE);
             final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             String line;
             while ((line = reader.readLine()) != null) {

@@ -98,7 +98,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
-        http.requiresChannel().anyRequest().requiresSecure().and()
+        http
                 .csrf()
                 .and()
                 .addFilterAfter(new CsrfCookieGeneratorFilter(), CsrfFilter.class)

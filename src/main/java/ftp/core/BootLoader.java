@@ -1,5 +1,6 @@
 package ftp.core;
 
+import ftp.core.config.DefaultProfileUtil;
 import ftp.core.config.FtpConfigurationProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +27,12 @@ public class BootLoader {
      */
     public static void main(String[] args) throws UnknownHostException {
         SpringApplication app = new SpringApplication(BootLoader.class);
+        DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
         log.info("\n----------------------------------------------------------\n\t" +
                         "Application '{}' is running! Access URLs:\n\t" +
-                        "Local: \t\thttps://127.0.0.1:{}\n\t" +
-                        "External: \thttps://{}:{}\n----------------------------------------------------------",
+                        "Local: \t\thttp://127.0.0.1:{}\n\t" +
+                        "External: \thttp://{}:{}\n----------------------------------------------------------",
                 env.getProperty("spring.application.name"),
                 env.getProperty("server.port"),
                 InetAddress.getLocalHost().getHostAddress(),
