@@ -16,7 +16,7 @@ import java.net.UnknownHostException;
 @ComponentScan
 @EnableAutoConfiguration
 @EnableConfigurationProperties({FtpConfigurationProperties.class})
-public class BootLoader {
+public final class BootLoader {
 
     private static final Logger log = LoggerFactory.getLogger(BootLoader.class);
 
@@ -29,13 +29,14 @@ public class BootLoader {
         SpringApplication app = new SpringApplication(BootLoader.class);
         DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
+        String hostAddress = InetAddress.getLocalHost().getHostAddress();
         log.info("\n----------------------------------------------------------\n\t" +
                         "Application '{}' is running! Access URLs:\n\t" +
                         "Local: \t\thttp://127.0.0.1:{}\n\t" +
                         "External: \thttp://{}:{}\n----------------------------------------------------------",
                 env.getProperty("spring.application.name"),
                 env.getProperty("server.port"),
-                InetAddress.getLocalHost().getHostAddress(),
+                hostAddress,
                 env.getProperty("server.port"));
 
     }

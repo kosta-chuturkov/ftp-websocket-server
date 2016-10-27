@@ -1,23 +1,29 @@
 package ftp.core;
 
+import com.google.common.collect.Sets;
+import ftp.core.model.entities.Authority;
 import ftp.core.model.entities.User;
 import ftp.core.profiles.Profiles;
+import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.UserService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.Assert;
-import org.springframework.web.context.WebApplicationContext;
 
 import javax.sql.DataSource;
 import java.sql.Statement;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles(value = {Profiles.TEST})
@@ -25,25 +31,32 @@ import java.sql.Statement;
 public abstract class AbstractTest {
 
     @Autowired
-    private WebApplicationContext context;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
     private DataSource dataSource;
 
-    protected User user;
-
-    protected MockMvc mockMvc;
-
     @Before
-    public void setUp() throws Exception {
-        this.user = this.userService.registerUser("admin@gmail.com", "admin1234", "admin", "admin1234");
-        this.mockMvc = MockMvcBuilders
-                .webAppContextSetup(this.context)
-                .apply(SecurityMockMvcConfigurers.springSecurity())
-                .build();
+    public void setUp(){
+        makeRequestsAs();
+    }
+
+    /**
+     * Setup default user that will be calling the controllers/services. - Either Admin by calling {@link AbstractTest#makeRequestsAdminUser}
+     * or as anonymous user by calling {@link AbstractTest#makeRequestsAsAnonymousUser} on the {@link AbstractTest}
+     */
+    protected abstract void makeRequestsAs();
+
+    protected void makeRequestsAdminUser() {
+        User user = this.userService.registerUser("admin@gmail.com", "admin1234", "admin", "admin1234");
+        assertThat(user, is(notNullValue()));
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities()));
+    }
+
+    protected void makeRequestsAsAnonymousUser() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken("anonymous", "anonymous", Sets.newHashSet(new Authority(Authorities.ANONYMOUS))));
     }
 
     @After

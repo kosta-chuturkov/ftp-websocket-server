@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.MessageDigest;
 
 public final class ServerUtil {
@@ -64,6 +66,11 @@ public final class ServerUtil {
 
 
     public static String getServerContextAddress(HttpServletRequest request) {
+        try {
+            String hostAddress = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+
+        }
         final int port = request.getServerPort();
         final String host = request.getServerName();
         return getProtocol(request) + host + ":" + port;

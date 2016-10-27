@@ -72,26 +72,30 @@ public class FileManagementServiceImpl implements FileManagementService {
 
     @Override
     public String updateProfilePicture(final HttpServletRequest request,
-                                       final MultipartFile file) throws IOException {
+                                       final MultipartFile file) {
 
-        final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
-        final String extension = FilenameUtils.getExtension(fileName);
-        checkFileExtention(extension);
-        String nickName = User.getCurrent().getNickName();
-        final String serverFileName = nickName + "." + extension;
-        this.storageService.storeProfilePicture(file.getInputStream(), serverFileName);
-        org.springframework.core.io.Resource profilePicture = this.storageService.loadProfilePicture(nickName);
-        createImageThumbnail(profilePicture.getFile(), 50, 50);
-        profilePicture.getInputStream().close();
-        final JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("imageUrl", getProfilePicUrl(nickName, ServerUtil.getServerContextAddress(request)));
-        return jsonObject.toString();
+        try {
+            final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
+            final String extension = FilenameUtils.getExtension(fileName);
+            checkFileExtention(extension);
+            String nickName = User.getCurrent().getNickName();
+            final String serverFileName = nickName + "." + extension;
+            this.storageService.storeProfilePicture(getInputStream(file), serverFileName);
+            org.springframework.core.io.Resource profilePicture = this.storageService.loadProfilePicture(nickName);
+            createImageThumbnail(profilePicture.getFile(), 50, 50);
+            profilePicture.getInputStream().close();
+            final JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("imageUrl", getProfilePicUrl(nickName, ServerUtil.getServerContextAddress(request)));
+            return jsonObject.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public String uploadFile(final HttpServletRequest request,
                              final MultipartFile file,
-                             final String userNickNames) throws IOException {
+                             final String userNickNames) {
 
         final int port = request.getServerPort();
         final String host = request.getServerName();
@@ -109,9 +113,17 @@ public class FileManagementServiceImpl implements FileManagementService {
         final Set<String> users = getFileSharedUsersAsSet(userNickNames);
         this.fileService.createFileRecord(fileName, currentTime, users, file.getSize(),
                 deleteHash, downloadHash);
-        this.storageService.store(file.getInputStream(), serverFileName, User.getCurrent().getEmail());
+        this.storageService.store(getInputStream(file), serverFileName, User.getCurrent().getEmail());
         return buildResponseObject(file, serverContextAddress, fileName, deleteHash, downloadHash).toString();
 
+    }
+
+    private InputStream getInputStream(MultipartFile file) {
+        try {
+            return file.getInputStream();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -278,7 +290,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         if (profilePicture.exists() || profilePicture.isReadable()) {
             relativePicturePath = APIAliases.PROFILE_PIC_ALIAS + userName + ".jpg";
         } else {
-            relativePicturePath = "/images/default.jpg";
+            relativePicturePath = "/static/images/default.jpg";
         }
         return serverContext.concat(relativePicturePath);
     }

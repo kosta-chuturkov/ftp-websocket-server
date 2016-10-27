@@ -5,16 +5,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 
 public interface FileManagementService {
 
-    String updateProfilePicture(HttpServletRequest request, MultipartFile file) throws IOException;
+    String updateProfilePicture(HttpServletRequest request, MultipartFile file);
 
     String uploadFile(HttpServletRequest request,
                       MultipartFile file,
-                      String userNickNames) throws IOException;
+                      String userNickNames);
 
     void deleteFiles(HttpServletResponse response, String deleteHash);
 
