@@ -23,7 +23,7 @@ public class FileManagementControllerPermissionsTest extends AbstractTest {
     @Test
     public void profilePicUpdateprofilePicUpdateNoPerm() throws IOException {
         //when
-        Throwable throwable = invokeProtectedMethodAsAnonymousUser((t) -> this.fileManagementController.updateProfilePicture(null, null));
+        Throwable throwable = invokeProtectedMethodAsAnonymousUser((t) -> this.fileManagementController.updateProfilePicture(null));
 
         //then
         assertThat(throwable.getMessage(), is("Access is denied"));
@@ -32,7 +32,7 @@ public class FileManagementControllerPermissionsTest extends AbstractTest {
     @Test
     public void uploadFileNoPerm() throws IOException {
         //when
-        Throwable throwable = invokeProtectedMethodAsAnonymousUser((t) -> this.fileManagementController.uploadFile(null, null, null));
+        Throwable throwable = invokeProtectedMethodAsAnonymousUser((t) -> this.fileManagementController.uploadFile(null, null));
 
         //then
         assertThat(throwable.getMessage(), is("Access is denied"));
@@ -41,7 +41,7 @@ public class FileManagementControllerPermissionsTest extends AbstractTest {
     @Test
     public void deleteFilesNoPerm() throws IOException {
         //when
-        Throwable throwable = invokeProtectedMethodAsAnonymousUser((t) -> this.fileManagementController.deleteFiles(null, null));
+        Throwable throwable = invokeProtectedMethodAsAnonymousUser((t) -> this.fileManagementController.deleteFiles(null));
 
         //then
         assertThat(throwable.getMessage(), is("Access is denied"));
@@ -50,20 +50,12 @@ public class FileManagementControllerPermissionsTest extends AbstractTest {
     @Test
     public void downloadFileNoPerm() throws IOException {
         //when
-        Throwable throwable = invokeProtectedMethodAsAnonymousUser((t) -> this.fileManagementController.downloadFile(null, null));
+        Throwable throwable = invokeProtectedMethodAsAnonymousUser((t) -> this.fileManagementController.downloadFile(null));
 
         //then
         assertThat(throwable.getMessage(), is("Access is denied"));
     }
 
-    @Test
-    public void getProfilePicNoPerm() throws IOException {
-        //when
-        Throwable throwable = invokeProtectedMethodAsAnonymousUser((t) -> this.fileManagementController.getProfilePic(null, null));
-
-        //then
-        assertThat(throwable.getMessage(), is("Access is denied"));
-    }
 
     @Test
     public void getSharedFilesNoPerm() throws IOException {

@@ -1,6 +1,8 @@
 package ftp.core.config;
 
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ftp.core.constants.ServerConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -46,7 +48,11 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter {
     public String setServerAddress(Environment env) {
         String hostAddress = extractHostAddress();
         String serverPort = env.getProperty("server.port", "80");
-        return this.serverAddress = new StringBuilder(determineHttpOrHttps(env)).append(hostAddress).append(":").append(serverPort).toString();
+        return this.serverAddress = new StringBuilder(determineHttpOrHttps(env))
+                .append(hostAddress)
+                .append(":")
+                .append(serverPort)
+                .toString();
     }
 
     private String extractHostAddress() {
@@ -103,16 +109,8 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter {
         return this.contentTypes;
     }
 
-
-    private String getHostAddress() {
-        String hostAddress;
-        try {
-            hostAddress = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
-        return hostAddress;
+    @Bean
+    public Gson gson() {
+        return new GsonBuilder().serializeNulls().create();
     }
-
-
 }

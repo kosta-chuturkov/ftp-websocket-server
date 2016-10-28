@@ -11,7 +11,6 @@ import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.AuthorityService;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
-import ftp.core.util.ServerUtil;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -137,7 +136,7 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
 
     @Override
     public void validateUserCredentials(final String email, final String password, final String nickName, final String password_repeated) throws UsernameNotFoundException {
-        if (!ServerUtil.isEmailValid(email)) {
+        if (!isEmailValid(email)) {
             throw new UsernameNotFoundException("Wrong email format");
         }
         final User userByEmail = getUserByEmail(email);
@@ -145,7 +144,7 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
             throw new UsernameNotFoundException("User with this email already exists.");
         }
 
-        if (!ServerUtil.isNickNameValid(nickName)) {
+        if (!isNickNameValid(nickName)) {
             throw new UsernameNotFoundException("Wrong nickname format.");
         }
         final User userByNickName = getUserByNickName(nickName);
@@ -153,11 +152,38 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
             throw new UsernameNotFoundException("User with this nickname already exists.");
         }
 
-        if (!ServerUtil.isPasswordValid(password)) {
+        if (!isPasswordValid(password)) {
             throw new UsernameNotFoundException("Wrong password format.");
         }
         if (!password.equals(password_repeated)) {
             throw new UsernameNotFoundException("Passwords do not match.");
         }
+    }
+
+    public boolean isPasswordValid(final String password) {
+        if (password == null) {
+            return false;
+        }
+        if (password.length() < ServerConstants.MINIMUM_PASSWORD_LENGTH) {
+            return false;
+        }
+        if (password.length() > ServerConstants.MAXIMUM_PASSWORD_lENGTH) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isEmailValid(final String email) {
+        if (email == null || email.length() < 3 || email.length() > 30) {
+            return false;
+        }
+        return org.apache.commons.validator.routines.EmailValidator.getInstance().isValid(email);
+    }
+
+    public boolean isNickNameValid(final String username) {
+        if (username != null && username.length() > 3 && username.length() < 30) {
+            return username.matches(ServerConstants.USER_REGEX);
+        }
+        return false;
     }
 }

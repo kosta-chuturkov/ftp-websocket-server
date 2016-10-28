@@ -4,7 +4,6 @@ import ftp.core.constants.ServerConstants;
 import ftp.core.listener.SessionToConsumerMapper;
 import ftp.core.model.entities.User;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.util.ServerUtil;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -35,8 +34,8 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
                                    final ServerHttpResponse response, final WebSocketHandler wsHandler,
                                    final Map<String, Object> attributes) throws Exception {
         final HttpServletRequest servletRequest = ((ServletServerHttpRequest) request).getServletRequest();
-        final String email = ServerUtil.getSessionParam(servletRequest, ServerConstants.EMAIL_PARAMETER);
-        final String password = ServerUtil.getSessionParam(servletRequest, ServerConstants.PASSWORD);
+        final String email = getSessionParam(servletRequest, ServerConstants.EMAIL_PARAMETER);
+        final String password = getSessionParam(servletRequest, ServerConstants.PASSWORD);
         final User current = this.userService.findByEmailAndPassword(email, password);
         if (current == null) {
             throw new RuntimeException("Invalid username or password.");
@@ -58,5 +57,10 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
                                final ServerHttpResponse response, final WebSocketHandler wsHandler,
                                final Exception ex) {
         super.afterHandshake(request, response, wsHandler, ex);
+    }
+
+    public String getSessionParam(final HttpServletRequest request, final String paramName) {
+        final HttpSession session = request.getSession(false);
+        return session == null ? null : (String) session.getAttribute(paramName);
     }
 }

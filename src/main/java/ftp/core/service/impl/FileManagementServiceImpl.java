@@ -26,30 +26,33 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
-
-import static ftp.core.util.ServerUtil.getProtocol;
 
 @Service("fileManagementService")
 public class FileManagementServiceImpl implements FileManagementService {
+
     private static final Logger logger = Logger.getLogger(FileManagementServiceImpl.class);
 
-    final Set<String> ALLOWED_EXTENTIONS = Sets.newHashSet("jpg", "JPG");
+    @Resource
+    private Gson gson;
+    @Resource
+    private Executor executor;
+    @Resource
+    private JsonParser jsonParser;
     @Resource
     private UserService userService;
     @Resource
@@ -57,11 +60,11 @@ public class FileManagementServiceImpl implements FileManagementService {
     @Resource
     private EventService eventService;
     @Resource
-    private Gson gson;
-    @Resource
-    private JsonParser jsonParser;
-    @Resource
     private StorageService storageService;
+    @Autowired
+    private ApplicationConfig applicationConfig;
+
+
     private FtpConfigurationProperties ftpConfigurationProperties;
 
     @Autowired
@@ -71,8 +74,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public String updateProfilePicture(final HttpServletRequest request,
-                                       final MultipartFile file) {
+    public String updateProfilePicture(final MultipartFile file) {
 
         try {
             final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
@@ -85,7 +87,7 @@ public class FileManagementServiceImpl implements FileManagementService {
             createImageThumbnail(profilePicture.getFile(), 50, 50);
             profilePicture.getInputStream().close();
             final JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("imageUrl", getProfilePicUrl(nickName, ServerUtil.getServerContextAddress(request)));
+            jsonObject.addProperty("imageUrl", getProfilePicUrl(nickName, this.applicationConfig.getServerAddress()));
             return jsonObject.toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -93,15 +95,9 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public String uploadFile(final HttpServletRequest request,
-                             final MultipartFile file,
+    public String uploadFile(final MultipartFile file,
                              final String userNickNames) {
-
-        final int port = request.getServerPort();
-        final String host = request.getServerName();
-        final String contextPath = request.getContextPath();
-        final String serverContextAddress = getProtocol(request) + host + ":" + port + contextPath
-                + APIAliases.DOWNLOAD_FILE_ALIAS;
+        final String fileUploadServerUrl = this.applicationConfig.getServerAddress() + APIAliases.DOWNLOAD_FILE_ALIAS;
         final Long token = User.getCurrent().getToken();
         final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
         final long currentTime = System.currentTimeMillis();
@@ -114,7 +110,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         this.fileService.createFileRecord(fileName, currentTime, users, file.getSize(),
                 deleteHash, downloadHash);
         this.storageService.store(getInputStream(file), serverFileName, User.getCurrent().getEmail());
-        return buildResponseObject(file, serverContextAddress, fileName, deleteHash, downloadHash).toString();
+        return buildResponseObject(file, fileUploadServerUrl, fileName, deleteHash, downloadHash).toString();
 
     }
 
@@ -134,6 +130,8 @@ public class FileManagementServiceImpl implements FileManagementService {
                 .toFiles(Rename.NO_CHANGE);
     }
 
+    final Set<String> ALLOWED_EXTENTIONS = Sets.newHashSet("jpg", "JPG");
+
     private void checkFileExtention(String extension) {
         if (!this.ALLOWED_EXTENTIONS.contains(extension)) {
             throw new FtpServerException("Image expected...");
@@ -149,7 +147,16 @@ public class FileManagementServiceImpl implements FileManagementService {
                 .withDeleteType("GET")
                 .build();
 
-        return ServerUtil.geAstJsonObject(new ResponseModelAdapter.Builder().withBaseFileDto(dtoWrapper).build());
+        return geAstJsonObject(new ResponseModelAdapter.Builder().withBaseFileDto(dtoWrapper).build());
+    }
+
+    public JSONObject geAstJsonObject(final ResponseModelAdapter dtoWrapper) {
+        final JSONObject parent = new JSONObject();
+        final JSONArray json = new JSONArray();
+        final JSONObject jsonObject = new JSONObject(this.gson.toJson(dtoWrapper));
+        json.put(jsonObject.get("baseFileDto"));
+        parent.put("files", json);
+        return parent;
     }
 
     private Set<String> getFileSharedUsersAsSet(final String userNickNames) {
@@ -170,7 +177,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public void deleteFiles(final HttpServletResponse response, final String deleteHash) {
+    public String deleteFiles(final String deleteHash) {
         final User current = User.getCurrent();
         final String nickName = current.getNickName();
         final File findByDeleteHash = getFile(deleteHash, nickName);
@@ -189,9 +196,25 @@ public class FileManagementServiceImpl implements FileManagementService {
         final User updatedUser = this.userService.findOne(current.getId());
         final String storageInfo = FileUtils.byteCountToDisplaySize(updatedUser.getRemainingStorage()) + " left from "
                 + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT) + ".";
-        ServerUtil.sendOkResponce(response, name, storageInfo);
-        this.storageService.deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
-        this.eventService.fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
+        try {
+            return buildResponse(name, storageInfo).toString();
+        } finally {
+            this.executor.execute(() -> {
+                this.storageService.deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
+                this.eventService.fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
+            });
+        }
+    }
+
+    private JSONObject buildResponse(String fileName, String storedBytes) {
+        final JSONObject parent = new JSONObject();
+        final JSONArray json = new JSONArray();
+        final JSONObject jsono = new JSONObject();
+        jsono.put(fileName, "true");
+        json.put(jsono);
+        parent.put("files", json);
+        parent.put("storedBytes", storedBytes);
+        return parent;
     }
 
     private File getFile(String deleteHash, String nickName) {
@@ -203,13 +226,17 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public void sendProfilePicture(final HttpServletResponse response, String userName) {
+    public FileSystemResource sendProfilePicture(String userName) {
         org.springframework.core.io.Resource resource = this.storageService.loadProfilePicture(userName);
-        sendResourceByName(response, resource);
+        try {
+            return new FileSystemResource(resource.getFile());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void downloadFile(String downloadHash, final HttpServletResponse response) {
+    public FileSystemResource downloadFile(String downloadHash) {
         final User current = User.getCurrent();
         final File fileByDownloadHash = getFile(downloadHash);
         final Date timestamp = fileByDownloadHash.getTimestamp();
@@ -218,8 +245,8 @@ public class FileManagementServiceImpl implements FileManagementService {
         String fileLocationFolder = getFolderNameByFileType(current, fileByDownloadHash, fileType);
         try {
             org.springframework.core.io.Resource resource = this.storageService.loadAsResource(getFilenameWithTimestamp(timestamp, fileName), fileLocationFolder);
-            sendResourceByName(response, resource);
-        } catch (FileNotFoundException e) {
+            return new FileSystemResource(resource.getFile());
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -256,30 +283,6 @@ public class FileManagementServiceImpl implements FileManagementService {
                     break;
             }
             return locationFolderName;
-        }
-    }
-
-    @Autowired
-    private ApplicationConfig applicationConfig;
-
-    @Override
-    public void sendResourceByName(final HttpServletResponse response, org.springframework.core.io.Resource resource) {
-        try {
-            OutputStream responseOutputStream = response.getOutputStream();
-            InputStream resourceInputStream = resource.getInputStream();
-            String fileName = resource.getFilename();
-            final String contentType = this.applicationConfig.getContentTypes().get(fileName.substring(fileName.lastIndexOf(".") + 1));
-            setResponseHeaders(response, fileName, contentType);
-            final byte[] buffer = createBuffer();
-            int bytesRead;
-            while ((bytesRead = resourceInputStream.read(buffer, 0, buffer.length)) > 0) {
-                responseOutputStream.write(buffer, 0, bytesRead);
-            }
-            flushAndClose(responseOutputStream);
-            resourceInputStream.close();
-        } catch (final IOException e) {
-            logger.error("errror occured", e);
-            throw new FtpServerException("Resource sending failed.");
         }
     }
 
@@ -320,23 +323,5 @@ public class FileManagementServiceImpl implements FileManagementService {
                 .stream()
                 .map(file -> DtoUtil.toSharedFileWithMeDto(file))
                 .collect(Collectors.toList());
-    }
-
-    private byte[] createBuffer() {
-        return new byte[ServerConstants.DEFAULT_BUFFER_SIZE];
-    }
-
-    private void flushAndClose(OutputStream responseOutputStream) throws IOException {
-        responseOutputStream.flush();
-        responseOutputStream.close();
-    }
-
-    private void setResponseHeaders(HttpServletResponse response, String fileName, String contentType) {
-        response.setHeader("Content-Type", contentType == null ? "application/octet-stream" : contentType);
-        response.setHeader("Connection", "close");
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-        response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-        response.setHeader("Expires", "0"); // Proxies.
-        response.setHeader("Content-Disposition", "inline; filename=" + fileName);
     }
 }

@@ -2,6 +2,7 @@ package ftp.core.service.impl;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import ftp.core.config.ApplicationConfig;
 import ftp.core.constants.APIAliases;
 import ftp.core.model.dto.ModifiedUserDto;
 import ftp.core.repository.projections.NickNameProjection;
@@ -10,15 +11,13 @@ import ftp.core.service.face.FileManagementService;
 import ftp.core.service.face.UserManagementService;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.util.ServerUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -34,11 +33,12 @@ public class UserManagementServiceImpl implements UserManagementService {
     private EventService eventService;
     @Resource
     private FileManagementService fileManagementService;
+    @Autowired
+    private ApplicationConfig applicationConfig;
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS}, method = RequestMethod.POST)
-    public String getUserDetails(final HttpServletRequest request, final HttpServletResponse response,
-                                 final String userNickName) throws IOException {
+    public String getUserDetails(final String userNickName) throws IOException {
         final JsonObject jsonResponse = new JsonObject();
         final JsonArray jsonArrayWrapper = new JsonArray();
         List<NickNameProjection> userByNickLike = this.userService.getUserByNickLike(userNickName);
@@ -49,7 +49,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                     userObject.addProperty("full_name", userName.getNickName());
                     final JsonObject owner = new JsonObject();
                     owner.addProperty("id", Math.random());
-                    String profilePicUrl = this.fileManagementService.getProfilePicUrl(userName.getNickName(), ServerUtil.getServerContextAddress(request));
+                    String profilePicUrl = this.fileManagementService.getProfilePicUrl(userName.getNickName(), this.applicationConfig.getServerAddress());
                     owner.addProperty("avatar_url", profilePicUrl);
                     userObject.add("owner", owner);
                     jsonArrayWrapper.add(userObject);

@@ -1,9 +1,9 @@
 package ftp.core.security;
 
+import ftp.core.config.ApplicationConfig;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.entities.User;
 import ftp.core.service.face.FileManagementService;
-import ftp.core.util.ServerUtil;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -26,6 +26,9 @@ public class AjaxAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
     @Autowired
     private FileManagementService fileManagementService;
 
+    @Autowired
+    private ApplicationConfig applicationConfig;
+
     @Override
     public void onAuthenticationSuccess(final HttpServletRequest request, final HttpServletResponse response,
                                         final Authentication authentication)
@@ -45,7 +48,7 @@ public class AjaxAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
         session.setAttribute(ServerConstants.PASSWORD, password);
         session.setAttribute(ServerConstants.HOST, request.getServerName());
         session.setAttribute(ServerConstants.PORT, request.getServerPort());
-        String profilePicUrl = this.fileManagementService.getProfilePicUrl(nickName, ServerUtil.getServerContextAddress(request));
+        String profilePicUrl = this.fileManagementService.getProfilePicUrl(nickName, this.applicationConfig.getServerAddress());
         session.setAttribute(ServerConstants.PROFILE_PICTURE_PARAM, profilePicUrl);
         session.setAttribute(ServerConstants.STORAGE_PARAMETER, FileUtils.byteCountToDisplaySize(storage));
         session.setAttribute(ServerConstants.MAX_STORAGE_PARAMETER,

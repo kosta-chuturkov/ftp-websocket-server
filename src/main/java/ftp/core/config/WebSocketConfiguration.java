@@ -1,7 +1,5 @@
 package ftp.core.config;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import ftp.core.listener.SessionToConsumerMapper;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.websocket.dispatcher.JsonRequestDispatcher;
@@ -54,10 +52,5 @@ public class WebSocketConfiguration extends WebMvcConfigurerAdapter implements W
     @Override
     public void configureDefaultServletHandling(final DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
-    }
-
-    @Bean
-    public Gson gson() {
-        return new GsonBuilder().serializeNulls().create();
     }
 }
