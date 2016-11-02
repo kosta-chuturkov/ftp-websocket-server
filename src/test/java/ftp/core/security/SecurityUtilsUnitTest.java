@@ -1,4 +1,4 @@
-package ftp.core;
+package ftp.core.security;
 
 import ftp.core.model.entities.User;
 import ftp.core.security.Authorities;

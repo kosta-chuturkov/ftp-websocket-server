@@ -23,6 +23,4 @@ public interface FileRepository extends JpaRepository<File, Long> {
 
     List<File> findByCreatorNickNameAndFileType(String creatorNickName, File.FileType fileType, Pageable pageable);
 
-    List<File> findByCreatorId(Long creatorId, Pageable pageable);
-
 }

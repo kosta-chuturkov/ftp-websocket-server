@@ -1,6 +1,6 @@
 package ftp.core.controller;
 
-import ftp.core.AbstractTest;
+import ftp.core.base.AbstractTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.security.access.AccessDeniedException;

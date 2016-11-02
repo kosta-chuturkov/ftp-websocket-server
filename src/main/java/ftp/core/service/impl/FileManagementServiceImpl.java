@@ -95,11 +95,12 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public String uploadFile(final MultipartFile file,
+    public String uploadFile(final MultipartFile multipartFile,
                              final String userNickNames) {
         final String fileUploadServerUrl = this.applicationConfig.getServerAddress() + APIAliases.DOWNLOAD_FILE_ALIAS;
-        final Long token = User.getCurrent().getToken();
-        final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
+        User currentUser = User.getCurrent();
+        final Long token = currentUser.getToken();
+        final String fileName = StringEscapeUtils.escapeSql(multipartFile.getOriginalFilename());
         final long currentTime = System.currentTimeMillis();
         final String tempFileName = new Long(currentTime).toString();
         final String serverFileName = tempFileName + "_" + fileName;
@@ -107,10 +108,19 @@ public class FileManagementServiceImpl implements FileManagementService {
         final String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
 
         final Set<String> users = getFileSharedUsersAsSet(userNickNames);
-        this.fileService.createFileRecord(fileName, currentTime, users, file.getSize(),
-                deleteHash, downloadHash);
-        this.storageService.store(getInputStream(file), serverFileName, User.getCurrent().getEmail());
-        return buildResponseObject(file, fileUploadServerUrl, fileName, deleteHash, downloadHash).toString();
+        final File fileToBeSaved = new File.Builder()
+                .withName(fileName)
+                .withTimestamp(new Date(currentTime))
+                .withDownloadHash(downloadHash)
+                .withDeleteHash(deleteHash)
+                .withFileSize(multipartFile.getSize())
+                .withCreator(currentUser)
+                .withSharedWithUsers(users)
+                .withFileType(users.isEmpty() ? File.FileType.PRIVATE : File.FileType.SHARED)
+                .build();
+        this.fileService.saveFile(fileToBeSaved);
+        this.storageService.store(getInputStream(multipartFile), serverFileName, currentUser.getEmail());
+        return buildResponseObject(multipartFile, fileUploadServerUrl, fileName, deleteHash, downloadHash).toString();
 
     }
 

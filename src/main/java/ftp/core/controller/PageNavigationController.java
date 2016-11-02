@@ -37,7 +37,7 @@ public class PageNavigationController {
             throw new IllegalArgumentException("Cannot register. You already have a session started.");
         }
         this.userService.validateUserCredentials(email, password, nickName, password_repeated);
-        this.userService.registerUser(email, password, nickName, password_repeated);
+        this.userService.registerUser(email, nickName, password, password_repeated);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

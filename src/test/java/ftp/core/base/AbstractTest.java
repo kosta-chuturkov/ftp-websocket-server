@@ -1,6 +1,7 @@
-package ftp.core;
+package ftp.core.base;
 
 import com.google.common.collect.Sets;
+import ftp.core.BootLoader;
 import ftp.core.model.entities.Authority;
 import ftp.core.model.entities.User;
 import ftp.core.profiles.Profiles;
@@ -48,7 +49,7 @@ public abstract class AbstractTest {
     protected abstract void makeRequestsAs();
 
     protected void makeRequestsAdminUser() {
-        User user = this.userService.registerUser("admin@gmail.com", "admin1234", "admin", "admin1234");
+        User user = this.userService.registerUser("admin@gmail.com", "admin", "admin1234", "admin1234");
         assertThat(user, is(notNullValue()));
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities()));

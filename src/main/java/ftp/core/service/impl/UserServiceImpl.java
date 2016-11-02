@@ -7,6 +7,7 @@ import ftp.core.model.entities.User;
 import ftp.core.repository.FileRepository;
 import ftp.core.repository.UserRepository;
 import ftp.core.repository.projections.NickNameProjection;
+import ftp.core.repository.projections.UploadedFilesProjection;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.AuthorityService;
 import ftp.core.service.face.tx.UserService;
@@ -55,6 +56,11 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
     @Override
     public Set<NickNameProjection> findByNickNameIn(Collection<String> nickNames) {
         return this.userRepository.findByNickNameIn(nickNames);
+    }
+
+    @Override
+    public UploadedFilesProjection findUploadedFilesByUserId(Long userId) {
+        return this.userRepository.findUploadedFilesById(userId);
     }
 
     public String encodePassword(final String rawPassword) {
@@ -108,7 +114,7 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
     }
 
     @Override
-    public User registerUser(final String email, final String password, final String nickName, final String password_repeated) throws IllegalArgumentException {
+    public User registerUser(final String email, final String nickName, final String password, final String password_repeated) throws IllegalArgumentException {
         validateUserCredentials(email, password, nickName, password_repeated);
         final Long randomTokenFromDB = getRandomTokenFromDB();
         final String saltedPassword = getUserSaltedPassword(password, randomTokenFromDB);

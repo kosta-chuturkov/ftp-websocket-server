@@ -18,12 +18,10 @@ import ftp.core.util.DtoUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -51,27 +49,18 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
         return this.fileRepository.findByDeleteHashAndCreatorNickName(deleteHash, creatorNickName);
     }
 
-    public void createFileRecord(final String fileNameEscaped, final long timestamp, final Set<String> users,
-                                 final long fileSize, final String deleteHash, final String downloadHash) {
+    @Override
+    public void saveFile(File fileToBeSaved) {
         final User currentUser = User.getCurrent();
         final long remainingStorage = currentUser.getRemainingStorage();
+        long fileSize = fileToBeSaved.getFileSize();
         if (remainingStorage < fileSize) {
             throw new FtpServerException(
                     "You are exceeding your upload limit:" + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT)
                             + ". You have: " + FileUtils.byteCountToDisplaySize(remainingStorage) + " remainig storage.");
         }
-        Set<String> validatedUsers = validateUserNickNames(users);
-        final File file = new File.Builder()
-                .withName(fileNameEscaped)
-                .withTimestamp(new Date(timestamp))
-                .withDownloadHash(downloadHash)
-                .withDeleteHash(deleteHash)
-                .withFileSize(fileSize)
-                .withCreator(currentUser)
-                .withSharedWithUsers(validatedUsers)
-                .withFileType(users.isEmpty() ? FileType.PRIVATE : FileType.SHARED)
-                .build();
-        final File savedFile = saveAndFlush(file);
+        Set<String> validatedUsers = validateUserNickNames(fileToBeSaved.getSharedWithUsers());
+        final File savedFile = saveAndFlush(fileToBeSaved);
         if (savedFile != null) {
             this.userService.updateRemainingStorageForUser(fileSize, currentUser.getId(), remainingStorage);
             this.userService.addFileToUser(savedFile.getId(), currentUser.getId());
@@ -137,8 +126,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
         return this.fileRepository.findSharedFilesWithMe(userNickName, FileType.SHARED, new PageRequest(firstResult, maxResults));
     }
 
-    @Override
-    public File updateUsersForFile(final String fileHash, final Set<String> userNickNames) {
+    private File updateUsersForFile(final String fileHash, final Set<String> userNickNames) {
         final File file = findByDeleteHash(fileHash, User.getCurrent().getNickName());
         if (file == null) {
             throw new FtpServerException("File not found...");
@@ -182,10 +170,4 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
             this.eventService.fireSharedFileEvent(userNickName, fileDto);
         }
     }
-
-    @Override
-    public List<File> findByCreatorId(Long creatorId, Pageable pageable) {
-        return this.fileRepository.findByCreatorId(creatorId, pageable);
-    }
-
 }
