@@ -1,16 +1,14 @@
 package ftp.core.service.impl;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.*;
 import ftp.core.config.ApplicationConfig;
 import ftp.core.config.FtpConfigurationProperties;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
-import ftp.core.model.dto.DataTransferObject;
-import ftp.core.model.dto.DeletedFileDto;
-import ftp.core.model.dto.JsonFileDto;
-import ftp.core.model.dto.ResponseModelAdapter;
+import ftp.core.model.dto.*;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
 import ftp.core.service.face.FileManagementService;
@@ -26,8 +24,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.ResourceLoader;
@@ -37,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -95,8 +92,8 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public String uploadFile(final MultipartFile multipartFile,
-                             final String userNickNames) {
+    public UploadedFilesDto<JsonFileDto> uploadFile(final MultipartFile multipartFile,
+                                                    final Set<String> userNickNames) {
         final String fileUploadServerUrl = this.applicationConfig.getServerAddress() + APIAliases.DOWNLOAD_FILE_ALIAS;
         User currentUser = User.getCurrent();
         final Long token = currentUser.getToken();
@@ -107,7 +104,6 @@ public class FileManagementServiceImpl implements FileManagementService {
         final String deleteHash = ServerUtil.hash(ServerUtil.hash(serverFileName + token) + ServerConstants.DELETE_SALT);
         final String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
 
-        final Set<String> users = getFileSharedUsersAsSet(userNickNames);
         final File fileToBeSaved = new File.Builder()
                 .withName(fileName)
                 .withTimestamp(new Date(currentTime))
@@ -115,12 +111,12 @@ public class FileManagementServiceImpl implements FileManagementService {
                 .withDeleteHash(deleteHash)
                 .withFileSize(multipartFile.getSize())
                 .withCreator(currentUser)
-                .withSharedWithUsers(users)
-                .withFileType(users.isEmpty() ? File.FileType.PRIVATE : File.FileType.SHARED)
+                .withSharedWithUsers(userNickNames)
+                .withFileType(userNickNames.isEmpty() ? File.FileType.PRIVATE : File.FileType.SHARED)
                 .build();
         this.fileService.saveFile(fileToBeSaved);
         this.storageService.store(getInputStream(multipartFile), serverFileName, currentUser.getEmail());
-        return buildResponseObject(multipartFile, fileUploadServerUrl, fileName, deleteHash, downloadHash).toString();
+        return buildResponseObject(multipartFile, fileUploadServerUrl, fileName, deleteHash, downloadHash);
 
     }
 
@@ -148,7 +144,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         }
     }
 
-    private JSONObject buildResponseObject(MultipartFile file, String serverContextAddress, String fileName, String deleteHash, String downloadHash) {
+    private UploadedFilesDto<JsonFileDto> buildResponseObject(MultipartFile file, String serverContextAddress, String fileName, String deleteHash, String downloadHash) {
         JsonFileDto dtoWrapper = new JsonFileDto.Builder()
                 .withName(StringEscapeUtils.escapeHtml(fileName))
                 .withSize(Long.toString(file.getSize()))
@@ -156,17 +152,7 @@ public class FileManagementServiceImpl implements FileManagementService {
                 .withDeleteUrl((serverContextAddress + ServerConstants.DELETE_ALIAS + deleteHash))
                 .withDeleteType("GET")
                 .build();
-
-        return geAstJsonObject(new ResponseModelAdapter.Builder().withBaseFileDto(dtoWrapper).build());
-    }
-
-    public JSONObject geAstJsonObject(final ResponseModelAdapter dtoWrapper) {
-        final JSONObject parent = new JSONObject();
-        final JSONArray json = new JSONArray();
-        final JSONObject jsonObject = new JSONObject(this.gson.toJson(dtoWrapper));
-        json.put(jsonObject.get("baseFileDto"));
-        parent.put("files", json);
-        return parent;
+        return new UploadedFilesDto<>(Lists.newArrayList(dtoWrapper));
     }
 
     private Set<String> getFileSharedUsersAsSet(final String userNickNames) {
@@ -187,7 +173,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public String deleteFiles(final String deleteHash) {
+    public DeletedFilesDto deleteFiles(final String deleteHash) {
         final User current = User.getCurrent();
         final String nickName = current.getNickName();
         final File findByDeleteHash = getFile(deleteHash, nickName);
@@ -207,24 +193,15 @@ public class FileManagementServiceImpl implements FileManagementService {
         final String storageInfo = FileUtils.byteCountToDisplaySize(updatedUser.getRemainingStorage()) + " left from "
                 + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT) + ".";
         try {
-            return buildResponse(name, storageInfo).toString();
+            HashMap<String, String> objectObjectHashMap = Maps.newHashMap();
+            objectObjectHashMap.put(name, Boolean.TRUE.toString());
+            return new DeletedFilesDto(objectObjectHashMap, storageInfo);
         } finally {
             this.executor.execute(() -> {
                 this.storageService.deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
                 this.eventService.fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
             });
         }
-    }
-
-    private JSONObject buildResponse(String fileName, String storedBytes) {
-        final JSONObject parent = new JSONObject();
-        final JSONArray json = new JSONArray();
-        final JSONObject jsono = new JSONObject();
-        jsono.put(fileName, "true");
-        json.put(jsono);
-        parent.put("files", json);
-        parent.put("storedBytes", storedBytes);
-        return parent;
     }
 
     private File getFile(String deleteHash, String nickName) {

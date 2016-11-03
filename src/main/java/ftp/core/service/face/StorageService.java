@@ -8,9 +8,9 @@ import java.nio.file.Path;
 
 public interface StorageService {
 
-    void store(InputStream inputStream, String newFileName, String destinationFolder);
+    Long store(InputStream inputStream, String newFileName, String destinationFolder);
 
-    void storeProfilePicture(InputStream inputStream, String fileName);
+    Long storeProfilePicture(InputStream inputStream, String fileName);
 
     /**
      * Loads a resource from the file system

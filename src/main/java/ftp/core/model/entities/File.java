@@ -39,7 +39,7 @@ public class File extends AbstractEntity<Long> {
     private String deleteHash;
 
     @Column(name = "file_size")
-    private long fileSize;
+    private Long fileSize;
 
     @Column(name = "timestamp")
     @Type(type = "timestamp")
@@ -104,11 +104,11 @@ public class File extends AbstractEntity<Long> {
         this.deleteHash = deleteHash;
     }
 
-    public long getFileSize() {
+    public Long getFileSize() {
         return this.fileSize;
     }
 
-    public void setFileSize(final long fileSize) {
+    public void setFileSize(final Long fileSize) {
         this.fileSize = fileSize;
     }
 

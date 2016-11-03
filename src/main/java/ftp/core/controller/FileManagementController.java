@@ -1,7 +1,12 @@
 package ftp.core.controller;
 
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 import ftp.core.constants.APIAliases;
 import ftp.core.model.dto.DataTransferObject;
+import ftp.core.model.dto.DeletedFilesDto;
+import ftp.core.model.dto.JsonFileDto;
+import ftp.core.model.dto.UploadedFilesDto;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,16 +16,21 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController("fileManagementController")
 public class FileManagementController {
 
     private FileManagementService fileManagementService;
 
+    private Gson gson;
+
     @Autowired
-    public FileManagementController(FileManagementService fileManagementService) {
+    public FileManagementController(FileManagementService fileManagementService, Gson gson) {
         this.fileManagementService = fileManagementService;
+        this.gson = gson;
     }
 
     @Secured(Authorities.USER)
@@ -31,14 +41,15 @@ public class FileManagementController {
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS + "*"}, method = RequestMethod.POST)
-    public String uploadFile(@RequestParam("files[]") final MultipartFile file,
-                             @RequestParam("nickName") final String userNickNames) {
-        return this.fileManagementService.uploadFile(file, userNickNames);
+    public UploadedFilesDto<JsonFileDto> uploadFile(@RequestParam("files[]") final MultipartFile file,
+                                                    @RequestParam("userNickNames") final String nickNamesAsString) {
+        Set<String> userNickNames = this.gson.fromJson(nickNamesAsString, HashSet.class);
+        return this.fileManagementService.uploadFile(file, userNickNames == null ? Sets.newHashSet() : userNickNames);
     }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.DELETE_FILE_ALIAS}, method = RequestMethod.GET)
-    public String deleteFiles(@NotNull @PathVariable final String deleteHash) {
+    public DeletedFilesDto deleteFiles(@NotNull @PathVariable final String deleteHash) {
         return this.fileManagementService.deleteFiles(deleteHash);
     }
 
@@ -50,7 +61,7 @@ public class FileManagementController {
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.DOWNLOAD_FILE_ALIAS + "{downloadHash}"}, method = RequestMethod.GET)
     public FileSystemResource downloadFile(@NotNull @PathVariable String downloadHash) {
-       return this.fileManagementService.downloadFile(downloadHash);
+        return this.fileManagementService.downloadFile(downloadHash);
     }
 
     @Secured(Authorities.USER)

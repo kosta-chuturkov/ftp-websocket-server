@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
-import org.springframework.test.context.ActiveProfiles;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -54,30 +53,30 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public void store(InputStream inputStream, String newFileName, String destinationFolder) {
+    public Long store(InputStream inputStream, String newFileName, String destinationFolder) {
         try {
             File dest = Paths.get(this.rootLocation.toFile().getAbsolutePath(), destinationFolder).toFile();
             createDirIfNotExsists(dest);
-            copyFileToDestination(inputStream, dest.toPath().resolve(newFileName), StandardCopyOption.REPLACE_EXISTING);
-            inputStream.close();
+            return copyFileToDestination(inputStream, dest.toPath().resolve(newFileName), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file " + newFileName, e);
         }
     }
 
     @Override
-    public void storeProfilePicture(InputStream inputStream, String fileName) {
+    public Long storeProfilePicture(InputStream inputStream, String fileName) {
         try {
             StandardCopyOption replaceExisting = StandardCopyOption.REPLACE_EXISTING;
-            copyFileToDestination(inputStream, this.profilePictureLocation.resolve(fileName), replaceExisting);
+            return copyFileToDestination(inputStream, this.profilePictureLocation.resolve(fileName), replaceExisting);
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file " + fileName, e);
         }
     }
 
-    private void copyFileToDestination(InputStream inputStream, Path destination, StandardCopyOption replaceExisting) throws IOException {
-        Files.copy(inputStream, destination, replaceExisting);
+    private Long copyFileToDestination(InputStream inputStream, Path destination, StandardCopyOption replaceExisting) throws IOException {
+        long storedBytes = Files.copy(inputStream, destination, replaceExisting);
         inputStream.close();
+        return storedBytes;
     }
 
     public Path load(String filename, String destinationFolder) {

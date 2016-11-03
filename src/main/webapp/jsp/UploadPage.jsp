@@ -153,7 +153,7 @@
 															class="css-label radGroup2">Share
 						with:</label></td>
 					<td><select id="selectedUsers" class="js-data-example-ajax" multiple="multiple" tabindex="-1" aria-hidden="true"></select>
-					<input type="hidden" name="nickName" value=""></td>
+					<input type="hidden" name="userNickNames" value=""></td>
 				</tr>
 				<input type="hidden"
                         	name="${_csrf.parameterName}"
@@ -412,11 +412,9 @@
         }
         var values = [];
            for(var i = 0; i < options.length; i++){
-            var usr = {};
-            usr.name = options[i];
-            values.push(usr);
+            values.push(options[i]);
            }
-           $('input[name=nickName]').val(JSON.stringify(values));
+           $('input[name=userNickNames]').val(JSON.stringify(values));
         }
         function onSelectCheckSharedBox(){
         $('.js-data-example-ajax').on("select2:selecting", function(e) {
