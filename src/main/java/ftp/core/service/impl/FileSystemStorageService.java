@@ -1,13 +1,17 @@
 package ftp.core.service.impl;
 
 import ftp.core.config.FtpConfigurationProperties;
+import ftp.core.profiles.Profiles;
 import ftp.core.service.face.StorageService;
+import ftp.core.util.ServerUtil;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.test.context.ActiveProfiles;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -21,6 +25,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @Service
+@Profile(value = {Profiles.DEVELOPMENT, Profiles.PRODUCTION})
 public class FileSystemStorageService implements StorageService {
 
     private final Path rootLocation;
@@ -37,7 +42,7 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @PostConstruct
-    public void initialize(){
+    public void initialize() {
         String multipartFileLocation = this.context.getEnvironment().getProperty("spring.http.multipart.location");
         if (multipartFileLocation != null) {
             File tempFlder = new File(multipartFileLocation);
@@ -83,7 +88,7 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public Resource loadAsResource(String filename, String destinationFolder) throws FileNotFoundException {
         Resource resource = loadAsResource(load(filename, destinationFolder));
-        if (!existsAndIsReadable(resource)) {
+        if (!ServerUtil.existsAndIsReadable(resource)) {
             throw new RuntimeException("Could not read file: " + resource.getFilename());
         }
         return resource;
@@ -111,9 +116,6 @@ public class FileSystemStorageService implements StorageService {
         }
     }
 
-    private boolean existsAndIsReadable(Resource resource) {
-        return resource.exists() || resource.isReadable();
-    }
 
     @Override
     public Resource loadProfilePicture(String userName) {

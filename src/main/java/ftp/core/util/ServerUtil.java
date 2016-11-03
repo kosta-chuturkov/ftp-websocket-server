@@ -1,15 +1,12 @@
 package ftp.core.util;
 
-import ftp.core.service.face.tx.FtpServerException;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.springframework.core.io.Resource;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.PrintWriter;
 import java.security.MessageDigest;
 
 public final class ServerUtil {
@@ -49,5 +46,8 @@ public final class ServerUtil {
             return null;
         }
         return buffer.toString();
+    }
+    public static boolean existsAndIsReadable(Resource resource) {
+        return resource.exists() || resource.isReadable();
     }
 }

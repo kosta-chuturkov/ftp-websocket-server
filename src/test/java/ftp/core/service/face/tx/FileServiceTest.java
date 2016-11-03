@@ -65,31 +65,6 @@ public class FileServiceTest extends AbstractTest {
 
     }
 
-    @Test
-    public void testIsUserFromFileSharedUsers() throws Exception {
-
-    }
-
-    @Test
-    public void testGetFilesISharedWithOtherUsers() throws Exception {
-
-    }
-
-    @Test
-    public void testGetPrivateFilesForUser() throws Exception {
-
-    }
-
-    @Test
-    public void testGetSharedFilesWithMe() throws Exception {
-
-    }
-
-    @Test
-    public void testUpdateUsers() throws Exception {
-
-    }
-
     @Override
     protected void makeRequestsAs() {
         super.makeRequestsAdminUser();

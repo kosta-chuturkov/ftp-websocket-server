@@ -30,10 +30,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -47,28 +47,28 @@ public class FileManagementServiceImpl implements FileManagementService {
 
     private static final Logger logger = Logger.getLogger(FileManagementServiceImpl.class);
 
-    @Resource
     private Gson gson;
-    @Resource
     private Executor executor;
-    @Resource
     private JsonParser jsonParser;
-    @Resource
     private UserService userService;
-    @Resource
     private FileService fileService;
-    @Resource
     private EventService eventService;
-    @Resource
+    private ResourceLoader resourceLoader;
     private StorageService storageService;
-    @Autowired
     private ApplicationConfig applicationConfig;
-
-
     private FtpConfigurationProperties ftpConfigurationProperties;
 
     @Autowired
-    public FileManagementServiceImpl(FtpConfigurationProperties ftpConfigurationProperties) {
+    public FileManagementServiceImpl(Gson gson, Executor executor, JsonParser jsonParser, UserService userService, FileService fileService, EventService eventService, StorageService storageService, ApplicationConfig applicationConfig, ResourceLoader resourceLoader, FtpConfigurationProperties ftpConfigurationProperties) {
+        this.gson = gson;
+        this.executor = executor;
+        this.jsonParser = jsonParser;
+        this.userService = userService;
+        this.fileService = fileService;
+        this.eventService = eventService;
+        this.storageService = storageService;
+        this.applicationConfig = applicationConfig;
+        this.resourceLoader = resourceLoader;
 
         this.ftpConfigurationProperties = ftpConfigurationProperties;
     }
@@ -239,7 +239,12 @@ public class FileManagementServiceImpl implements FileManagementService {
     public FileSystemResource sendProfilePicture(String userName) {
         org.springframework.core.io.Resource resource = this.storageService.loadProfilePicture(userName);
         try {
-            return new FileSystemResource(resource.getFile());
+            if (ServerUtil.existsAndIsReadable(resource)) {
+                return new FileSystemResource(resource.getFile());
+            } else {
+                org.springframework.core.io.Resource defaultPic = this.resourceLoader.getResource(ServerConstants.DEFAULT_PROFILE_PICTURE);
+                return new FileSystemResource(defaultPic.getFile());
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -298,14 +303,7 @@ public class FileManagementServiceImpl implements FileManagementService {
 
     @Override
     public String getProfilePicUrl(final String userName, String serverContext) {
-        String relativePicturePath;
-        org.springframework.core.io.Resource profilePicture = this.storageService.loadProfilePicture(userName);
-        if (profilePicture.exists() || profilePicture.isReadable()) {
-            relativePicturePath = APIAliases.PROFILE_PIC_ALIAS + userName + ".jpg";
-        } else {
-            relativePicturePath = "/static/images/default.jpg";
-        }
-        return serverContext.concat(relativePicturePath);
+        return serverContext.concat(APIAliases.PROFILE_PIC_ALIAS + userName + ".jpg");
     }
 
     @Override

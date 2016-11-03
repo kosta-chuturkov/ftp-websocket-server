@@ -10,19 +10,18 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
-import javax.servlet.ServletContext;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController("fileManagementController")
 public class FileManagementController {
 
-    @Resource
     private FileManagementService fileManagementService;
 
     @Autowired
-    private ServletContext servletContext;
+    public FileManagementController(FileManagementService fileManagementService) {
+        this.fileManagementService = fileManagementService;
+    }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS}, method = RequestMethod.POST)

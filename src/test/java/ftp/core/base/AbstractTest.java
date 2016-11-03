@@ -2,6 +2,7 @@ package ftp.core.base;
 
 import com.google.common.collect.Sets;
 import ftp.core.BootLoader;
+import ftp.core.config.FtpConfigurationProperties;
 import ftp.core.model.entities.Authority;
 import ftp.core.model.entities.User;
 import ftp.core.profiles.Profiles;
@@ -37,8 +38,11 @@ public abstract class AbstractTest {
     @Autowired
     private DataSource dataSource;
 
+    @Autowired
+    private FtpConfigurationProperties ftpConfigurationProperties;
+
     @Before
-    public void setUp(){
+    public void setUp() {
         makeRequestsAs();
     }
 

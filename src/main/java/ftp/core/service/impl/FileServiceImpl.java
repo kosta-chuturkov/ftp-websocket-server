@@ -5,7 +5,6 @@ import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.DataTransferObject;
 import ftp.core.model.dto.DeletedFileDto;
 import ftp.core.model.dto.ModifiedUserDto;
-import ftp.core.model.entities.AbstractEntity;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.File.FileType;
 import ftp.core.model.entities.User;
@@ -92,23 +91,22 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     }
 
     public boolean isUserFromFileSharedUsers(final Long fileId, final String nickName) {
-        final AbstractEntity exists = findOne(fileId);
+        final File exists = findOne(fileId);
         if (exists == null) {
             return false;
         }
-        final Set<String> sharedWithUsers = ((File) exists).getSharedWithUsers();
+        final Set<String> sharedWithUsers = exists.getSharedWithUsers();
         return sharedWithUsers.contains(nickName);
     }
 
     @Override
     public boolean isFileCreator(final Long fileId, final String userNickName) {
-        final AbstractEntity exists = findOne(fileId);
+        final File exists = findOne(fileId);
         if (exists == null) {
             return false;
         }
-        final File file = ((File) exists);
         final User userByNickName = this.userService.getUserByNickName(userNickName);
-        return file.getCreator().getNickName().equals(userByNickName.getNickName());
+        return exists.getCreator().getNickName().equals(userByNickName.getNickName());
     }
 
     @Override

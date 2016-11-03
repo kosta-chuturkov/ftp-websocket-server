@@ -20,6 +20,7 @@ public class ServerConstants {
     public static final int DEFAULT_BUFFER_SIZE = 1024;
     public static final int MAXIMUM_PASSWORD_lENGTH = 64;
     public static final String CONTENT_TYPES_FILE = "classpath:/static/content_types.txt";
+    public static final String DEFAULT_PROFILE_PICTURE = "classpath:/static/unknown_user.png";
     public static final String USER_REGEX = "[A-Za-z][A-Za-z0-9._]*";
     public static final long UPLOAD_LIMIT = 20 * (1024l * 1024l * 1024l);
     public static final String HOST = "host";
