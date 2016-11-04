@@ -12,7 +12,7 @@ import java.util.Collection;
  */
 public interface JsonService {
 
-    JsonResponse getJsonResponse(final String method, final Collection<DataTransferObject> data);
+    JsonResponse getJsonResponse(final String method, final Collection<? extends DataTransferObject> data);
 
     JSONObject geAstJsonObject(final ResponseModelAdapter dtoWrapper);
 }

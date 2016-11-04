@@ -3,10 +3,8 @@ package ftp.core.controller;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import ftp.core.constants.APIAliases;
-import ftp.core.model.dto.DataTransferObject;
-import ftp.core.model.dto.DeletedFilesDto;
-import ftp.core.model.dto.JsonFileDto;
-import ftp.core.model.dto.UploadedFilesDto;
+import ftp.core.model.dto.*;
+import ftp.core.model.entities.User;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,22 +64,22 @@ public class FileManagementController {
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.GET_FILES_SHARED_WITH_ME_ALIAS}, method = RequestMethod.POST)
-    public List<DataTransferObject> getSharedFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
-                                                   @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
-        return this.fileManagementService.getFilesISharedWithOtherUsers(firstResult, maxResults);
+    public List<FileWithSharedUsersWithMeDto> getSharedFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                                             @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
+        return this.fileManagementService.getFilesISharedWithOtherUsers(firstResult, maxResults, User.getCurrent().getNickName());
     }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.GET_PRIVATE_FILES_ALIAS}, method = RequestMethod.POST)
-    public List<DataTransferObject> getPrivateFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
-                                                    @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
-        return this.fileManagementService.getPrivateFiles(firstResult, maxResults);
+    public List<PrivateFileWithMeDto> getPrivateFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                                      @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
+        return this.fileManagementService.getPrivateFiles(firstResult, maxResults, User.getCurrent().getNickName());
     }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.GET_UPLOADED_FILES_ALIAS}, method = RequestMethod.POST)
-    public List<DataTransferObject> getUploadedFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
-                                                     @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
-        return this.fileManagementService.getFilesSharedToMe(firstResult, maxResults);
+    public List<SharedFileWithMeDto> getUploadedFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                                      @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
+        return this.fileManagementService.getFilesSharedToMe(firstResult, maxResults, User.getCurrent().getNickName());
     }
 }

@@ -21,7 +21,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * Created by Kosta_Chuturkov on 10/17/2016.
  */
-public class UserServiceTest extends AbstractTest {
+public class
+UserServiceTest extends AbstractTest {
 
     @Autowired
     private UserService userService;

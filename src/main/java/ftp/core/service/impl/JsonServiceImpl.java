@@ -27,7 +27,8 @@ public class JsonServiceImpl implements JsonService {
     private FileService fileService;
 
 
-    public JsonResponse getJsonResponse(final String method, final Collection<DataTransferObject> data) {
+    @Override
+    public JsonResponse getJsonResponse(final String method, final Collection<? extends DataTransferObject> data) {
         final JsonResponse jsonResponse = new JsonResponse();
         jsonResponse.setResponseMethod(method);
         jsonResponse.setResult(this.gson.toJson(data));

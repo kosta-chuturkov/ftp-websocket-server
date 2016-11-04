@@ -1,9 +1,6 @@
 package ftp.core.service.face;
 
-import ftp.core.model.dto.DataTransferObject;
-import ftp.core.model.dto.DeletedFilesDto;
-import ftp.core.model.dto.JsonFileDto;
-import ftp.core.model.dto.UploadedFilesDto;
+import ftp.core.model.dto.*;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,9 +22,9 @@ public interface FileManagementService {
 
     String getProfilePicUrl(final String userName, String serverContext);
 
-    List<DataTransferObject> getFilesISharedWithOtherUsers(Integer firstResult, Integer maxResults);
+    List<FileWithSharedUsersWithMeDto> getFilesISharedWithOtherUsers(Integer firstResult, Integer maxResults, String nickName);
 
-    List<DataTransferObject> getPrivateFiles(Integer firstResult, Integer maxResults);
+    List<PrivateFileWithMeDto> getPrivateFiles(Integer firstResult, Integer maxResults, String nickName);
 
-    List<DataTransferObject> getFilesSharedToMe(Integer firstResult, Integer maxResults);
+    List<SharedFileWithMeDto> getFilesSharedToMe(Integer firstResult, Integer maxResults, String nickName);
 }

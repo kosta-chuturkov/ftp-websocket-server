@@ -24,7 +24,7 @@ public abstract class BaseJsonRequestHandler implements JsonTypedHandler {
         this.jsonService = jsonService;
     }
 
-    protected JsonResponse handle(final JsonRequest jsonRequest, BiFunction<Integer, Integer, List<DataTransferObject>> function) {
+    protected <T extends DataTransferObject> JsonResponse handle(final JsonRequest jsonRequest, BiFunction<Integer, Integer, List<T>> function) {
         final JsonObject params = jsonRequest.getParams();
         final String method = jsonRequest.getMethod();
         final JsonElement firstResult = params.get("firstResult");
@@ -38,7 +38,7 @@ public abstract class BaseJsonRequestHandler implements JsonTypedHandler {
         }
         final Integer firstResultAsInt = firstResult.getAsInt();
         final Integer maxResultsAsInt = maxResults.getAsInt();
-        final List<DataTransferObject> fileDtos = function.apply(firstResultAsInt, maxResultsAsInt);
+        final List<T> fileDtos = function.apply(firstResultAsInt, maxResultsAsInt);
         return this.jsonService.getJsonResponse(method, fileDtos);
     }
 }

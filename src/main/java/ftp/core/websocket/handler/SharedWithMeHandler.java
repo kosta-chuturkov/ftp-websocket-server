@@ -1,5 +1,6 @@
 package ftp.core.websocket.handler;
 
+import ftp.core.model.entities.User;
 import ftp.core.service.face.FileManagementService;
 import ftp.core.service.face.JsonService;
 import ftp.core.websocket.dto.JsonRequest;
@@ -25,7 +26,7 @@ public class SharedWithMeHandler extends BaseJsonRequestHandler {
     @Override
     public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
         return super.handle(jsonRequest,
-                (firstResult, maxResults) -> this.fileManagementService.getFilesSharedToMe(firstResult, maxResults));
+                (firstResult, maxResults) -> this.fileManagementService.getFilesSharedToMe(firstResult, maxResults, User.getCurrent().getNickName()));
     }
 
     @Override

@@ -30,6 +30,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -37,6 +38,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service("fileManagementService")
@@ -284,29 +288,30 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public List<DataTransferObject> getFilesISharedWithOtherUsers(Integer firstResult, Integer maxResults) {
+    public List<FileWithSharedUsersWithMeDto> getFilesISharedWithOtherUsers(Integer firstResult, Integer maxResults, String nickName) {
         return this.fileService
-                .getFilesISharedWithOtherUsers(User.getCurrent().getNickName(), firstResult, maxResults)
+                .getFilesISharedWithOtherUsers(nickName, firstResult, maxResults)
                 .stream()
                 .map((file -> DtoUtil.toSharedFileWithOtherUsersDto(file)))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<DataTransferObject> getPrivateFiles(Integer firstResult, Integer maxResults) {
+    public List<PrivateFileWithMeDto> getPrivateFiles(Integer firstResult, Integer maxResults, String nickName) {
         return this.fileService
-                .getPrivateFilesForUser(User.getCurrent().getNickName(), firstResult, maxResults)
+                .getPrivateFilesForUser(nickName, firstResult, maxResults)
                 .stream()
                 .map((DtoUtil::toPrivateFileDto))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<DataTransferObject> getFilesSharedToMe(Integer firstResult, Integer maxResults) {
+    public List<SharedFileWithMeDto> getFilesSharedToMe(Integer firstResult, Integer maxResults, String nickName) {
         return this.fileService
-                .getSharedFilesWithMe(User.getCurrent().getNickName(), firstResult, maxResults)
+                .getSharedFilesWithMe(nickName, firstResult, maxResults)
                 .stream()
                 .map(file -> DtoUtil.toSharedFileWithMeDto(file))
                 .collect(Collectors.toList());
     }
+
 }

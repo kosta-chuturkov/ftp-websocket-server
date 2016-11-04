@@ -1,5 +1,6 @@
 package ftp.core.websocket.handler;
 
+import ftp.core.model.entities.User;
 import ftp.core.service.face.FileManagementService;
 import ftp.core.service.face.JsonService;
 import ftp.core.websocket.dto.JsonRequest;
@@ -25,7 +26,7 @@ public class PrivateFilesHandler extends BaseJsonRequestHandler {
     @Override
     public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
         JsonResponse handle = super.handle(jsonRequest,
-                (firstResult, maxResults) -> this.fileManagementService.getPrivateFiles(firstResult, maxResults));
+                (firstResult, maxResults) -> this.fileManagementService.getPrivateFiles(firstResult, maxResults, User.getCurrent().getNickName()));
         return handle;
     }
 
