@@ -30,17 +30,12 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service("fileManagementService")
@@ -49,7 +44,6 @@ public class FileManagementServiceImpl implements FileManagementService {
     private static final Logger logger = Logger.getLogger(FileManagementServiceImpl.class);
 
     private Gson gson;
-    private Executor executor;
     private JsonParser jsonParser;
     private UserService userService;
     private FileService fileService;
@@ -60,9 +54,8 @@ public class FileManagementServiceImpl implements FileManagementService {
     private FtpConfigurationProperties ftpConfigurationProperties;
 
     @Autowired
-    public FileManagementServiceImpl(Gson gson, Executor executor, JsonParser jsonParser, UserService userService, FileService fileService, EventService eventService, StorageService storageService, ApplicationConfig applicationConfig, ResourceLoader resourceLoader, FtpConfigurationProperties ftpConfigurationProperties) {
+    public FileManagementServiceImpl(Gson gson, JsonParser jsonParser, UserService userService, FileService fileService, EventService eventService, StorageService storageService, ApplicationConfig applicationConfig, ResourceLoader resourceLoader, FtpConfigurationProperties ftpConfigurationProperties) {
         this.gson = gson;
-        this.executor = executor;
         this.jsonParser = jsonParser;
         this.userService = userService;
         this.fileService = fileService;
@@ -201,10 +194,8 @@ public class FileManagementServiceImpl implements FileManagementService {
             objectObjectHashMap.put(name, Boolean.TRUE.toString());
             return new DeletedFilesDto(objectObjectHashMap, storageInfo);
         } finally {
-            this.executor.execute(() -> {
                 this.storageService.deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
                 this.eventService.fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
-            });
         }
     }
 

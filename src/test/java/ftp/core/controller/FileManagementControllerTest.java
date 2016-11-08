@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.annotation.DirtiesContext;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
@@ -26,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 /**
  * Created by Kosta_Chuturkov on 10/27/2016.
  */
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+//@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class FileManagementControllerTest extends AbstractTest {
 
     @Resource
@@ -87,6 +87,7 @@ public class FileManagementControllerTest extends AbstractTest {
         long contentSize = content.length;
         long remainingStorageBefore = User.getCurrent().getRemainingStorage();
         String fileName = "kitty.jpg";
+        reset(this.storageService);
         UploadedFilesDto<JsonFileDto> response = this.fileManagementController.uploadFile(new MockMultipartFile(fileName, fileName, "",
                 content), null);
         //then
@@ -205,14 +206,51 @@ public class FileManagementControllerTest extends AbstractTest {
         String mp3FileName = "sample.mp3";
         String tarFileName = "sample.tar.gz";
 
-        Set<String> users = Sets.newHashSet();
         byte[] sampleJpg = fileContentToByteArray(getResourceAsFile("classpath:resources/" + jpgFileName));
         byte[] sampleMp3File = fileContentToByteArray(getResourceAsFile("classpath:resources/" + mp3FileName));
         byte[] sampleTarFile = fileContentToByteArray(getResourceAsFile("classpath:resources/" + tarFileName));
-       // fileManagementController.uploadFile(new MockMultipartFile(jpgFileName, sampleJpg), )
+
+        this.fileManagementController.uploadFile(new MockMultipartFile(jpgFileName, jpgFileName, null, sampleJpg),
+                this.gson.toJson(Sets.newHashSet(user2.getNickName(), user3.getNickName())));
+
+        this.fileManagementController.uploadFile(new MockMultipartFile(mp3FileName, mp3FileName, null, sampleMp3File),
+                this.gson.toJson(Sets.newHashSet(user1.getNickName(), user3.getNickName())));
+
+        this.fileManagementController.uploadFile(new MockMultipartFile(tarFileName, tarFileName, null, sampleTarFile),
+                this.gson.toJson(Sets.newHashSet(user2.getNickName(), user3.getNickName())));
 
 
         //when
+        super.makeRequestAs(user1);
+        List<SharedFileWithMeDto> sharedFilesToUser1 = this.fileManagementController.getSharedFilesForUser(0, 10);
+
+        //then
+        assertThat(sharedFilesToUser1, is(notNullValue()));
+        assertThat(sharedFilesToUser1.size(), is(1));
+        assertThat(sharedFilesToUser1.get(0).getName(), is(mp3FileName));
+
+        super.makeRequestAs(user2);
+        List<SharedFileWithMeDto> sharedFilesToUser2 = this.fileManagementController.getSharedFilesForUser(0, 10);
+        assertThat(sharedFilesToUser2, is(notNullValue()));
+        assertThat(sharedFilesToUser2.size(), is(2));
+        Set<String> user1FileNames = sharedFilesToUser2
+                .stream()
+                .map(sharedFileWithMeDto -> sharedFileWithMeDto.getName())
+                .collect(Collectors.toSet());
+        assertThat(user1FileNames.contains(tarFileName),is(true));
+        assertThat(user1FileNames.contains(jpgFileName),is(true));
+
+        super.makeRequestAs(user3);
+        List<SharedFileWithMeDto> sharedFilesToUser3 = this.fileManagementController.getSharedFilesForUser(0, 10);
+        assertThat(sharedFilesToUser3, is(notNullValue()));
+        assertThat(sharedFilesToUser3.size(), is(3));
+        Set<String> user2FileNames = sharedFilesToUser3
+                .stream()
+                .map(sharedFileWithMeDto -> sharedFileWithMeDto.getName())
+                .collect(Collectors.toSet());
+        assertThat(user2FileNames.contains(tarFileName),is(true));
+        assertThat(user2FileNames.contains(jpgFileName),is(true));
+        assertThat(user2FileNames.contains(mp3FileName),is(true));
 
 
     }
@@ -232,7 +270,7 @@ public class FileManagementControllerTest extends AbstractTest {
         uploadedFileAndGetDownloadHash(sampleTarFile, tarFileName);
 
         //when
-        List<PrivateFileWithMeDto> privateFiles = fileManagementController.getPrivateFiles(0, 10);
+        List<PrivateFileWithMeDto> privateFiles = this.fileManagementController.getPrivateFilesForUser(0, 10);
 
         //then
         assertThat(privateFiles, is(notNullValue()));

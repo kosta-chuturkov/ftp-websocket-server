@@ -64,6 +64,11 @@ public abstract class AbstractTest {
         context.setAuthentication(new UsernamePasswordAuthenticationToken("anonymous", "anonymous", Sets.newHashSet(new Authority(Authorities.ANONYMOUS))));
     }
 
+    protected void makeRequestAs(User user) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities()));
+    }
+
     @After
     public void cleanup() throws Exception {
         Assert.isTrue(

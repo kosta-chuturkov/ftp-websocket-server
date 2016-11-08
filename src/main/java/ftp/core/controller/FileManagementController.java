@@ -64,22 +64,22 @@ public class FileManagementController {
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.GET_FILES_SHARED_WITH_ME_ALIAS}, method = RequestMethod.POST)
-    public List<FileWithSharedUsersWithMeDto> getSharedFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
-                                                             @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
-        return this.fileManagementService.getFilesISharedWithOtherUsers(firstResult, maxResults, User.getCurrent().getNickName());
+    public List<SharedFileWithMeDto> getSharedFilesForUser(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                                           @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
+        return this.fileManagementService.getFilesSharedToMe(firstResult, maxResults, User.getCurrent().getNickName());
     }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.GET_PRIVATE_FILES_ALIAS}, method = RequestMethod.POST)
-    public List<PrivateFileWithMeDto> getPrivateFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
-                                                      @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
+    public List<PrivateFileWithMeDto> getPrivateFilesForUser(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                                             @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
         return this.fileManagementService.getPrivateFiles(firstResult, maxResults, User.getCurrent().getNickName());
     }
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.GET_UPLOADED_FILES_ALIAS}, method = RequestMethod.POST)
-    public List<SharedFileWithMeDto> getUploadedFiles(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
-                                                      @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
-        return this.fileManagementService.getFilesSharedToMe(firstResult, maxResults, User.getCurrent().getNickName());
+    public List<FileWithSharedUsersWithMeDto> getUploadedFilesByUser(@NotNull @ModelAttribute("firstResult") final Integer firstResult,
+                                                                     @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
+        return this.fileManagementService.getFilesISharedWithOtherUsers(firstResult, maxResults, User.getCurrent().getNickName());
     }
 }
