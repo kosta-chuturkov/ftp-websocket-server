@@ -279,6 +279,46 @@ public class FileManagementControllerTest extends AbstractTest {
 
     @Test
     public void testGetUploadedFiles() throws Exception {
+        //given
+        String badmin = "badmin";
+        User user1 = this.userService.registerUser("badmin1@gmail.com", badmin, "admin1234", "admin1234");
+        assertThat(user1, is(notNullValue()));
+
+        String sen2 = "sen2";
+        User user2 = this.userService.registerUser("sen2@gmail.com", sen2, "admin1234", "admin1234");
+        assertThat(user2, is(notNullValue()));
+
+        String jpgFileName = "kitty.jpg";
+        String mp3FileName = "sample.mp3";
+        String tarFileName = "sample.tar.gz";
+
+        byte[] sampleJpg = fileContentToByteArray(getResourceAsFile("classpath:resources/" + jpgFileName));
+        byte[] sampleMp3File = fileContentToByteArray(getResourceAsFile("classpath:resources/" + mp3FileName));
+        byte[] sampleTarFile = fileContentToByteArray(getResourceAsFile("classpath:resources/" + tarFileName));
+
+        this.fileManagementController.uploadFile(new MockMultipartFile(jpgFileName, jpgFileName, null, sampleJpg),
+               null);
+
+        this.fileManagementController.uploadFile(new MockMultipartFile(mp3FileName, mp3FileName, null, sampleMp3File),
+                this.gson.toJson(Sets.newHashSet(user1.getNickName())));
+
+        this.fileManagementController.uploadFile(new MockMultipartFile(tarFileName, tarFileName, null, sampleTarFile),
+                this.gson.toJson(Sets.newHashSet(user2.getNickName(), user1.getNickName())));
+
+        //when
+        List<FileWithSharedUsersWithMeDto> sharedFilesToUser = this.fileManagementController.getUploadedFilesByUser(0, 10);
+
+
+        //then
+        assertThat(sharedFilesToUser, is(notNullValue()));
+        assertThat(sharedFilesToUser.size(), is(2));
+        Set<String> user1FileNames = sharedFilesToUser
+                .stream()
+                .map(sharedFileWithMeDto -> sharedFileWithMeDto.getName())
+                .collect(Collectors.toSet());
+        assertThat(user1FileNames.contains(tarFileName),is(true));
+        assertThat(user1FileNames.contains(jpgFileName),is(true));
+        assertThat(user1FileNames.contains(sampleTarFile),is(true));
 
     }
 
