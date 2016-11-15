@@ -30,12 +30,17 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service("fileManagementService")
@@ -43,8 +48,7 @@ public class FileManagementServiceImpl implements FileManagementService {
 
     private static final Logger logger = Logger.getLogger(FileManagementServiceImpl.class);
 
-    private Gson gson;
-    private JsonParser jsonParser;
+    private Executor executor;
     private UserService userService;
     private FileService fileService;
     private EventService eventService;
@@ -54,9 +58,8 @@ public class FileManagementServiceImpl implements FileManagementService {
     private FtpConfigurationProperties ftpConfigurationProperties;
 
     @Autowired
-    public FileManagementServiceImpl(Gson gson, JsonParser jsonParser, UserService userService, FileService fileService, EventService eventService, StorageService storageService, ApplicationConfig applicationConfig, ResourceLoader resourceLoader, FtpConfigurationProperties ftpConfigurationProperties) {
-        this.gson = gson;
-        this.jsonParser = jsonParser;
+    public FileManagementServiceImpl(Executor executor,UserService userService, FileService fileService, EventService eventService, StorageService storageService, ApplicationConfig applicationConfig, ResourceLoader resourceLoader, FtpConfigurationProperties ftpConfigurationProperties) {
+        this.executor = executor;
         this.userService = userService;
         this.fileService = fileService;
         this.eventService = eventService;
@@ -150,23 +153,6 @@ public class FileManagementServiceImpl implements FileManagementService {
                 .withDeleteType("GET")
                 .build();
         return new UploadedFilesDto<>(Lists.newArrayList(dtoWrapper));
-    }
-
-    private Set<String> getFileSharedUsersAsSet(final String userNickNames) {
-        final Set<String> users = Sets.newHashSet();
-        if (userNickNames.isEmpty()) return users;
-        final JsonElement elem = this.jsonParser.parse(userNickNames);
-        final JsonArray asJsonArray = elem.getAsJsonArray();
-        asJsonArray
-                .forEach(jsonElement -> {
-                    JsonObject asJsonObject = jsonElement.getAsJsonObject();
-                    if (asJsonObject != null && asJsonObject.get("name") != null) {
-                        users.add(StringEscapeUtils.escapeSql(asJsonObject.get("name").getAsString()));
-                    } else {
-                        throw new IllegalArgumentException("Expected parameter name.");
-                    }
-                });
-        return users;
     }
 
     @Override
