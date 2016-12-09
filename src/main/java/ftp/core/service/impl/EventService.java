@@ -1,11 +1,15 @@
 package ftp.core.service.impl;
 
+import com.google.common.base.Supplier;
 import com.google.gson.Gson;
 import ftp.core.model.dto.DataTransferObject;
 import ftp.core.model.dto.DeletedFileDto;
 import ftp.core.websocket.dto.JsonResponse;
 import ftp.core.websocket.handler.Handlers;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.async.DeferredResult;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 import reactor.fn.Consumer;
@@ -31,6 +35,16 @@ public class EventService {
     public void fireSharedFileEvent(final String topic, final DataTransferObject fileDto) {
         this.eventBus.notify(topic, Event.wrap(new JsonResponse(Handlers.FILES_SHARED_WITH_ME_HANDLER, this.gson.toJson(fileDto))));
 
+    }
+
+    public <T> DeferredResult<T> scheduleTaskToReactor(Supplier<T> supplier, Long timeOut) {
+        DeferredResult<T> deferredResult = new DeferredResult<>(timeOut);
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        this.eventBus.schedule((data) -> {
+            SecurityContextHolder.setContext(securityContext);
+            data.setResult(supplier.get());
+        }, deferredResult);
+        return deferredResult;
     }
 
     public void fireSharedFileEvent(Collection<String> topics, final DataTransferObject fileDto) {

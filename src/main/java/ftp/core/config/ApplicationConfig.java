@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -24,6 +25,7 @@ import java.util.TimeZone;
 @Configuration
 @EnableJpaRepositories("ftp.core.repository")
 @EnableTransactionManagement
+@EnableScheduling
 public class ApplicationConfig extends WebMvcConfigurerAdapter {
 
     private Map<String, String> contentTypes = Maps.newHashMap();

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -38,7 +37,7 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS}, method = RequestMethod.POST)
-    public String getUserDetails(final String userNickName) throws IOException {
+    public String getUserDetails(final String userNickName) {
         final JsonObject jsonResponse = new JsonObject();
         final JsonArray jsonArrayWrapper = new JsonArray();
         List<NickNameProjection> userByNickLike = this.userService.getUserByNickLike(userNickName);

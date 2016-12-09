@@ -1,3 +1,4 @@
+/*
 package ftp.core.controller;
 
 import com.google.common.collect.Sets;
@@ -32,9 +33,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
+*/
 /**
  * Created by Kosta_Chuturkov on 10/27/2016.
- */
+ *//*
+
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class FileManagementControllerTest extends AbstractTest {
 
@@ -326,4 +329,4 @@ public class FileManagementControllerTest extends AbstractTest {
     protected void makeRequestsAs() {
         super.makeRequestsAdminUser();
     }
-}
+}*/

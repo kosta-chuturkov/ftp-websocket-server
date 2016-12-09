@@ -22,7 +22,7 @@ public class ReactorEventsConfig {
     EventBus createEventBus(final Environment env) {
         return EventBus.create(env,
                 new WorkQueueDispatcher
-                        ("appWorkQueueDispatcher", 8, 8192, new ExceptionHandler()));
+                        ("appWorkQueueDispatcher", 4, 8192, new ExceptionHandler()));
     }
 
     private class ExceptionHandler implements Consumer<Throwable> {
