@@ -166,7 +166,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         this.fileService.delete(findByDeleteHash.getId());
 
         current.setRemainingStorage(current.getRemainingStorage() + fileSize);
-        this.userService.saveAndFlush(current);
+        this.userService.save(current);
         final User updatedUser = this.userService.findOne(current.getId());
         final String storageInfo = FileUtils.byteCountToDisplaySize(updatedUser.getRemainingStorage()) + " left from "
                 + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT) + ".";

@@ -3,17 +3,17 @@ package ftp.core.repository;
 import ftp.core.model.entities.User;
 import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.repository.projections.UploadedFilesProjection;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends ElasticsearchRepository<User, String> {
 
     User findByEmailAndPassword(String email, String password);
 
-    Long findTokenByEmail(String email);
+    String findTokenByEmail(String email);
 
     User findByNickName(String nickName);
 
@@ -21,7 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<NickNameProjection> findByNickNameLike(String nickName);
 
-    UploadedFilesProjection findUploadedFilesById(Long id);
+    UploadedFilesProjection findUploadedFilesById(String id);
 
     Set<NickNameProjection> findByNickNameIn(Collection<String> nickNames);
 

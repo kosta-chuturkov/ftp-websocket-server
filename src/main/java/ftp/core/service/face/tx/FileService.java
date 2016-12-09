@@ -4,21 +4,19 @@ import ftp.core.model.dto.ModifiedUserDto;
 import ftp.core.model.entities.File;
 import ftp.core.service.generic.GenericService;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
-@Transactional
-public interface FileService extends GenericService<File, Long> {
+public interface FileService extends GenericService<File, String> {
     File getFileByDownloadHash(String downloadHash);
 
     File findByDeleteHash(String deleteHash, String creatorNickName);
 
     void saveFile(File fileToBeSaved);
 
-    boolean isUserFromFileSharedUsers(Long fileId, String nickName);
+    boolean isUserFromFileSharedUsers(String fileId, String nickName);
 
-    boolean isFileCreator(Long fileId, String userNickName);
+    boolean isFileCreator(String fileId, String userNickName);
 
     List<File> getFilesISharedWithOtherUsers(String userNickName, int firstResult, int maxResults);
 

@@ -18,15 +18,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 @Service("userService")
-@Transactional
-public class UserServiceImpl extends AbstractGenericService<User, Long> implements UserService {
+public class UserServiceImpl extends AbstractGenericService<User, String> implements UserService {
 
     static final String SALT = "fKWCH(1UafNFK&QK-Vg`FEG(sAE5f^Q.vEA-+Wj?]Sbc+<crP,x]7M/+S}dnb-,^";
 
@@ -59,7 +57,7 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
     }
 
     @Override
-    public UploadedFilesProjection findUploadedFilesByUserId(Long userId) {
+    public UploadedFilesProjection findUploadedFilesByUserId(String userId) {
         return this.userRepository.findUploadedFilesById(userId);
     }
 
@@ -68,12 +66,12 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
     }
 
     @Override
-    public File addFileToUser(final Long fileId, final Long userId) {
+    public File addFileToUser(final String fileId, final String userId) {
         final File file = this.fileRepository.findOne(fileId);
         if (file != null) {
             final User user = findOne(userId);
             user.addUploadedFile(file);
-            saveAndFlush(user);
+            save(user);
         }
         return file;
     }
@@ -98,11 +96,11 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
         return this.userRepository.findByEmail(email);
     }
 
-    public void updateRemainingStorageForUser(final long fileSize, final Long userId, long remainingStorage) {
+    public void updateRemainingStorageForUser(final long fileSize, final String userId, long remainingStorage) {
         remainingStorage -= fileSize;
         final User userById = findOne(userId);
         userById.setRemainingStorage(remainingStorage);
-        saveAndFlush(userById);
+        save(userById);
     }
 
     @Override
@@ -131,12 +129,12 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
                 .withEnabled(true)
                 .build();
 
-        User savedUser = saveAndFlush(user);
+        User savedUser = save(user);
         User registeredUser = findOne(savedUser.getId());
         Authority authority = new Authority(Authorities.USER);
         this.authorityService.save(authority);
         registeredUser.addAuthority(authority);
-        saveAndFlush(registeredUser);
+        save(registeredUser);
         return registeredUser;
     }
 

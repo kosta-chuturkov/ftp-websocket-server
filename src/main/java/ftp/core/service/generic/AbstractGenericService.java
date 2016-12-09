@@ -4,15 +4,13 @@ import ftp.core.model.entities.AbstractEntity;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
-import java.util.List;
 
 public class AbstractGenericService<T extends AbstractEntity, ID extends Serializable>
         implements GenericService<T, ID>, ApplicationContextAware {
@@ -32,8 +30,8 @@ public class AbstractGenericService<T extends AbstractEntity, ID extends Seriali
         this.applicationContext = applicationContext;
     }
 
-    protected JpaRepository<T, ID> getRepository() {
-        return this.applicationContext.getBean(getDaoName(this.persistentClass), JpaRepository.class);
+    protected ElasticsearchRepository<T, ID> getRepository() {
+        return this.applicationContext.getBean(getDaoName(this.persistentClass), ElasticsearchRepository.class);
     }
 
     private String getDaoName(final Class<T> entityClass) {
@@ -46,12 +44,12 @@ public class AbstractGenericService<T extends AbstractEntity, ID extends Seriali
     }
 
     @Override
-    public List<T> findAll() {
+    public Iterable<T> findAll() {
         return getRepository().findAll();
     }
 
     @Override
-    public List<T> findAll(Sort sort) {
+    public Iterable<T> findAll(Sort sort) {
         return getRepository().findAll(sort);
     }
 
@@ -61,7 +59,7 @@ public class AbstractGenericService<T extends AbstractEntity, ID extends Seriali
     }
 
     @Override
-    public List<T> findAll(Iterable<ID> ids) {
+    public Iterable<T> findAll(Iterable<ID> ids) {
         return getRepository().findAll(ids);
     }
 
@@ -96,7 +94,7 @@ public class AbstractGenericService<T extends AbstractEntity, ID extends Seriali
     }
 
     @Override
-    public <S extends T> List<S> save(Iterable<S> entities) {
+    public <S extends T> Iterable<S> save(Iterable<S> entities) {
         return getRepository().save(entities);
     }
 
@@ -110,58 +108,4 @@ public class AbstractGenericService<T extends AbstractEntity, ID extends Seriali
         return getRepository().exists(id);
     }
 
-    @Override
-    public void flush() {
-        getRepository().flush();
-    }
-
-    @Override
-    public <S extends T> S saveAndFlush(S entity) {
-        return getRepository().saveAndFlush(entity);
-    }
-
-    @Override
-    public void deleteInBatch(Iterable<T> entities) {
-        getRepository().deleteInBatch(entities);
-    }
-
-    @Override
-    public void deleteAllInBatch() {
-        getRepository().deleteAllInBatch();
-    }
-
-    @Override
-    public T getOne(ID id) {
-        return getRepository().getOne(id);
-    }
-
-    @Override
-    public <S extends T> S findOne(Example<S> example) {
-        return getRepository().findOne(example);
-    }
-
-    @Override
-    public <S extends T> List<S> findAll(Example<S> example) {
-        return getRepository().findAll(example);
-    }
-
-    @Override
-    public <S extends T> List<S> findAll(Example<S> example, Sort sort) {
-        return getRepository().findAll(example, sort);
-    }
-
-    @Override
-    public <S extends T> Page<S> findAll(Example<S> example, Pageable pageable) {
-        return getRepository().findAll(example, pageable);
-    }
-
-    @Override
-    public <S extends T> long count(Example<S> example) {
-        return getRepository().count(example);
-    }
-
-    @Override
-    public <S extends T> boolean exists(Example<S> example) {
-        return getRepository().exists(example);
-    }
 }

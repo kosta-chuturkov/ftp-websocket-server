@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import ftp.core.security.Authorities;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,15 +13,16 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.*;
-import javax.persistence.Entity;
+import javax.persistence.Column;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Set;
 
-@Entity
-@Table(name = "users")
-public class User extends AbstractEntity<Long> implements UserDetails {
+@Document(indexName = "resource", type = "users")
+public class User extends AbstractEntity<String> implements UserDetails {
 
     @NotNull
     @NotEmpty

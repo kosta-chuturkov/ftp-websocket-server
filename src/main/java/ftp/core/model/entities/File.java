@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "files")
-public class File extends AbstractEntity<Long> {
+public class File extends AbstractEntity<String> {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "file_shared_to_users", joinColumns = @JoinColumn(name = "file_id"))

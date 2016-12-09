@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "authority")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Authority extends AbstractEntity<Long> implements GrantedAuthority {
+public class Authority extends AbstractEntity<String> implements GrantedAuthority {
 
     private static final long serialVersionUID = 1L;
 

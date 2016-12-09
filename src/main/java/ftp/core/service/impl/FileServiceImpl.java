@@ -20,14 +20,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service("fileService")
-@Transactional
-public class FileServiceImpl extends AbstractGenericService<File, Long> implements FileService {
+public class FileServiceImpl extends AbstractGenericService<File, String> implements FileService {
 
     @Resource
     private FileRepository fileRepository;
@@ -59,7 +57,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
                             + ". You have: " + FileUtils.byteCountToDisplaySize(remainingStorage) + " remainig storage.");
         }
         Set<String> validatedUsers = validateUserNickNames(fileToBeSaved.getSharedWithUsers());
-        final File savedFile = saveAndFlush(fileToBeSaved);
+        final File savedFile = save(fileToBeSaved);
         if (savedFile != null) {
             this.userService.updateRemainingStorageForUser(fileSize, currentUser.getId(), remainingStorage);
             this.userService.addFileToUser(savedFile.getId(), currentUser.getId());
@@ -90,7 +88,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
         return foundNickNames;
     }
 
-    public boolean isUserFromFileSharedUsers(final Long fileId, final String nickName) {
+    public boolean isUserFromFileSharedUsers(final String fileId, final String nickName) {
         final File exists = findOne(fileId);
         if (exists == null) {
             return false;
@@ -100,7 +98,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     }
 
     @Override
-    public boolean isFileCreator(final Long fileId, final String userNickName) {
+    public boolean isFileCreator(final String fileId, final String userNickName) {
         final File exists = findOne(fileId);
         if (exists == null) {
             return false;
@@ -133,7 +131,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
         final Set<String> persistentSharedToUsers = Sets.newHashSet(file.getSharedWithUsers());
         persistentSharedToUsers.removeAll(userNickNames);
         file.setSharedWithUsers(userNickNames);
-        saveAndFlush(file);
+        save(file);
         this.eventService.fireRemovedFileEvent(persistentSharedToUsers, new DeletedFileDto(downloadHash));
         return file;
     }
