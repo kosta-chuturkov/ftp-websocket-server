@@ -5,7 +5,7 @@ import ftp.core.constants.ServerConstants;
 import ftp.core.model.entities.User;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.service.impl.EventService;
+import ftp.core.service.impl.ReactorEventBusService;
 import ftp.core.util.ServerUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,33 +32,33 @@ public class PageNavigationController {
     private UserService userService;
 
     @Resource
-    private EventService eventService;
+    private ReactorEventBusService reactorEventBusService;
 
 
     @RequestMapping(value = {APIAliases.REGISTRATION_ALIAS}, method = RequestMethod.POST)
     public DeferredResult<ResponseEntity<?>> registerUser(@NotNull @ModelAttribute("email") final String email,
                                                           @NotNull @ModelAttribute("pswd") final String password, @NotNull @ModelAttribute("nickname") final String nickName,
                                                           @NotNull @ModelAttribute("password_repeated") final String password_repeated) throws IOException, ServletException {
-        return this.eventService
+        return this.reactorEventBusService
                 .scheduleTaskToReactor(() -> register(email, password, nickName, password_repeated), 10000L);
     }
 
     @RequestMapping(value = {"/", APIAliases.LOGIN_ALIAS + "**"}, method = RequestMethod.GET)
     public DeferredResult<ModelAndView> getLoginPage() throws ServletException, IOException {
-        return this.eventService
+        return this.reactorEventBusService
                 .scheduleTaskToReactor(() -> getPage(ServerConstants.NEW_CLIENT_LOGIN_PAGE), 10000L);
     }
 
     @RequestMapping(value = {APIAliases.MAIN_PAGE_ALIAS}, method = RequestMethod.GET)
     public DeferredResult<ModelAndView> getMainPage() throws IOException, ServletException {
-        return this.eventService
+        return this.reactorEventBusService
                 .scheduleTaskToReactor(() -> mainPage(), 10000L);
     }
 
     @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS + "*"}, method = RequestMethod.GET)
     public DeferredResult<ModelAndView> getUploadPage()
             throws IOException, ServletException {
-        return this.eventService
+        return this.reactorEventBusService
                 .scheduleTaskToReactor(() -> uploadPage(), 10000L);
 
     }
@@ -66,7 +66,7 @@ public class PageNavigationController {
     @RequestMapping(value = {APIAliases.REGISTRATION_ALIAS}, method = RequestMethod.GET)
     public DeferredResult<ModelAndView> getRegistrationPage()
             throws IOException, ServletException {
-        return this.eventService
+        return this.reactorEventBusService
                 .scheduleTaskToReactor(() -> getPage(ServerConstants.REGISTRATION_PAGE), 10000L);
 
     }
@@ -74,7 +74,7 @@ public class PageNavigationController {
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.LOGOUT_ALIAS + "**"}, method = RequestMethod.GET)
     public DeferredResult<ModelAndView> logClientOut(final HttpServletRequest request, final HttpServletResponse response) {
-        return this.eventService
+        return this.reactorEventBusService
                 .scheduleTaskToReactor(() -> logOut(request, response), 10000L);
     }
 

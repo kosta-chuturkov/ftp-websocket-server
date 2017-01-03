@@ -1,7 +1,7 @@
 package ftp.core.listener;
 
 import com.google.common.collect.Maps;
-import ftp.core.service.impl.EventService;
+import ftp.core.service.impl.ReactorEventBusService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -18,7 +18,7 @@ public class SessionToConsumerMapper {
     private final Map<String, AtomicInteger> sessionToConsumerMap = Maps.newConcurrentMap();
 
     @Resource
-    private EventService eventService;
+    private ReactorEventBusService reactorEventBusService;
 
 
     public final void addConsumer(final String topic) {
@@ -39,7 +39,7 @@ public class SessionToConsumerMapper {
         if (atomicInteger != null) {
             synchronized (atomicInteger) {
                 if (atomicInteger.decrementAndGet() == 0) {
-                    this.eventService.unregisterConsumer(topic);
+                    this.reactorEventBusService.unregisterConsumer(topic);
                     this.sessionToConsumerMap.remove(topic);
                 }
             }

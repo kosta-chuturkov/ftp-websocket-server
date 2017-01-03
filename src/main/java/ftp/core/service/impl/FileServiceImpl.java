@@ -34,7 +34,7 @@ public class FileServiceImpl extends AbstractGenericService<File, String> implem
     private UserService userService;
 
     @Resource
-    private EventService eventService;
+    private ReactorEventBusService reactorEventBusService;
 
     @Override
     public File getFileByDownloadHash(final String downloadHash) {
@@ -62,7 +62,7 @@ public class FileServiceImpl extends AbstractGenericService<File, String> implem
             this.userService.updateRemainingStorageForUser(fileSize, currentUser.getId(), remainingStorage);
             this.userService.addFileToUser(savedFile.getId(), currentUser.getId());
             if(!validatedUsers.isEmpty()) {
-                this.eventService.fireSharedFileEvent(validatedUsers, DtoUtil.toSharedFileWithMeDto(savedFile));
+                this.reactorEventBusService.fireSharedFileEvent(validatedUsers, DtoUtil.toSharedFileWithMeDto(savedFile));
             }
         } else {
             throw new RuntimeException("Unable to add file!");
@@ -132,7 +132,7 @@ public class FileServiceImpl extends AbstractGenericService<File, String> implem
         persistentSharedToUsers.removeAll(userNickNames);
         file.setSharedWithUsers(userNickNames);
         save(file);
-        this.eventService.fireRemovedFileEvent(persistentSharedToUsers, new DeletedFileDto(downloadHash));
+        this.reactorEventBusService.fireRemovedFileEvent(persistentSharedToUsers, new DeletedFileDto(downloadHash));
         return file;
     }
 
@@ -163,7 +163,7 @@ public class FileServiceImpl extends AbstractGenericService<File, String> implem
         final File file = updateUsersForFile(deleteHash, userNickNames);
         final DataTransferObject fileDto = DtoUtil.toSharedFileWithMeDto(file);
         for (final String userNickName : userNickNames) {
-            this.eventService.fireSharedFileEvent(userNickName, fileDto);
+            this.reactorEventBusService.fireSharedFileEvent(userNickName, fileDto);
         }
     }
 }

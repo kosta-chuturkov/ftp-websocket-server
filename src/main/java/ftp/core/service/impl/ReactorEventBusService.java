@@ -23,7 +23,7 @@ import static reactor.bus.selector.Selectors.$;
  * Created by kosta on 2.6.2016 г..
  */
 @Service
-public class EventService {
+public class ReactorEventBusService {
 
     @Resource
     private Gson gson;
@@ -36,6 +36,7 @@ public class EventService {
         this.eventBus.notify(topic, Event.wrap(new JsonResponse(Handlers.FILES_SHARED_WITH_ME_HANDLER, this.gson.toJson(fileDto))));
 
     }
+
 
     public <T> DeferredResult<T> scheduleTaskToReactor(Supplier<T> supplier, Long timeOut) {
         DeferredResult<T> deferredResult = new DeferredResult<>(timeOut);

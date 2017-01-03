@@ -4,7 +4,7 @@ import ftp.core.constants.APIAliases;
 import ftp.core.model.dto.ModifiedUserDto;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.UserManagementService;
-import ftp.core.service.impl.EventService;
+import ftp.core.service.impl.ReactorEventBusService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -19,12 +19,12 @@ public class UserManagementController {
     private UserManagementService userManagementService;
 
     @Resource
-    private EventService eventService;
+    private ReactorEventBusService reactorEventBusService;
 
     @Secured(Authorities.USER)
     @RequestMapping(value = {APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS}, method = RequestMethod.POST)
     public DeferredResult<String> getUserInfo(@NotNull @ModelAttribute("q") final String userNickName) {
-        return this.eventService
+        return this.reactorEventBusService
                 .scheduleTaskToReactor(() -> this.userManagementService.getUserDetails(userNickName), 10000L);
     }
 
@@ -33,7 +33,7 @@ public class UserManagementController {
     @RequestMapping(value = {
             APIAliases.UPDATE_USERS_FILE_IS_SHARED_TO_ALIAS}, method = RequestMethod.POST)
     public DeferredResult updateUsers(@NotNull @PathVariable final String deleteHash, @RequestBody final Set<ModifiedUserDto> modifiedUserDto) {
-        return this.eventService
+        return this.reactorEventBusService
                 .scheduleTaskToReactor(() -> {
                     this.userManagementService.updateUsers(deleteHash, modifiedUserDto);
                     return new DeferredResult();

@@ -29,7 +29,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Resource
     private FileService fileService;
     @Resource
-    private EventService eventService;
+    private ReactorEventBusService reactorEventBusService;
     @Resource
     private FileManagementService fileManagementService;
     @Autowired

@@ -5,7 +5,7 @@ import ftp.core.constants.ServerConstants;
 import ftp.core.listener.SessionToConsumerMapper;
 import ftp.core.model.entities.User;
 import ftp.core.reactor.NotificationDispatcher;
-import ftp.core.service.impl.EventService;
+import ftp.core.service.impl.ReactorEventBusService;
 import ftp.core.websocket.api.JsonTypedHandler;
 import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
@@ -35,7 +35,7 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
     private Gson gson;
 
     @Resource
-    private EventService eventService;
+    private ReactorEventBusService reactorEventBusService;
 
     @Resource
     private SessionToConsumerMapper sessionToConsumerMapper;
@@ -46,7 +46,7 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
         if (currentUser != null) {
             final NotificationDispatcher notificationDispatcher = new NotificationDispatcher(session, this.gson);
             final String currentUserNickName = ((User) currentUser).getNickName();
-            this.eventService.listen(currentUserNickName, notificationDispatcher);
+            this.reactorEventBusService.listen(currentUserNickName, notificationDispatcher);
         }
     }
 

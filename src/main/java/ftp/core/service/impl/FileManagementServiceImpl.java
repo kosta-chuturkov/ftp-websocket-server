@@ -47,18 +47,18 @@ public class FileManagementServiceImpl implements FileManagementService {
     private Executor executor;
     private UserService userService;
     private FileService fileService;
-    private EventService eventService;
+    private ReactorEventBusService reactorEventBusService;
     private ResourceLoader resourceLoader;
     private StorageService storageService;
     private ApplicationConfig applicationConfig;
     private FtpConfigurationProperties ftpConfigurationProperties;
 
     @Autowired
-    public FileManagementServiceImpl(Executor executor,UserService userService, FileService fileService, EventService eventService, StorageService storageService, ApplicationConfig applicationConfig, ResourceLoader resourceLoader, FtpConfigurationProperties ftpConfigurationProperties) {
+    public FileManagementServiceImpl(Executor executor, UserService userService, FileService fileService, ReactorEventBusService reactorEventBusService, StorageService storageService, ApplicationConfig applicationConfig, ResourceLoader resourceLoader, FtpConfigurationProperties ftpConfigurationProperties) {
         this.executor = executor;
         this.userService = userService;
         this.fileService = fileService;
-        this.eventService = eventService;
+        this.reactorEventBusService = reactorEventBusService;
         this.storageService = storageService;
         this.applicationConfig = applicationConfig;
         this.resourceLoader = resourceLoader;
@@ -176,7 +176,7 @@ public class FileManagementServiceImpl implements FileManagementService {
             return new DeletedFilesDto(objectObjectHashMap, storageInfo);
         } finally {
                 this.storageService.deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
-                this.eventService.fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
+                this.reactorEventBusService.fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
         }
     }
 
