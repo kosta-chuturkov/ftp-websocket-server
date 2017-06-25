@@ -28,8 +28,6 @@ import java.util.TimeZone;
 @EnableScheduling
 public class ApplicationConfig extends WebMvcConfigurerAdapter {
 
-    private Map<String, String> contentTypes = Maps.newHashMap();
-
     @Autowired
     private ApplicationContext applicationContext;
 

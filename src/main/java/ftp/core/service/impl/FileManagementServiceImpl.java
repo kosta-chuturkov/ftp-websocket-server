@@ -51,10 +51,8 @@ public class FileManagementServiceImpl implements FileManagementService {
     private ResourceLoader resourceLoader;
     private StorageService storageService;
     private ApplicationConfig applicationConfig;
-    private FtpConfigurationProperties ftpConfigurationProperties;
-
     @Autowired
-    public FileManagementServiceImpl(Executor executor,UserService userService, FileService fileService, EventService eventService, StorageService storageService, ApplicationConfig applicationConfig, ResourceLoader resourceLoader, FtpConfigurationProperties ftpConfigurationProperties) {
+    public FileManagementServiceImpl(Executor executor,UserService userService, FileService fileService, EventService eventService, StorageService storageService, ApplicationConfig applicationConfig, ResourceLoader resourceLoader) {
         this.executor = executor;
         this.userService = userService;
         this.fileService = fileService;
@@ -62,7 +60,6 @@ public class FileManagementServiceImpl implements FileManagementService {
         this.storageService = storageService;
         this.applicationConfig = applicationConfig;
         this.resourceLoader = resourceLoader;
-        this.ftpConfigurationProperties = ftpConfigurationProperties;
     }
 
     @Override
