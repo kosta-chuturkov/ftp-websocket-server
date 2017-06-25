@@ -96,8 +96,8 @@ public class FileManagementServiceImpl implements FileManagementService {
         final long currentTime = System.currentTimeMillis();
         final String tempFileName = new Long(currentTime).toString();
         final String serverFileName = tempFileName + "_" + fileName;
-        final String deleteHash = ServerUtil.hash(ServerUtil.hash(serverFileName + token) + ServerConstants.DELETE_SALT);
-        final String downloadHash = ServerUtil.hash((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
+        final String deleteHash = ServerUtil.hashSHA256(ServerUtil.hashSHA256(serverFileName + token) + ServerConstants.DELETE_SALT);
+        final String downloadHash = ServerUtil.hashSHA256((serverFileName + token) + ServerConstants.DOWNLOAD_SALT);
 
         final File fileToBeSaved = new File.Builder()
                 .withName(fileName)

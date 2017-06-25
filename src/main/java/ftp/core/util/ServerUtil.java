@@ -31,21 +31,21 @@ public final class ServerUtil {
         }
     }
 
-    public static String hash(final String fileName) {
+    public static String hashSHA256(final String payload) {
         MessageDigest digest;
-        final StringBuffer buffer = new StringBuffer();
+        final StringBuffer buffer;
         try {
             digest = MessageDigest.getInstance("SHA-256");
-            final byte[] hash = digest.digest(fileName.getBytes("UTF-8"));
+            final byte[] hash = digest.digest(payload.getBytes("UTF-8"));
+            buffer = new StringBuffer(hash.length);
             for (int i = 0; i < hash.length; i++) {
                 buffer.append(String.format("%02x", hash[i]));
             }
-
+            return buffer.toString();
         } catch (final Exception e) {
             logger.error("errror occured", e);
-            return null;
+            throw new RuntimeException(e);
         }
-        return buffer.toString();
     }
     public static boolean existsAndIsReadable(Resource resource) {
         return resource.exists() || resource.isReadable();
