@@ -1,7 +1,7 @@
 package ftp.core.config;
 
 import ftp.core.constants.ServerConstants;
-import ftp.core.listener.SessionToConsumerMapper;
+import ftp.core.listener.UserToSessionsMapper;
 import ftp.core.model.entities.User;
 import ftp.core.service.face.tx.UserService;
 import org.springframework.http.server.ServerHttpRequest;
@@ -22,11 +22,11 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 
     private UserService userService;
 
-    private SessionToConsumerMapper sessionToConsumerMapper;
+    private UserToSessionsMapper userToSessionsMapper;
 
-    public HandshakeInterceptor(UserService userService, SessionToConsumerMapper sessionToConsumerMapper) {
+    public HandshakeInterceptor(UserService userService, UserToSessionsMapper userToSessionsMapper) {
         this.userService = userService;
-        this.sessionToConsumerMapper = sessionToConsumerMapper;
+        this.userToSessionsMapper = userToSessionsMapper;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
             attributes.put(nextElement, attribute);
         }
         attributes.put(ServerConstants.CURRENT_USER, current);
-        this.sessionToConsumerMapper.addConsumer(current.getNickName());
+        this.userToSessionsMapper.addConsumer(current.getNickName());
         return super.beforeHandshake(request, response, wsHandler, attributes);
     }
 

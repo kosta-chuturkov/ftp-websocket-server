@@ -12,22 +12,22 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by Kosta_Chuturkov on 2/23/2016.
  */
 
-@Service("sessionToConsumerMapper")
-public class SessionToConsumerMapper {
+@Service("userToSessionsMapper")
+public class UserToSessionsMapper {
 
-    private final Map<String, AtomicInteger> sessionToConsumerMap = Maps.newConcurrentMap();
+    private final Map<String, AtomicInteger> userToSessionsMap = Maps.newConcurrentMap();
 
     @Resource
     private EventService eventService;
 
 
     public final void addConsumer(final String topic) {
-        final AtomicInteger userSessionsCount = this.sessionToConsumerMap.get(topic);
+        final AtomicInteger userSessionsCount = this.userToSessionsMap.get(topic);
         if (userSessionsCount == null) {
-            this.sessionToConsumerMap.put(topic, new AtomicInteger(1));
+            this.userToSessionsMap.put(topic, new AtomicInteger(1));
         } else {
             synchronized (userSessionsCount) {
-                if ((this.sessionToConsumerMap.get(topic)) != null)
+                if ((this.userToSessionsMap.get(topic)) != null)
                     userSessionsCount.incrementAndGet();
             }
         }
@@ -35,12 +35,12 @@ public class SessionToConsumerMapper {
     }
 
     public final void removeConsumer(final String topic) {
-        final AtomicInteger atomicInteger = this.sessionToConsumerMap.get(topic);
+        final AtomicInteger atomicInteger = this.userToSessionsMap.get(topic);
         if (atomicInteger != null) {
             synchronized (atomicInteger) {
                 if (atomicInteger.decrementAndGet() == 0) {
                     this.eventService.unregisterConsumer(topic);
-                    this.sessionToConsumerMap.remove(topic);
+                    this.userToSessionsMap.remove(topic);
                 }
             }
         }
