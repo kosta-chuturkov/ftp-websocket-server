@@ -5,7 +5,13 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: ribamech
-  web:
+      POSTGRES_DB: ftp_server
+  websoc-server:
+    environment:
+      spring.profiles.active: dev
+      spring.datasource.url: jdbc:postgresql://db:5432/ftp_server
+      spring.datasource.username: postgres
+      spring.datasource.password: ribamech
     restart: always
     build: .
     ports:
