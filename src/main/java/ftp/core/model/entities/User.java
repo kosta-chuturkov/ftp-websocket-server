@@ -45,7 +45,7 @@ public class User extends AbstractEntity<Long> implements UserDetails {
     @JsonIgnore
     private Long token;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private Set<File> uploadedFiles = Sets.newHashSet();
 
