@@ -5,14 +5,11 @@ import ftp.core.config.FtpConfigurationProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration;
 import org.springframework.boot.autoconfigure.dao.PersistenceExceptionTranslationAutoConfiguration;
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 
 import java.net.InetAddress;
@@ -21,7 +18,7 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @SpringBootApplication(exclude = {ValidationAutoConfiguration.class,
-    PersistenceExceptionTranslationAutoConfiguration.class })
+    PersistenceExceptionTranslationAutoConfiguration.class, SpringApplicationAdminJmxAutoConfiguration.class })
 @EnableConfigurationProperties({FtpConfigurationProperties.class})
 
 public class BootLoader {
