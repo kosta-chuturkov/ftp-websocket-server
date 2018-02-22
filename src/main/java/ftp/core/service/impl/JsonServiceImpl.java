@@ -6,8 +6,6 @@ import ftp.core.model.dto.ResponseModelAdapter;
 import ftp.core.service.face.JsonService;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.websocket.dto.JsonResponse;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -33,14 +31,5 @@ public class JsonServiceImpl implements JsonService {
         jsonResponse.setResponseMethod(method);
         jsonResponse.setResult(this.gson.toJson(data));
         return jsonResponse;
-    }
-
-    public JSONObject geAstJsonObject(final ResponseModelAdapter dtoWrapper) {
-        final JSONObject parent = new JSONObject();
-        final JSONArray json = new JSONArray();
-        final JSONObject jsonObject = new JSONObject(this.gson.toJson(dtoWrapper));
-        json.put(jsonObject.get("abstractJsonResponceDto"));
-        parent.put("files", json);
-        return parent;
     }
 }

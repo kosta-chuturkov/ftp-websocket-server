@@ -8,6 +8,7 @@ import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
 import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.repository.projections.UploadedFilesProjection;
+import javax.transaction.Transactional;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -67,7 +68,6 @@ UserServiceTest extends AbstractTest {
 
 
     @Test
-    //@Transactional
     public void testAddFileToUser() {
         //given
         String fileNameEscaped = "DSC_4536.jpg";

@@ -1,0 +1,18 @@
+version: '3.1'
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ribamech
+      POSTGRES_DB: ftp_server
+  websoc-server:
+    environment:
+      spring.profiles.active: dev
+      spring.datasource.url: jdbc:postgresql://db:5432/ftp_server
+      spring.datasource.username: postgres
+      spring.datasource.password: ribamech
+    restart: always
+    build: .
+    ports:
+    - "8443:8443"
