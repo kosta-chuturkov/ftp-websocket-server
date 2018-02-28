@@ -43,6 +43,8 @@ dependencies {
     compile('org.springframework.boot:spring-boot-configuration-processor')
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('org.springframework.security:spring-security-test')
+    compile("org.apache.tomcat.embed:tomcat-embed-jasper")
+    compile("org.apache.tomcat.embed:tomcat-embed-el")
     //GOOGLE
     compile('com.google.guava:guava:19.0')
     compile('com.google.code.gson:gson:2.6.1')
