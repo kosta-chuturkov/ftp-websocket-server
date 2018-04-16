@@ -4,5 +4,4 @@ EXPOSE 8443
 WORKDIR /app/
 
 COPY build/libs/ftp-websocket-server.jar /app/ftp-websocket-server.jar
-
-ENTRYPOINT ["java", "-jar", "/app/ftp-websocket-server.jar"]
+ENTRYPOINT ["java", "-Xmx1024m", "-jar", "/app/ftp-websocket-server.jar"]

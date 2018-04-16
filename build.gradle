@@ -13,6 +13,7 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 
 group = 'ftp.core'
 sourceCompatibility = 1.8
@@ -53,6 +54,10 @@ dependencies {
     //EVENTS
     compile("io.projectreactor:reactor-bus")
 
+    compile("com.zaxxer:HikariCP")
+    compile("org.springframework.boot:spring-boot-devtools")
+
     // IMAGE THUMBNAILING
     compile('net.coobird:thumbnailator:0.4.8')
+
 }

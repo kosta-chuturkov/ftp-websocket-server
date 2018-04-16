@@ -14,8 +14,6 @@ import org.springframework.core.env.Environment;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import org.springframework.validation.Validator;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @SpringBootApplication(exclude = {ValidationAutoConfiguration.class,
     PersistenceExceptionTranslationAutoConfiguration.class, SpringApplicationAdminJmxAutoConfiguration.class })
