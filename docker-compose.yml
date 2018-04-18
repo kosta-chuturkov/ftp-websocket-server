@@ -3,9 +3,8 @@ services:
   db:
     image: postgres
     restart: always
-    environment:
-      POSTGRES_PASSWORD: ribamech
-      POSTGRES_DB: ftp_server
+    env_file:
+    - config.properties
   websoc-server:
     environment:
       spring.profiles.active: dev

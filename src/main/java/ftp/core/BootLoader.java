@@ -2,6 +2,9 @@ package ftp.core;
 
 import ftp.core.config.DefaultProfileUtil;
 import ftp.core.config.FtpConfigurationProperties;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -41,7 +44,10 @@ public class BootLoader {
                 env.getProperty("server.port"),
                 hostAddress,
                 env.getProperty("server.port"));
-
+        log.info("VM args:");
+        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+        List<String> listOfArguments = runtimeMxBean.getInputArguments();
+        listOfArguments.forEach(arg -> log.info("ARG: {}", arg));
     }
 
 }

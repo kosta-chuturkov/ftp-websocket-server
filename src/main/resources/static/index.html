@@ -1,10 +1,155 @@
 <html>
-<body>
-<form method="POST" enctype="multipart/form-data"
-      action="/upload">
-    File to upload: <input type="file" name="file"><br/> Name: <input
-        type="text" name="name"><br/> <br/> <input type="submit"
-                                                   value="Upload"> Press here to upload the file!
-</form>
+
+<head>
+    <meta charset="UTF-8"></meta>
+    <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+    <link rel="stylesheet" type="text/css" href="hexagon.css"></link>
+    <link rel="stylesheet" type="text/css" href="bundle.css"></link>
+    <link rel="stylesheet" type="text/css"
+          href="https://www.hexagonjs.io/resources/font-awesome/css/font-awesome.min.css"></link>
+    <title>FTP Server Management Screen</title>
+</head>
+
+<body class="hx-full-width">
+<div class="hx-heading" id="titlebar">
+    <div class="hx-titlebar">
+        <div class="hx-titlebar-container">
+            <div class="hx-titlebar-header">
+                <a class="hx-titlebar-icon" href="#"><img class="hx-logo"></a>
+                <div class="hx-titlebar-title">File Management Page</div>
+                <label class="hx-titlebar-subtitle">ivan@abv.bg</label>
+                <label class="hx-titlebar-subtitle">20 GB left from 20 GB</label>
+                <div class="hx-titlebar-menu-icon-mobile"><i class="fa fa-reorder"></i></div>
+            </div>
+                <div class="hx-titlebar-menu-icons-container">
+                    <a class="hx-titlebar-menu-icon" href="#">
+                        <i class="fa fa-power-off"></i><span class="hx-titlebar-menu-text">Sign out</span>
+                    </a>
+                </div>
+        </div>
+    </div>
+    <div class="hx-titlebar-linkbar hx-titlebar-mobile-hide">
+        <div class="hx-titlebar-contents">
+
+            <a class="hx-titlebar-link" id="upload_files" href="#/channels">Upload Files</a>
+
+        </div>
+    </div>
+</div>
+<script src="hexagon.js"></script>
+
+<div id="progress" class="hx-progress-bar hx-contrast"></div>
+
+<div id="tabs" class="hx-tabs">
+    <div id="tab1" class="hx-tab hx-positive" data-content="tab-content-1">Private Files</div>
+    <div id="tab2" class="hx-tab hx-warning" data-content="tab-content-2">Shared With Users</div>
+    <div id="tab3" class="hx-tab hx-negative" data-content="tab-content-3">Shared with me</div>
+    <div class="hx-tabs-content demo-tabs-content-padded">
+        <div id="tab-content-1" class="hx-tab-content" style="padding: 1em;">
+            <div id="dataTable" class="hx-section"></div>
+        </div>
+        <div id="tab-content-2" class="hx-tab-content" style="padding: 1em;">Stuff goes here 2</div>
+        <div id="tab-content-3" class="hx-tab-content" style="padding: 1em;">Stuff goes here 3</div>
+    </div>
+</div>
+<script>var tabs = new hx.Tabs('#tabs');</script>
+
+<script>
+    var testData = {
+        "responseMethod": "getPrivateFiles",
+        "result": "[{\"deleteHash\":\"fdb557bf8f0f1c6f91fbe2e6af368c3fb68556f4eda2675b7c56f450a641b575\",\"size\":379919,\"name\":\"26677717_1543457502370313_8323136357512137235_o.jpg\",\"timestamp\":\"2018-03-10 21:55:58.389\",\"downloadHash\":\"fdb557bf8f0f1c6f91fbe2e6af368c3fb68556f4eda2675b7c56f450a641b57b\",\"sharingUserName\":\"mrkingrz\",\"fileType\":\"PRIVATE\"}]",
+        "error": null
+    };
+    // table feed template
+    var dataTableTemplate = {
+        headers: [
+            {
+                name: 'File Name',
+                id: 'name'
+            },
+            {
+                name: 'Uploaded',
+                id: 'timestamp'
+            },
+            {
+                name: 'File Size',
+                id: 'size'
+            },
+            {
+                name: 'Download',
+                id: 'downloadHash'
+            },
+            {
+                name: 'Delete',
+                id: 'deleteHash'
+            },
+            {
+                name: 'Type',
+                id: 'fileType'
+            }
+        ],
+        rows: []
+    };
+    // init the table
+    var table = new hx.DataTable('#dataTable', {
+        sort: {
+            column: 'time',
+            direction: 'desc' // ‘desc’
+        },
+        filterEnabled: false, // Disable the normal filter
+        advancedSearchEnabled: true, // Enable the advanced search
+        advancedSearchCriteria: hx.filter.types() // Enable all the filter types
+    });
+    table.cellRenderer('deleteHash', function (element, cell, row) {
+        hx.select(element).append('button')
+            .classed('hx-btn hx-positive', true)
+            .text('delete')
+            .on('click', function () {
+                alert('delete ' + cell);
+            });
+    });
+
+    table.cellRenderer('downloadHash', function (element, cell, row) {
+        hx.select(element).append('button')
+            .classed('hx-btn hx-negative', true)
+            .text('download')
+            .on('click', function () {
+                alert('download ' + cell);
+            });
+    });
+    table.feed(hx.dataTable.objectFeed(dataTableTemplate));
+    var tableData = hx.clone(dataTableTemplate);
+    JSON.parse(testData.result).forEach(function (file, index) {
+        tableData.rows.push({
+            id: index,
+            cells: file
+        });
+    });
+    table.feed(hx.dataTable.objectFeed(tableData));
+    //
+
+    // load bots using ajax
+    // hx.json("/bots.json", function (error, data) {
+    //     if (error) {
+    //         hx.notify.negative('Uh oh. Something went wrong');
+    //     } else {
+    //         // set table data
+    //         var tableData = hx.clone(dataTableTemplate);
+    //         var success = 10;
+    //         data.forEach(function (file, index) {
+    //             tableData.rows.push({
+    //                 id: index,
+    //                 cells: file
+    //             });
+    //         });
+    //         console.log(data.length)
+    //         console.log(success)
+    //         progressBar.value(success / data.length);
+    //         table.feed(hx.dataTable.objectFeed(tableData));
+    //     }
+    // });
+
+</script>
 </body>
+
 </html>
