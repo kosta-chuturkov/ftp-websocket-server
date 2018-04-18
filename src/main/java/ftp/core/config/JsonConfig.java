@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JsonConfig {
 
-    @Bean(name = "jsonParser")
-    public JsonParser jsonParser() {
-        return new JsonParser();
-    }
+  @Bean(name = "jsonParser")
+  public JsonParser jsonParser() {
+    return new JsonParser();
+  }
 }

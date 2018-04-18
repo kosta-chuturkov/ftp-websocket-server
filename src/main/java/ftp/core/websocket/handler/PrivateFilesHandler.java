@@ -15,23 +15,24 @@ import org.springframework.stereotype.Service;
 public class PrivateFilesHandler extends BaseJsonRequestHandler {
 
 
-    private FileManagementService fileManagementService;
+  private FileManagementService fileManagementService;
 
-    @Autowired
-    public PrivateFilesHandler(FileManagementService fileManagementService, JsonService jsonService) {
-        super(jsonService);
-        this.fileManagementService = fileManagementService;
-    }
+  @Autowired
+  public PrivateFilesHandler(FileManagementService fileManagementService, JsonService jsonService) {
+    super(jsonService);
+    this.fileManagementService = fileManagementService;
+  }
 
-    @Override
-    public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
-        JsonResponse handle = super.handle(jsonRequest,
-                (firstResult, maxResults) -> this.fileManagementService.getPrivateFiles(firstResult, maxResults, User.getCurrent().getNickName()));
-        return handle;
-    }
+  @Override
+  public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
+    JsonResponse handle = super.handle(jsonRequest,
+        (firstResult, maxResults) -> this.fileManagementService
+            .getPrivateFiles(firstResult, maxResults, User.getCurrent().getNickName()));
+    return handle;
+  }
 
-    @Override
-    public Handlers getHandlerType() {
-        return Handlers.PRIVATE_FILE_HANDLER;
-    }
+  @Override
+  public Handlers getHandlerType() {
+    return Handlers.PRIVATE_FILE_HANDLER;
+  }
 }

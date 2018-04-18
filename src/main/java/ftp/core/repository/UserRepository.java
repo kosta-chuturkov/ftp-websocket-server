@@ -3,27 +3,26 @@ package ftp.core.repository;
 import ftp.core.model.entities.User;
 import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.repository.projections.UploadedFilesProjection;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    User findByEmailAndPassword(String email, String password);
+  User findByEmailAndPassword(String email, String password);
 
-    Long findTokenByEmail(String email);
+  Long findTokenByEmail(String email);
 
-    User findByNickName(String nickName);
+  User findByNickName(String nickName);
 
-    User findByEmail(String email);
+  User findByEmail(String email);
 
-    List<NickNameProjection> findByNickNameLike(String nickName);
+  List<NickNameProjection> findByNickNameLike(String nickName);
 
-    UploadedFilesProjection findUploadedFilesById(Long id);
+  UploadedFilesProjection findUploadedFilesById(Long id);
 
-    Set<NickNameProjection> findByNickNameIn(Collection<String> nickNames);
+  Set<NickNameProjection> findByNickNameIn(Collection<String> nickNames);
 
 
 }

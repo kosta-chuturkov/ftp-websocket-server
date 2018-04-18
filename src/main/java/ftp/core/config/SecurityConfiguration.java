@@ -2,9 +2,15 @@ package ftp.core.config;
 
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
-import ftp.core.security.*;
+import ftp.core.security.AjaxAuthenticationFailureHandler;
+import ftp.core.security.AjaxAuthenticationSuccessHandler;
+import ftp.core.security.AjaxLogoutSuccessHandler;
+import ftp.core.security.CusomDaoAuthenticationProvider;
+import ftp.core.security.CustomAccessDeniedHandler;
+import ftp.core.security.Http401UnauthorizedEntryPoint;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.web.filter.CsrfCookieGeneratorFilter;
+import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -27,121 +33,120 @@ import org.springframework.security.data.repository.query.SecurityEvaluationCont
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.csrf.CsrfFilter;
 
-import javax.annotation.Resource;
-
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @AutoConfigureOrder(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    @Resource
-    private AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
 
-    @Resource
-    private AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler;
+  @Resource
+  private AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
 
-    @Resource
-    private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
+  @Resource
+  private AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler;
 
-    @Resource
-    private Http401UnauthorizedEntryPoint authenticationEntryPoint;
+  @Resource
+  private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
 
-    @Resource
-    private UserDetailsService userDetailsService;
+  @Resource
+  private Http401UnauthorizedEntryPoint authenticationEntryPoint;
 
-    @Resource
-    private UserService userService;
+  @Resource
+  private UserDetailsService userDetailsService;
 
-    @Resource
-    private RememberMeServices rememberMeServices;
+  @Resource
+  private UserService userService;
 
-    @Bean(name = "passwordEncoder")
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Resource
+  private RememberMeServices rememberMeServices;
 
-    @Bean
-    public SaltSource saltSource() {
-        final ReflectionSaltSource reflectionSaltSource = new ReflectionSaltSource();
-        reflectionSaltSource.setUserPropertyToUse("getToken");
-        return reflectionSaltSource;
-    }
+  @Bean(name = "passwordEncoder")
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider() {
-        final DaoAuthenticationProvider daoAuthenticationProvider = new CusomDaoAuthenticationProvider(
-                this.userService);
-        daoAuthenticationProvider.setUserDetailsService(this.userDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(this.passwordEncoder());
-        return daoAuthenticationProvider;
-    }
+  @Bean
+  public SaltSource saltSource() {
+    final ReflectionSaltSource reflectionSaltSource = new ReflectionSaltSource();
+    reflectionSaltSource.setUserPropertyToUse("getToken");
+    return reflectionSaltSource;
+  }
 
-    @Autowired
-    public void configureGlobal(final AuthenticationManagerBuilder auth,
-                                final DaoAuthenticationProvider daoAuthenticationProvider) throws Exception {
-        auth.authenticationProvider(daoAuthenticationProvider);
-    }
+  @Bean
+  public DaoAuthenticationProvider daoAuthenticationProvider() {
+    final DaoAuthenticationProvider daoAuthenticationProvider = new CusomDaoAuthenticationProvider(
+        this.userService);
+    daoAuthenticationProvider.setUserDetailsService(this.userDetailsService);
+    daoAuthenticationProvider.setPasswordEncoder(this.passwordEncoder());
+    return daoAuthenticationProvider;
+  }
 
-    @Override
-    public void configure(final WebSecurity web) throws Exception {
-        web.ignoring()
-                .antMatchers(HttpMethod.OPTIONS, "/**")
-                .antMatchers("/app/**/*.{js,html}")
-                .antMatchers("/bower_components/**")
-                .antMatchers("/i18n/**")
-                .antMatchers("/content/**")
-                .antMatchers("/resources/**")
-                .antMatchers("/test/**")
-                .antMatchers("/h2-console/**");
-    }
+  @Autowired
+  public void configureGlobal(final AuthenticationManagerBuilder auth,
+      final DaoAuthenticationProvider daoAuthenticationProvider) throws Exception {
+    auth.authenticationProvider(daoAuthenticationProvider);
+  }
 
-    @Override
-    protected void configure(final HttpSecurity http) throws Exception {
-        http
-                .csrf()
-                .and()
-                .addFilterAfter(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
-                .exceptionHandling()
-                .accessDeniedHandler(new CustomAccessDeniedHandler())
-                .authenticationEntryPoint(this.authenticationEntryPoint)
-                .and()
-                .rememberMe()
-                .rememberMeServices(this.rememberMeServices)
-                .rememberMeParameter("remember-me")
-                .key(ServerConstants.REMEMBER_ME_SECURITY_KEY)
-                .and()
-                .formLogin()
-                .loginProcessingUrl(APIAliases.LOGIN_ALIAS)
-                .successHandler(this.ajaxAuthenticationSuccessHandler)
-                .failureHandler(this.ajaxAuthenticationFailureHandler)
-                .usernameParameter("email")
-                .passwordParameter("pswd")
-                .permitAll()
-                .and()
-                .logout()
-                .logoutUrl(APIAliases.LOGOUT_ALIAS)
-                .logoutSuccessHandler(this.ajaxLogoutSuccessHandler)
-                .deleteCookies("JSESSIONID", "CSRF-TOKEN")
-                .permitAll()
-                .and()
-                .headers()
-                .frameOptions()
-                .disable()
-                .and()
-                .authorizeRequests()
-                .antMatchers(APIAliases.REGISTRATION_ALIAS).permitAll()
-                .antMatchers(APIAliases.LOGIN_ALIAS).permitAll()
-                .antMatchers(APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS).permitAll()
-                .antMatchers("/api/**")
-                .authenticated();
+  @Override
+  public void configure(final WebSecurity web) throws Exception {
+    web.ignoring()
+        .antMatchers(HttpMethod.OPTIONS, "/**")
+        .antMatchers("/app/**/*.{js,html}")
+        .antMatchers("/bower_components/**")
+        .antMatchers("/i18n/**")
+        .antMatchers("/content/**")
+        .antMatchers("/resources/**")
+        .antMatchers("/test/**")
+        .antMatchers("/h2-console/**");
+  }
 
-    }
+  @Override
+  protected void configure(final HttpSecurity http) throws Exception {
+    http
+        .csrf()
+        .and()
+        .addFilterAfter(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
+        .exceptionHandling()
+        .accessDeniedHandler(new CustomAccessDeniedHandler())
+        .authenticationEntryPoint(this.authenticationEntryPoint)
+        .and()
+        .rememberMe()
+        .rememberMeServices(this.rememberMeServices)
+        .rememberMeParameter("remember-me")
+        .key(ServerConstants.REMEMBER_ME_SECURITY_KEY)
+        .and()
+        .formLogin()
+        .loginProcessingUrl(APIAliases.LOGIN_ALIAS)
+        .successHandler(this.ajaxAuthenticationSuccessHandler)
+        .failureHandler(this.ajaxAuthenticationFailureHandler)
+        .usernameParameter("email")
+        .passwordParameter("pswd")
+        .permitAll()
+        .and()
+        .logout()
+        .logoutUrl(APIAliases.LOGOUT_ALIAS)
+        .logoutSuccessHandler(this.ajaxLogoutSuccessHandler)
+        .deleteCookies("JSESSIONID", "CSRF-TOKEN")
+        .permitAll()
+        .and()
+        .headers()
+        .frameOptions()
+        .disable()
+        .and()
+        .authorizeRequests()
+        .antMatchers(APIAliases.REGISTRATION_ALIAS).permitAll()
+        .antMatchers(APIAliases.LOGIN_ALIAS).permitAll()
+        .antMatchers(APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS).permitAll()
+        .antMatchers("/api/**")
+        .authenticated();
 
-    @Bean
-    public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
-        return new SecurityEvaluationContextExtension();
-    }
+  }
+
+  @Bean
+  public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
+    return new SecurityEvaluationContextExtension();
+  }
 
 
 }

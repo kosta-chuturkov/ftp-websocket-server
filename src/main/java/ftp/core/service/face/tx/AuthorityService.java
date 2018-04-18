@@ -2,7 +2,6 @@ package ftp.core.service.face.tx;
 
 import ftp.core.model.entities.Authority;
 import ftp.core.service.generic.GenericService;
-
 import javax.transaction.Transactional;
 
 /**
@@ -10,4 +9,5 @@ import javax.transaction.Transactional;
  */
 @Transactional
 public interface AuthorityService extends GenericService<Authority, Long> {
+
 }

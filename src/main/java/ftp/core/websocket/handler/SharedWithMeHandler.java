@@ -15,22 +15,23 @@ import org.springframework.stereotype.Service;
 public class SharedWithMeHandler extends BaseJsonRequestHandler {
 
 
-    private FileManagementService fileManagementService;
+  private FileManagementService fileManagementService;
 
-    @Autowired
-    public SharedWithMeHandler(JsonService jsonService, FileManagementService fileManagementService) {
-        super(jsonService);
-        this.fileManagementService = fileManagementService;
-    }
+  @Autowired
+  public SharedWithMeHandler(JsonService jsonService, FileManagementService fileManagementService) {
+    super(jsonService);
+    this.fileManagementService = fileManagementService;
+  }
 
-    @Override
-    public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
-        return super.handle(jsonRequest,
-                (firstResult, maxResults) -> this.fileManagementService.getFilesSharedToMe(firstResult, maxResults, User.getCurrent().getNickName()));
-    }
+  @Override
+  public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
+    return super.handle(jsonRequest,
+        (firstResult, maxResults) -> this.fileManagementService
+            .getFilesSharedToMe(firstResult, maxResults, User.getCurrent().getNickName()));
+  }
 
-    @Override
-    public Handlers getHandlerType() {
-        return Handlers.FILES_SHARED_WITH_ME_HANDLER;
-    }
+  @Override
+  public Handlers getHandlerType() {
+    return Handlers.FILES_SHARED_WITH_ME_HANDLER;
+  }
 }

@@ -1,7 +1,6 @@
 package ftp.core.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 /**
@@ -9,14 +8,14 @@ import java.util.List;
  */
 public class UploadedFilesDto<T extends BaseFileDto> {
 
-    @JsonProperty("files")
-    private List<T> files;
+  @JsonProperty("files")
+  private List<T> files;
 
-    public UploadedFilesDto(List<T> files) {
-        this.files = files;
-    }
+  public UploadedFilesDto(List<T> files) {
+    this.files = files;
+  }
 
-    public List<T> getFiles() {
-        return this.files;
-    }
+  public List<T> getFiles() {
+    return this.files;
+  }
 }
