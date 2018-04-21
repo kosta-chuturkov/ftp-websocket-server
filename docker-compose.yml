@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: ribamech
       POSTGRES_DB: ftp_server
   websoc-server:
-    image: registry.gitccl.tech.lastmile.com/bsc-sandbox/bsc-ui:latest
+    image: ftp-websocket-server:latest
     restart: unless-stopped
     environment:
       spring.profiles.active: dev
