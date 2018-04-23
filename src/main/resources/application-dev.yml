@@ -1,0 +1,59 @@
+ftpserver:
+    cache:
+        ehcache:
+            maxBytesLocalHeap: 16M
+        timeToLiveSeconds: 3600
+    storage:
+        rootStorageFolderName: ./FileStorage
+logging:
+    level:
+        ROOT: DEBUG
+        ftp:
+            core: DEBUG
+        org:
+            hibernate: INFO
+            springframework:
+                data: INFO
+                security: INFO
+                web: INFO
+server:
+    compression:
+        enabled: true
+        min-response-size: 1
+    contextPath: /
+    port: 8443
+    session:
+        persistent: true
+    ssl:
+        enabled: false
+spring:
+    application:
+        name: ftp.server
+    datasource:
+        driverClassName: org.postgresql.Driver
+        password: ribamech
+        testWhileIdle: true
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:postgresql://localhost:5432/postgres
+        username: postgres
+        validationQuery: SELECT 1
+    http:
+        multipart:
+            enabled: true
+            location: ${java.io.tmpdir}
+            max-file-size: 5000MB
+            max-request-size: 5000MB
+    jpa:
+        hibernate:
+            ddl-auto: update
+            naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+            use-new-id-generator-mappings: true
+        properties:
+            hibernate:
+                cache:
+                    use_query_cache: false
+                    use_second_level_cache: false
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+                format_sql: false
+                generate_statistics: false
+        show-sql: false

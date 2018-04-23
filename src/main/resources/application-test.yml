@@ -1,0 +1,42 @@
+ftpserver:
+    cache:
+        ehcache:
+            maxBytesLocalHeap: 16M
+        timeToLiveSeconds: 3600
+    storage:
+        rootStorageFolderName: TestGeneratedSources/${random.uuid}TestFileStorage
+logging:
+    level:
+        ROOT: DEBUG
+        com:
+            epam:
+                techtalks: DEBUG
+        org:
+            hibernate: DEBUG
+            springframework:
+                data: DEBUG
+                security: DEBUG
+                web: DEBUG
+server:
+    port: 8081
+spring:
+    datasource:
+        driverClassName: org.hsqldb.jdbcDriver
+        password: ''
+        url: jdbc:hsqldb:mem:aname
+        username: sa
+    http:
+        multipart:
+            enabled: true
+            location: ${ftpserver.storage.rootStorageFolderName}/temp/
+            max-file-size: 5000MB
+            max-request-size: 5000MB
+    jpa:
+        hibernate:
+            ddl-auto: create
+        properties:
+            hibernate:
+                cache:
+                    use_query_cache: false
+                    use_second_level_cache: false
+                dialect: org.hibernate.dialect.HSQLDialect
