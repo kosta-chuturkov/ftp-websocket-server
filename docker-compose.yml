@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: ribamech
       POSTGRES_DB: ftp_server
   websoc-server:
-    image: ftp-websocket-server:latest
+    image: kostachuturkov/ftp-websocket-server:latest
     restart: unless-stopped
     environment:
       spring.profiles.active: dev
