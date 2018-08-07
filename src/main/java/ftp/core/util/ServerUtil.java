@@ -1,6 +1,7 @@
 package ftp.core.util;
 
-import java.security.MessageDigest;
+import com.google.common.hash.Hashing;
+import java.nio.charset.Charset;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,20 +33,7 @@ public final class ServerUtil {
   }
 
   public static String hashSHA256(final String payload) {
-    MessageDigest digest;
-    final StringBuffer buffer;
-    try {
-      digest = MessageDigest.getInstance("SHA-256");
-      final byte[] hash = digest.digest(payload.getBytes("UTF-8"));
-      buffer = new StringBuffer(hash.length);
-      for (byte aHash : hash) {
-        buffer.append(String.format("%02x", aHash));
-      }
-      return buffer.toString();
-    } catch (final Exception e) {
-      logger.error("errror occured", e);
-      throw new RuntimeException(e);
-    }
+    return Hashing.sha256().hashString(payload, Charset.forName("utf-8")).toString();
   }
 
   public static boolean existsAndIsReadable(Resource resource) {
