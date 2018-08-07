@@ -76,19 +76,16 @@ public class FileManagementController {
   }
 
   @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS + "{userName}"}, method = RequestMethod.GET)
-  public DeferredResult<FileSystemResource> getProfilePic(@NotNull @PathVariable String userName) {
-    return this.eventService
-        .scheduleTaskToReactor(() -> this.fileManagementService.sendProfilePicture(userName),
-            10000L);
+  public FileSystemResource getProfilePic(@NotNull @PathVariable String userName) {
+    return this.fileManagementService.sendProfilePicture(userName);
   }
 
   @Secured(Authorities.USER)
   @RequestMapping(value = {
       APIAliases.DOWNLOAD_FILE_ALIAS + "{downloadHash}"}, method = RequestMethod.GET)
-  public DeferredResult<FileSystemResource> downloadFile(
+  public FileSystemResource downloadFile(
       @NotNull @PathVariable String downloadHash) {
-    return this.eventService
-        .scheduleTaskToReactor(() -> this.fileManagementService.downloadFile(downloadHash), null);
+    return this.fileManagementService.downloadFile(downloadHash);
   }
 
   @Secured(Authorities.USER)
