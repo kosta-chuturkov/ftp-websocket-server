@@ -35,10 +35,10 @@ public class SessionToConsumerMapper {
   }
 
   public final void removeConsumer(final String topic) {
-    final AtomicInteger atomicInteger = this.sessionToConsumerMap.get(topic);
-    if (atomicInteger != null) {
-      synchronized (atomicInteger) {
-        if (atomicInteger.decrementAndGet() == 0) {
+    final AtomicInteger userSessionsCount = this.sessionToConsumerMap.get(topic);
+    if (userSessionsCount != null) {
+      synchronized (userSessionsCount) {
+        if (userSessionsCount.decrementAndGet() == 0) {
           this.eventService.unregisterConsumer(topic);
           this.sessionToConsumerMap.remove(topic);
         }

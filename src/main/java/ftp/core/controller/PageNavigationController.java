@@ -55,14 +55,14 @@ public class PageNavigationController {
   @RequestMapping(value = {APIAliases.MAIN_PAGE_ALIAS}, method = RequestMethod.GET)
   public DeferredResult<ModelAndView> getMainPage() throws IOException, ServletException {
     return this.eventService
-        .scheduleTaskToReactor(() -> mainPage(), 10000L);
+        .scheduleTaskToReactor(this::mainPage, 10000L);
   }
 
   @RequestMapping(value = {APIAliases.UPLOAD_FILE_ALIAS + "*"}, method = RequestMethod.GET)
   public DeferredResult<ModelAndView> getUploadPage()
       throws IOException, ServletException {
     return this.eventService
-        .scheduleTaskToReactor(() -> uploadPage(), 10000L);
+        .scheduleTaskToReactor(this::uploadPage, 10000L);
 
   }
 
@@ -84,16 +84,14 @@ public class PageNavigationController {
 
   private ModelAndView logOut(HttpServletRequest request, HttpServletResponse response) {
     ServerUtil.invalidateSession(request, response);
-    final ModelAndView modelAndView = new ModelAndView(ServerConstants.NEW_CLIENT_LOGIN_PAGE);
-    return modelAndView;
+    return new ModelAndView(ServerConstants.NEW_CLIENT_LOGIN_PAGE);
   }
 
   private ModelAndView uploadPage() {
     if (User.isAuthenticated()) {
       return new ModelAndView(ServerConstants.UPLOAD_PAGE);
     } else {
-      final ModelAndView modelAndView = new ModelAndView("redirect:" + APIAliases.LOGIN_ALIAS);
-      return modelAndView;
+      return new ModelAndView("redirect:" + APIAliases.LOGIN_ALIAS);
     }
   }
 
@@ -123,8 +121,7 @@ public class PageNavigationController {
       view.setExposeModelAttributes(false);
       return new ModelAndView(view);
     } else {
-      final ModelAndView modelAndView = new ModelAndView(newClientLoginPage);
-      return modelAndView;
+      return new ModelAndView(newClientLoginPage);
     }
   }
 

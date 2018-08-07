@@ -37,9 +37,7 @@ public final class DtoUtil {
         .withFileType(file.getFileType())
         .build();
 
-    file.getSharedWithUsers()
-        .stream()
-        .forEach(s -> dto.addSharedUser(s));
+    file.getSharedWithUsers().forEach(dto::addSharedUser);
 
     return dto;
   }

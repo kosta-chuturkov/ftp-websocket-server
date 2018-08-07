@@ -5,6 +5,7 @@ import ftp.core.service.face.FileManagementService;
 import ftp.core.service.face.JsonService;
 import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,7 @@ public class SharedWithMeHandler extends BaseJsonRequestHandler {
   public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
     return super.handle(jsonRequest,
         (firstResult, maxResults) -> this.fileManagementService
-            .getFilesSharedToMe(firstResult, maxResults, User.getCurrent().getNickName()));
+            .getFilesSharedToMe(firstResult, maxResults, Objects.requireNonNull(User.getCurrent()).getNickName()));
   }
 
   @Override

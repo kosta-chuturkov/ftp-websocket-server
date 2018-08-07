@@ -5,6 +5,7 @@ import ftp.core.service.face.FileManagementService;
 import ftp.core.service.face.JsonService;
 import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +26,9 @@ public class PrivateFilesHandler extends BaseJsonRequestHandler {
 
   @Override
   public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
-    JsonResponse handle = super.handle(jsonRequest,
+    return super.handle(jsonRequest,
         (firstResult, maxResults) -> this.fileManagementService
-            .getPrivateFiles(firstResult, maxResults, User.getCurrent().getNickName()));
-    return handle;
+            .getPrivateFiles(firstResult, maxResults, Objects.requireNonNull(User.getCurrent()).getNickName()));
   }
 
   @Override

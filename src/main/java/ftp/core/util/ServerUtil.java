@@ -38,8 +38,8 @@ public final class ServerUtil {
       digest = MessageDigest.getInstance("SHA-256");
       final byte[] hash = digest.digest(payload.getBytes("UTF-8"));
       buffer = new StringBuffer(hash.length);
-      for (int i = 0; i < hash.length; i++) {
-        buffer.append(String.format("%02x", hash[i]));
+      for (byte aHash : hash) {
+        buffer.append(String.format("%02x", aHash));
       }
       return buffer.toString();
     } catch (final Exception e) {

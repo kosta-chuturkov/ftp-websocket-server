@@ -3,6 +3,7 @@ package ftp.core.controller;
 import com.google.gson.Gson;
 import ftp.core.model.dto.JsonErrorDto;
 import ftp.core.model.dto.ResponseModelAdapter;
+import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,8 +17,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class GlobalExceptionHandler {
 
   private static final Logger logger = Logger.getLogger(GlobalExceptionHandler.class);
-  Gson gson = new Gson();
 
+  @Resource
+  private Gson gson;
+  
   public String getExpectedAsJsonModelFromClient(String message, String storedBytes) {
     final JSONObject parent = new JSONObject();
     final JSONArray json = new JSONArray();

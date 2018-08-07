@@ -45,11 +45,10 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter {
   public String setServerAddress(Environment env) {
     String hostAddress = extractHostAddress();
     String serverPort = env.getProperty("server.port", "80");
-    return this.serverAddress = new StringBuilder(determineHttpOrHttps(env))
-        .append(hostAddress)
-        .append(":")
-        .append(serverPort)
-        .toString();
+    return this.serverAddress = determineHttpOrHttps(env)
+        + hostAddress
+        + ":"
+        + serverPort;
   }
 
   private String extractHostAddress() {
