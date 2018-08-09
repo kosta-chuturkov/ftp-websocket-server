@@ -1,3 +1,9 @@
+ftp:
+ server:
+    redis:
+        namespace: ftpserver
+        host: localhost
+        port: 6379
 ftpserver:
     cache:
         ehcache:
@@ -17,6 +23,9 @@ logging:
                 security: INFO
                 web: INFO
 server:
+    servlet:
+        session:
+            timeout: 30
     compression:
         enabled: true
         min-response-size: 1
@@ -27,6 +36,11 @@ server:
     ssl:
         enabled: false
 spring:
+    session:
+        redis:
+            flush-mode: ON_SAVE
+            namespace: spring:session
+        store-type: redis
     application:
         name: ftp.server
     datasource:

@@ -1,10 +1,13 @@
 package ftp.core.listener;
 
-import com.google.common.collect.Maps;
 import ftp.core.service.impl.EventService;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,36 +17,45 @@ import org.springframework.stereotype.Service;
 @Service("sessionToConsumerMapper")
 public class SessionToConsumerMapper {
 
-  private final Map<String, AtomicInteger> sessionToConsumerMap = Maps.newConcurrentMap();
+  @Value("${ftp.server.redis.namespace}")
+  private String redisNamespace;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SessionToConsumerMapper.class);
 
   @Resource
   private EventService eventService;
 
+  private final RedisTemplate<String, Integer> redisTemplate;
 
-  public final void addConsumer(final String topic) {
-    final AtomicInteger userSessionsCount = this.sessionToConsumerMap.get(topic);
-    if (userSessionsCount == null) {
-      this.sessionToConsumerMap.put(topic, new AtomicInteger(1));
-    } else {
-      synchronized (userSessionsCount) {
-        if ((this.sessionToConsumerMap.get(topic)) != null) {
-          userSessionsCount.incrementAndGet();
-        }
-      }
-    }
+  @Autowired
+  public SessionToConsumerMapper(RedisTemplate<String, Integer> redisTemplate) {
+    this.redisTemplate = redisTemplate;
+  }
+
+  private ValueOperations<String, Integer> getValueOps() {
+    return redisTemplate.opsForValue();
+  }
+
+  private Integer decrementAndGet(String key) {
+    return getValueOps().increment(key, -1L).intValue();
+  }
+
+  private Integer incrementAndGet(String key) {
+    return getValueOps().increment(key, 1L).intValue();
+  }
+
+  public final void addConsumer(String topic) {
+    Integer currentSessionsCout = incrementAndGet(redisNamespace.concat(":" + topic));
+    LOGGER.info("Adding session for [" + topic + "] = [" + currentSessionsCout + "]");
 
   }
 
-  public final void removeConsumer(final String topic) {
-    final AtomicInteger userSessionsCount = this.sessionToConsumerMap.get(topic);
-    if (userSessionsCount != null) {
-      synchronized (userSessionsCount) {
-        if (userSessionsCount.decrementAndGet() == 0) {
-          this.eventService.unregisterConsumer(topic);
-          this.sessionToConsumerMap.remove(topic);
-        }
-      }
+  public final void removeConsumer(String topic) {
+    Integer currentSessionsCount = decrementAndGet(redisNamespace.concat(":" + topic));
+    LOGGER.info("Removed session for [" + topic + "] = [" + currentSessionsCount + "]");
+    if (currentSessionsCount == 0) {
+      this.eventService.unregisterConsumer(topic);
+      LOGGER.info("Unregistered consumer for [" + topic + "]");
     }
   }
-
 }
