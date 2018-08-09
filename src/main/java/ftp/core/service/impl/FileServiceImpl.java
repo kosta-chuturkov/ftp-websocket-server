@@ -35,7 +35,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
   private UserService userService;
 
   @Resource
-  private EventService eventService;
+  private SchedulingService schedulingService;
 
   @Override
   public File getFileByDownloadHash(final String downloadHash) {
@@ -66,7 +66,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
           .updateRemainingStorageForUser(fileSize, currentUser.getId(), remainingStorage);
       this.userService.addFileToUser(savedFile.getId(), currentUser.getId());
       if (!validatedUsers.isEmpty()) {
-        this.eventService
+        this.schedulingService
             .fireSharedFileEvent(validatedUsers, DtoUtil.toSharedFileWithMeDto(savedFile));
       }
     } else {
@@ -143,7 +143,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     persistentSharedToUsers.removeAll(userNickNames);
     file.setSharedWithUsers(userNickNames);
     saveAndFlush(file);
-    this.eventService
+    this.schedulingService
         .fireRemovedFileEvent(persistentSharedToUsers, new DeletedFileDto(downloadHash));
     return file;
   }
@@ -175,7 +175,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     final File file = updateUsersForFile(deleteHash, userNickNames);
     final DataTransferObject fileDto = DtoUtil.toSharedFileWithMeDto(file);
     for (final String userNickName : userNickNames) {
-      this.eventService.fireSharedFileEvent(userNickName, fileDto);
+      this.schedulingService.fireSharedFileEvent(userNickName, fileDto);
     }
   }
 }

@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import ftp.core.config.ApplicationConfig;
-import ftp.core.config.FtpConfigurationProperties;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.DeletedFileDto;
@@ -30,7 +29,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
@@ -51,18 +49,18 @@ public class FileManagementServiceImpl implements FileManagementService {
 
   private UserService userService;
   private FileService fileService;
-  private EventService eventService;
+  private SchedulingService schedulingService;
   private ResourceLoader resourceLoader;
   private StorageService storageService;
   private ApplicationConfig applicationConfig;
 
   @Autowired
   public FileManagementServiceImpl(UserService userService,
-      FileService fileService, EventService eventService, StorageService storageService,
+      FileService fileService, SchedulingService schedulingService, StorageService storageService,
       ApplicationConfig applicationConfig, ResourceLoader resourceLoader) {
     this.userService = userService;
     this.fileService = fileService;
-    this.eventService = eventService;
+    this.schedulingService = schedulingService;
     this.storageService = storageService;
     this.applicationConfig = applicationConfig;
     this.resourceLoader = resourceLoader;
@@ -190,7 +188,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     } finally {
       this.storageService
           .deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
-      this.eventService
+      this.schedulingService
           .fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
     }
   }

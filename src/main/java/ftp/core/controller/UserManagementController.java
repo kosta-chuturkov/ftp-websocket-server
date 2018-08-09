@@ -4,7 +4,7 @@ import ftp.core.constants.APIAliases;
 import ftp.core.model.dto.ModifiedUserDto;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.UserManagementService;
-import ftp.core.service.impl.EventService;
+import ftp.core.service.impl.SchedulingService;
 import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
@@ -24,14 +24,14 @@ public class UserManagementController {
   private UserManagementService userManagementService;
 
   @Resource
-  private EventService eventService;
+  private SchedulingService schedulingService;
 
   @Secured(Authorities.USER)
   @RequestMapping(value = {APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS}, method = RequestMethod.POST)
   public DeferredResult<String> getUserInfo(
       @NotNull @ModelAttribute("q") final String userNickName) {
-    return this.eventService
-        .scheduleTaskToReactor(() -> this.userManagementService.getUserDetails(userNickName),
+    return this.schedulingService
+        .scheduleTask(() -> this.userManagementService.getUserDetails(userNickName),
             10000L);
   }
 
@@ -41,8 +41,8 @@ public class UserManagementController {
       APIAliases.UPDATE_USERS_FILE_IS_SHARED_TO_ALIAS}, method = RequestMethod.POST)
   public DeferredResult updateUsers(@NotNull @PathVariable final String deleteHash,
       @RequestBody final Set<ModifiedUserDto> modifiedUserDto) {
-    return this.eventService
-        .scheduleTaskToReactor(() -> {
+    return this.schedulingService
+        .scheduleTask(() -> {
           this.userManagementService.updateUsers(deleteHash, modifiedUserDto);
           return new DeferredResult();
         }, 10000L);

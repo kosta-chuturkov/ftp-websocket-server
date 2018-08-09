@@ -2,7 +2,7 @@ package ftp.core.session;
 
 import com.google.common.collect.Maps;
 import ftp.core.api.UserSessionCounter;
-import ftp.core.service.impl.EventService;
+import ftp.core.service.impl.SchedulingService;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Resource;
@@ -19,7 +19,7 @@ public class LocalSessionCounter implements UserSessionCounter {
   private final Map<String, AtomicInteger> sessionToConsumerMap = Maps.newConcurrentMap();
 
   @Resource
-  private EventService eventService;
+  private SchedulingService schedulingService;
 
 
   @Override
@@ -42,7 +42,7 @@ public class LocalSessionCounter implements UserSessionCounter {
     if (userSessionsCount != null) {
       synchronized (userSessionsCount) {
         if (userSessionsCount.decrementAndGet() == 0) {
-          this.eventService.unregisterConsumer(userName);
+          this.schedulingService.unsubscribe(userName);
           this.sessionToConsumerMap.remove(userName);
         }
       }

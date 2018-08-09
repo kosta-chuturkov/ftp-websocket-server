@@ -22,7 +22,7 @@ import reactor.fn.Consumer;
  * Created by kosta on 2.6.2016 г..
  */
 @Service
-public class EventService {
+public class SchedulingService {
 
   @Resource
   private Gson gson;
@@ -32,12 +32,16 @@ public class EventService {
 
 
   public void fireSharedFileEvent(final String topic, final DataTransferObject fileDto) {
-    this.eventBus.notify(topic, Event
-        .wrap(new JsonResponse(Handlers.FILES_SHARED_WITH_ME_HANDLER, this.gson.toJson(fileDto))));
+    publish(topic, Event
+        .wrap(new JsonResponse(this.gson.toJson(fileDto), Handlers.FILES_SHARED_WITH_ME_HANDLER.getHandlerName())));
 
   }
 
-  public <T> DeferredResult<T> scheduleTaskToReactor(Supplier<T> supplier, Long timeOut) {
+  private void publish(String topic, Event<JsonResponse> data) {
+    this.eventBus.notify(topic, data);
+  }
+
+  public <T> DeferredResult<T> scheduleTask(Supplier<T> supplier, Long timeOut) {
     DeferredResult<T> deferredResult = new DeferredResult<>(timeOut);
     SecurityContext securityContext = SecurityContextHolder.getContext();
     this.eventBus.schedule((data) -> {
@@ -54,16 +58,16 @@ public class EventService {
   public void fireRemovedFileEvent(final Collection<String> usersToBeNotified,
       final DeletedFileDto deletedFileDto) {
     for (final String userNickName : usersToBeNotified) {
-      this.eventBus.notify(userNickName,
-          Event.wrap(new JsonResponse(Handlers.DELETED_FILE, this.gson.toJson(deletedFileDto))));
+      publish(userNickName, Event
+          .wrap(new JsonResponse(this.gson.toJson(deletedFileDto), Handlers.DELETED_FILE.getHandlerName())));
     }
   }
 
-  public <T> void listen(final String topic, final Consumer<Event<T>> consumer) {
+  public <T> void subscribe(final String topic, final Consumer<Event<T>> consumer) {
     this.eventBus.on($(topic), consumer);
   }
 
-  public void unregisterConsumer(final String topic) {
+  public void unsubscribe(final String topic) {
     this.eventBus.getConsumerRegistry().unregister(topic);
   }
 

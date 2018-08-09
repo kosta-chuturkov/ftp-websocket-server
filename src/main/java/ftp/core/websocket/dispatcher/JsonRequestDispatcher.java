@@ -5,7 +5,7 @@ import ftp.core.constants.ServerConstants;
 import ftp.core.api.UserSessionCounter;
 import ftp.core.model.entities.User;
 import ftp.core.reactor.NotificationDispatcher;
-import ftp.core.service.impl.EventService;
+import ftp.core.service.impl.SchedulingService;
 import ftp.core.websocket.api.JsonTypedHandler;
 import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
@@ -34,7 +34,7 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
   private Gson gson;
 
   @Resource
-  private EventService eventService;
+  private SchedulingService schedulingService;
 
   @Resource
   private UserSessionCounter userSessionCounter;
@@ -46,7 +46,7 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
       final NotificationDispatcher notificationDispatcher = new NotificationDispatcher(session,
           this.gson);
       final String currentUserNickName = ((User) currentUser).getNickName();
-      this.eventService.listen(currentUserNickName, notificationDispatcher);
+      this.schedulingService.subscribe(currentUserNickName, notificationDispatcher);
     }
   }
 

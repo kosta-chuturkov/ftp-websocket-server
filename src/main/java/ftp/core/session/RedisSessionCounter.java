@@ -1,7 +1,7 @@
 package ftp.core.session;
 
 import ftp.core.api.UserSessionCounter;
-import ftp.core.service.impl.EventService;
+import ftp.core.service.impl.SchedulingService;
 import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class RedisSessionCounter
   private static final Logger LOGGER = LoggerFactory.getLogger(RedisSessionCounter.class);
 
   @Resource
-  private EventService eventService;
+  private SchedulingService schedulingService;
 
   private final RedisTemplate<String, Integer> redisTemplate;
 
@@ -59,7 +59,7 @@ public class RedisSessionCounter
     Integer currentSessionsCount = decrementAndGet(redisNamespace.concat(":" + userName));
     LOGGER.info("Removed session for [" + userName + "] = [" + currentSessionsCount + "]");
     if (currentSessionsCount == 0) {
-      this.eventService.unregisterConsumer(userName);
+      this.schedulingService.unsubscribe(userName);
       LOGGER.info("Unregistered consumer for [" + userName + "]");
     }
   }
