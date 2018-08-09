@@ -1,11 +1,13 @@
-package ftp.core.listener;
+package ftp.core.session;
 
+import ftp.core.api.UserSessionCounter;
 import ftp.core.service.impl.EventService;
 import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -13,14 +15,15 @@ import org.springframework.stereotype.Service;
 /**
  * Created by Kosta_Chuturkov on 2/23/2016.
  */
-
-@Service("sessionToConsumerMapper")
-public class SessionToConsumerMapper {
+@Profile("prod")
+@Service("redisSessionCounter")
+public class RedisSessionCounter
+    implements UserSessionCounter {
 
   @Value("${ftp.server.redis.namespace}")
   private String redisNamespace;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SessionToConsumerMapper.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RedisSessionCounter.class);
 
   @Resource
   private EventService eventService;
@@ -28,7 +31,7 @@ public class SessionToConsumerMapper {
   private final RedisTemplate<String, Integer> redisTemplate;
 
   @Autowired
-  public SessionToConsumerMapper(RedisTemplate<String, Integer> redisTemplate) {
+  public RedisSessionCounter(RedisTemplate<String, Integer> redisTemplate) {
     this.redisTemplate = redisTemplate;
   }
 
@@ -44,18 +47,20 @@ public class SessionToConsumerMapper {
     return getValueOps().increment(key, 1L).intValue();
   }
 
-  public final void addConsumer(String topic) {
-    Integer currentSessionsCout = incrementAndGet(redisNamespace.concat(":" + topic));
-    LOGGER.info("Adding session for [" + topic + "] = [" + currentSessionsCout + "]");
+  @Override
+  public final void addUserSession(String userName) {
+    Integer currentSessionsCout = incrementAndGet(redisNamespace.concat(":" + userName));
+    LOGGER.info("Adding session for [" + userName + "] = [" + currentSessionsCout + "]");
 
   }
 
-  public final void removeConsumer(String topic) {
-    Integer currentSessionsCount = decrementAndGet(redisNamespace.concat(":" + topic));
-    LOGGER.info("Removed session for [" + topic + "] = [" + currentSessionsCount + "]");
+  @Override
+  public final void removeUserSession(String userName) {
+    Integer currentSessionsCount = decrementAndGet(redisNamespace.concat(":" + userName));
+    LOGGER.info("Removed session for [" + userName + "] = [" + currentSessionsCount + "]");
     if (currentSessionsCount == 0) {
-      this.eventService.unregisterConsumer(topic);
-      LOGGER.info("Unregistered consumer for [" + topic + "]");
+      this.eventService.unregisterConsumer(userName);
+      LOGGER.info("Unregistered consumer for [" + userName + "]");
     }
   }
 }

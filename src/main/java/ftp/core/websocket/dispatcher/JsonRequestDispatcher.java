@@ -2,7 +2,7 @@ package ftp.core.websocket.dispatcher;
 
 import com.google.gson.Gson;
 import ftp.core.constants.ServerConstants;
-import ftp.core.listener.SessionToConsumerMapper;
+import ftp.core.api.UserSessionCounter;
 import ftp.core.model.entities.User;
 import ftp.core.reactor.NotificationDispatcher;
 import ftp.core.service.impl.EventService;
@@ -37,7 +37,7 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
   private EventService eventService;
 
   @Resource
-  private SessionToConsumerMapper sessionToConsumerMapper;
+  private UserSessionCounter userSessionCounter;
 
   @Override
   public void afterConnectionEstablished(final WebSocketSession session) throws Exception {
@@ -55,7 +55,7 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
       throws Exception {
     final Object currentUser = session.getAttributes().get(ServerConstants.CURRENT_USER);
     if (currentUser != null) {
-      this.sessionToConsumerMapper.removeConsumer(((User) currentUser).getNickName());
+      this.userSessionCounter.removeUserSession(((User) currentUser).getNickName());
       this.logger.debug("Web Socket session removed: " + session.toString());
     }
   }
