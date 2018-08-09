@@ -1,11 +1,9 @@
 package ftp.core.config;
 
-import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Map;
 import java.util.TimeZone;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
@@ -28,8 +26,6 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 @EnableTransactionManagement
 @EnableScheduling
 public class ApplicationConfig extends WebMvcConfigurerAdapter {
-
-  private Map<String, String> contentTypes = Maps.newHashMap();
 
   @Autowired
   private ApplicationContext applicationContext;

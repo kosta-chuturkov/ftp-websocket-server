@@ -49,28 +49,23 @@ public class FileManagementServiceImpl implements FileManagementService {
 
   private static final Logger logger = Logger.getLogger(FileManagementServiceImpl.class);
 
-  private Executor executor;
   private UserService userService;
   private FileService fileService;
   private EventService eventService;
   private ResourceLoader resourceLoader;
   private StorageService storageService;
   private ApplicationConfig applicationConfig;
-  private FtpConfigurationProperties ftpConfigurationProperties;
 
   @Autowired
-  public FileManagementServiceImpl(Executor executor, UserService userService,
+  public FileManagementServiceImpl(UserService userService,
       FileService fileService, EventService eventService, StorageService storageService,
-      ApplicationConfig applicationConfig, ResourceLoader resourceLoader,
-      FtpConfigurationProperties ftpConfigurationProperties) {
-    this.executor = executor;
+      ApplicationConfig applicationConfig, ResourceLoader resourceLoader) {
     this.userService = userService;
     this.fileService = fileService;
     this.eventService = eventService;
     this.storageService = storageService;
     this.applicationConfig = applicationConfig;
     this.resourceLoader = resourceLoader;
-    this.ftpConfigurationProperties = ftpConfigurationProperties;
   }
 
   @Override
@@ -105,7 +100,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     final Long token = currentUser.getToken();
     final String fileName = StringEscapeUtils.escapeSql(multipartFile.getOriginalFilename());
     final long currentTime = System.currentTimeMillis();
-    final String tempFileName = new Long(currentTime).toString();
+    final String tempFileName = Long.toString(currentTime);
     final String serverFileName = tempFileName + "_" + fileName;
     final String deleteHash = ServerUtil
         .hashSHA256(ServerUtil.hashSHA256(serverFileName + token) + ServerConstants.DELETE_SALT);
@@ -289,7 +284,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     return this.fileService
         .getFilesISharedWithOtherUsers(nickName, firstResult, maxResults)
         .stream()
-        .map((file -> DtoUtil.toSharedFileWithOtherUsersDto(file)))
+        .map((DtoUtil::toSharedFileWithOtherUsersDto))
         .collect(Collectors.toList());
   }
 
@@ -309,7 +304,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     return this.fileService
         .getSharedFilesWithMe(nickName, firstResult, maxResults)
         .stream()
-        .map(file -> DtoUtil.toSharedFileWithMeDto(file))
+        .map(DtoUtil::toSharedFileWithMeDto)
         .collect(Collectors.toList());
   }
 
