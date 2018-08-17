@@ -1,7 +1,9 @@
 package ftp.core.model.entities;
 
 import com.google.common.collect.Sets;
+import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -18,7 +20,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name = "files")
-public class File extends AbstractEntity<Long> {
+public class File extends AbstractEntity<Long> implements Serializable{
 
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "file_shared_to_users", joinColumns = @JoinColumn(name = "file_id"))
@@ -72,10 +74,7 @@ public class File extends AbstractEntity<Long> {
   }
 
   public boolean addUser(final String user) {
-    if (!this.sharedWithUsers.contains(user)) {
-      return this.sharedWithUsers.add(user);
-    }
-    return false;
+    return !this.sharedWithUsers.contains(user) && this.sharedWithUsers.add(user);
   }
 
   public User getCreator() {
@@ -222,5 +221,35 @@ public class File extends AbstractEntity<Long> {
     public File build() {
       return new File(this);
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof File)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    File file = (File) o;
+    return Objects.equals(getSharedWithUsers(), file.getSharedWithUsers()) &&
+        Objects.equals(getCreator(), file.getCreator()) &&
+        Objects.equals(getName(), file.getName()) &&
+        Objects.equals(getDownloadHash(), file.getDownloadHash()) &&
+        Objects.equals(getDeleteHash(), file.getDeleteHash()) &&
+        Objects.equals(getFileSize(), file.getFileSize()) &&
+        Objects.equals(getTimestamp(), file.getTimestamp()) &&
+        getFileType() == file.getFileType();
+  }
+
+  @Override
+  public int hashCode() {
+
+    return Objects
+        .hash(super.hashCode(), getSharedWithUsers(), getCreator(), getName(), getDownloadHash(),
+            getDeleteHash(), getFileSize(), getTimestamp(), getFileType());
   }
 }

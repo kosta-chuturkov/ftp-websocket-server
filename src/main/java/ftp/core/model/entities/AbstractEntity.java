@@ -1,5 +1,6 @@
 package ftp.core.model.entities;
 
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -11,8 +12,6 @@ import org.hibernate.annotations.Parameter;
 
 @MappedSuperclass
 public abstract class AbstractEntity<T extends Serializable> implements Entity<T> {
-
-  private static final long serialVersionUID = 1L;
 
   @Id
   @GeneratedValue(generator = "pooled")
@@ -32,6 +31,23 @@ public abstract class AbstractEntity<T extends Serializable> implements Entity<T
     this.id = id;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof AbstractEntity)) {
+      return false;
+    }
+    AbstractEntity<?> that = (AbstractEntity<?>) o;
+    return Objects.equals(getId(), that.getId());
+  }
+
+  @Override
+  public int hashCode() {
+
+    return Objects.hash(getId());
+  }
 }
 
 

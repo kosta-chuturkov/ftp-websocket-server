@@ -33,10 +33,10 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
         .getServletRequest();
     final String email = getSessionParam(servletRequest, ServerConstants.EMAIL_PARAMETER);
     final String password = getSessionParam(servletRequest, ServerConstants.PASSWORD);
-    final User current = this.userService.findByEmailAndPassword(email, password);
-    if (current == null) {
-      throw new RuntimeException("Invalid username or password.");
+    if (email == null || password == null) {
+      throw new RuntimeException("Invalid session, please login again.");
     }
+    final User current = this.userService.findByEmailAndPassword(email, password);
     final HttpSession session = servletRequest.getSession(false);
     final Enumeration<String> attributeNames = session.getAttributeNames();
     while (attributeNames.hasMoreElements()) {

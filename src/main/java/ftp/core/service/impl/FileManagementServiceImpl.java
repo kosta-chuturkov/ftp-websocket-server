@@ -171,7 +171,7 @@ public class FileManagementServiceImpl implements FileManagementService {
 
   @Override
   public DeletedFilesDto deleteFiles(final String deleteHash) {
-    final User current = User.getCurrent();
+    final User current = userService.getUserByEmail(User.getCurrent().getEmail());
     final String nickName = current.getNickName();
     final File findByDeleteHash = getFile(deleteHash, nickName);
     final String downloadHash = findByDeleteHash.getDownloadHash();
@@ -182,10 +182,11 @@ public class FileManagementServiceImpl implements FileManagementService {
     final String name = findByDeleteHash.getName();
     final Date timestamp = findByDeleteHash.getTimestamp();
 
-    this.fileService.delete(findByDeleteHash.getId());
-
+    current.getUploadedFiles().remove(findByDeleteHash);
     current.setRemainingStorage(current.getRemainingStorage() + fileSize);
     this.userService.save(current);
+    this.fileService.delete(findByDeleteHash.getId());
+
     final User updatedUser = this.userService.getUserByEmail(current.getEmail());
     final String storageInfo =
         FileUtils.byteCountToDisplaySize(updatedUser.getRemainingStorage()) + " left from "
