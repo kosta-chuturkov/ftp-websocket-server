@@ -6,7 +6,8 @@ import ftp.core.websocket.api.JsonTypedHandler;
 import ftp.core.websocket.factory.JsonHandlerFactory;
 import ftp.core.websocket.handler.Handlers;
 import java.util.Map;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class JsonHandlerFactoryImpl implements JsonHandlerFactory, BeanPostProce
 
   private final Map<String, JsonTypedHandler> typedHandlerMap = Maps.newHashMap();
 
-  private final Logger logger = Logger.getLogger(JsonHandlerFactoryImpl.class);
+  private final Logger logger = LoggerFactory.getLogger(JsonHandlerFactoryImpl.class);
 
   @Override
   public JsonTypedHandler getHandlerByType(final String type) {

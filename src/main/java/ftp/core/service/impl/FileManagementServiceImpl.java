@@ -39,7 +39,8 @@ import net.coobird.thumbnailator.name.Rename;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.ResourceLoader;
@@ -50,7 +51,7 @@ import reactor.bus.Event;
 @Service("fileManagementService")
 public class FileManagementServiceImpl implements FileManagementService {
 
-  private static final Logger logger = Logger.getLogger(FileManagementServiceImpl.class);
+  private static final Logger logger = LoggerFactory.getLogger(FileManagementServiceImpl.class);
 
   private UserService userService;
   private FileService fileService;

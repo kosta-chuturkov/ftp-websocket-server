@@ -4,9 +4,10 @@ import com.google.gson.Gson;
 import ftp.core.model.dto.JsonErrorDto;
 import ftp.core.model.dto.ResponseModelAdapter;
 import javax.annotation.Resource;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-  private static final Logger logger = Logger.getLogger(GlobalExceptionHandler.class);
+  private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   @Resource
   private Gson gson;
