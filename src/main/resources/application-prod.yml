@@ -1,3 +1,5 @@
+app:
+  instance-id: ${random.uuid}
 ftp:
  server:
     redis:
@@ -36,6 +38,11 @@ server:
     ssl:
         enabled: false
 spring:
+    session:
+        redis:
+            flush-mode: ON_SAVE
+            namespace: ftp-server
+        store-type: redis
     application:
         name: ftp.server
     datasource:

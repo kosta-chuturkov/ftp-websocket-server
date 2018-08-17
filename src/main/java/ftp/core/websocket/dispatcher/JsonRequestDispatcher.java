@@ -1,17 +1,18 @@
 package ftp.core.websocket.dispatcher;
 
 import com.google.gson.Gson;
+import ftp.core.api.MessageConsumer;
+import ftp.core.api.MessageSubscriptionService;
 import ftp.core.constants.ServerConstants;
-import ftp.core.api.UserSessionCounter;
 import ftp.core.model.entities.User;
-import ftp.core.reactor.NotificationDispatcher;
-import ftp.core.service.impl.SchedulingService;
 import ftp.core.websocket.api.JsonTypedHandler;
 import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
 import ftp.core.websocket.factory.JsonHandlerFactory;
+import java.util.Map;
 import javax.annotation.Resource;
 import org.apache.log4j.Logger;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,29 +35,33 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
   private Gson gson;
 
   @Resource
-  private SchedulingService schedulingService;
+  private MessageSubscriptionService messageSubscriptionService;
 
-  @Resource
-  private UserSessionCounter userSessionCounter;
-
+  @SendTo
   @Override
-  public void afterConnectionEstablished(final WebSocketSession session) throws Exception {
-    final Object currentUser = session.getAttributes().get(ServerConstants.CURRENT_USER);
+  public void afterConnectionEstablished(final WebSocketSession session) {
+    Map<String, Object> sessionAttributes = session.getAttributes();
+    final Object currentUser = sessionAttributes.get(ServerConstants.CURRENT_USER);
     if (currentUser != null) {
-      final NotificationDispatcher notificationDispatcher = new NotificationDispatcher(session,
-          this.gson);
       final String currentUserNickName = ((User) currentUser).getNickName();
-      this.schedulingService.subscribe(currentUserNickName, notificationDispatcher);
+      MessageConsumer consumer = this.messageSubscriptionService
+          .subscribe(currentUserNickName, session);
+      sessionAttributes.put(session.getId(), consumer);
+      this.logger.debug("Web Socket session added: " + session.toString());
     }
   }
 
   @Override
-  public void afterConnectionClosed(final WebSocketSession session, final CloseStatus status)
-      throws Exception {
-    final Object currentUser = session.getAttributes().get(ServerConstants.CURRENT_USER);
+  public void afterConnectionClosed(final WebSocketSession session, final CloseStatus status) {
+    Map<String, Object> sessionAttributes = session.getAttributes();
+    final Object currentUser = sessionAttributes.get(ServerConstants.CURRENT_USER);
     if (currentUser != null) {
-      this.userSessionCounter.removeUserSession(((User) currentUser).getNickName());
-      this.logger.debug("Web Socket session removed: " + session.toString());
+      MessageConsumer consumer = (MessageConsumer) sessionAttributes.get(session.getId());
+      final String currentUserNickName = ((User) currentUser).getNickName();
+      if (currentUserNickName != null && consumer != null) {
+        this.messageSubscriptionService.unsubscribe(currentUserNickName, consumer);
+        this.logger.debug("Web Socket session removed: " + session.toString());
+      }
     }
   }
 

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -36,6 +37,14 @@ public class RedisConfig {
     template.setHashValueSerializer(new GenericToStringSerializer<>(Object.class));
     template.setValueSerializer(new GenericToStringSerializer<>(Object.class));
     return template;
+  }
+
+  @Bean
+  RedisMessageListenerContainer redisContainer() {
+    RedisMessageListenerContainer container
+        = new RedisMessageListenerContainer();
+    container.setConnectionFactory(jedisConnectionFactory());
+    return container;
   }
 
   @PostConstruct

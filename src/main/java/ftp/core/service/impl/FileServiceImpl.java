@@ -1,19 +1,25 @@
 package ftp.core.service.impl;
 
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import ftp.core.api.MessagePublishingService;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.DataTransferObject;
 import ftp.core.model.dto.DeletedFileDto;
 import ftp.core.model.dto.ModifiedUserDto;
+import ftp.core.model.dto.SharedFileWithMeDto;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.File.FileType;
 import ftp.core.model.entities.User;
 import ftp.core.repository.FileRepository;
+import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.generic.AbstractGenericService;
 import ftp.core.util.DtoUtil;
+import ftp.core.websocket.dto.JsonResponse;
+import ftp.core.websocket.handler.Handlers;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,7 +41,10 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
   private UserService userService;
 
   @Resource
-  private SchedulingService schedulingService;
+  private Gson gson;
+
+  @Resource
+  private MessagePublishingService messagePublishingService;
 
   @Override
   public File getFileByDownloadHash(final String downloadHash) {
@@ -60,14 +69,16 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
               + " remainig storage.");
     }
     Set<String> validatedUsers = validateUserNickNames(fileToBeSaved.getSharedWithUsers());
-    final File savedFile = saveAndFlush(fileToBeSaved);
+    final File savedFile = save(fileToBeSaved);
     if (savedFile != null) {
       this.userService
-          .updateRemainingStorageForUser(fileSize, currentUser.getId(), remainingStorage);
-      this.userService.addFileToUser(savedFile.getId(), currentUser.getId());
+          .updateRemainingStorageForUser(fileSize, currentUser.getEmail(), remainingStorage);
+      this.userService.addFileToUser(savedFile.getId(), currentUser.getEmail());
       if (!validatedUsers.isEmpty()) {
-        this.schedulingService
-            .fireSharedFileEvent(validatedUsers, DtoUtil.toSharedFileWithMeDto(savedFile));
+        SharedFileWithMeDto data = DtoUtil.toSharedFileWithMeDto(savedFile);
+        String dataToJson = this.gson.toJson(data);
+        validatedUsers.forEach(user -> this.messagePublishingService.publish(user, new JsonResponse(dataToJson,
+            Handlers.FILES_SHARED_WITH_ME_HANDLER.getHandlerName())));
       }
     } else {
       throw new RuntimeException("Unable to add file!");
@@ -80,7 +91,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     }
     Set<String> foundNickNames = this.userService.findByNickNameIn(users)
         .stream()
-        .map(nickNameProjection -> nickNameProjection.getNickName())
+        .map(NickNameProjection::getNickName)
         .collect(Collectors.toSet());
 
     List<String> invalidUserNames = users
@@ -142,9 +153,12 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     final Set<String> persistentSharedToUsers = Sets.newHashSet(file.getSharedWithUsers());
     persistentSharedToUsers.removeAll(userNickNames);
     file.setSharedWithUsers(userNickNames);
-    saveAndFlush(file);
-    this.schedulingService
-        .fireRemovedFileEvent(persistentSharedToUsers, new DeletedFileDto(downloadHash));
+    save(file);
+    String dataToJson = this.gson.toJson(new DeletedFileDto(downloadHash));
+    persistentSharedToUsers.forEach(user -> {
+      JsonResponse data = new JsonResponse(dataToJson, Handlers.DELETED_FILE.getHandlerName());
+      this.messagePublishingService.publish(user, data);
+    });
     return file;
   }
 
@@ -175,7 +189,8 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     final File file = updateUsersForFile(deleteHash, userNickNames);
     final DataTransferObject fileDto = DtoUtil.toSharedFileWithMeDto(file);
     for (final String userNickName : userNickNames) {
-      this.schedulingService.fireSharedFileEvent(userNickName, fileDto);
+      this.messagePublishingService.publish(userNickName, new JsonResponse(this.gson.toJson(fileDto),
+          Handlers.FILES_SHARED_WITH_ME_HANDLER.getHandlerName()));
     }
   }
 }

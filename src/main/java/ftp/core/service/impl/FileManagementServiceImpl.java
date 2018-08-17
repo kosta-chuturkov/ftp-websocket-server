@@ -3,7 +3,9 @@ package ftp.core.service.impl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import ftp.core.api.MessagePublishingService;
 import ftp.core.config.ApplicationConfig;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
@@ -23,6 +25,8 @@ import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.util.DtoUtil;
 import ftp.core.util.ServerUtil;
+import ftp.core.websocket.dto.JsonResponse;
+import ftp.core.websocket.handler.Handlers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -41,6 +45,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.bus.Event;
 
 @Service("fileManagementService")
 public class FileManagementServiceImpl implements FileManagementService {
@@ -49,21 +54,24 @@ public class FileManagementServiceImpl implements FileManagementService {
 
   private UserService userService;
   private FileService fileService;
-  private SchedulingService schedulingService;
+  private MessagePublishingService messagePublishingService;
   private ResourceLoader resourceLoader;
   private StorageService storageService;
   private ApplicationConfig applicationConfig;
+  private final Gson gson;
 
   @Autowired
   public FileManagementServiceImpl(UserService userService,
-      FileService fileService, SchedulingService schedulingService, StorageService storageService,
-      ApplicationConfig applicationConfig, ResourceLoader resourceLoader) {
+      FileService fileService,
+      MessagePublishingService messagePublishingService, StorageService storageService,
+      ApplicationConfig applicationConfig, ResourceLoader resourceLoader, Gson gson) {
     this.userService = userService;
     this.fileService = fileService;
-    this.schedulingService = schedulingService;
+    this.messagePublishingService = messagePublishingService;
     this.storageService = storageService;
     this.applicationConfig = applicationConfig;
     this.resourceLoader = resourceLoader;
+    this.gson = gson;
   }
 
   @Override
@@ -111,7 +119,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         .withDownloadHash(downloadHash)
         .withDeleteHash(deleteHash)
         .withFileSize(multipartFile.getSize())
-        .withCreator(currentUser)
+        .withCreator(userService.getUserByEmail(currentUser.getEmail()))
         .withSharedWithUsers(userNickNames)
         .withFileType(userNickNames.isEmpty() ? File.FileType.PRIVATE : File.FileType.SHARED)
         .build();
@@ -176,8 +184,8 @@ public class FileManagementServiceImpl implements FileManagementService {
     this.fileService.delete(findByDeleteHash.getId());
 
     current.setRemainingStorage(current.getRemainingStorage() + fileSize);
-    this.userService.saveAndFlush(current);
-    final User updatedUser = this.userService.findOne(current.getId());
+    this.userService.save(current);
+    final User updatedUser = this.userService.getUserByEmail(current.getEmail());
     final String storageInfo =
         FileUtils.byteCountToDisplaySize(updatedUser.getRemainingStorage()) + " left from "
             + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT) + ".";
@@ -188,8 +196,12 @@ public class FileManagementServiceImpl implements FileManagementService {
     } finally {
       this.storageService
           .deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
-      this.schedulingService
-          .fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
+      String dataToJson = this.gson.toJson(new DeletedFileDto(downloadHash));
+      usersToBeNotifiedFileDeleted.forEach(user -> {
+        Event<JsonResponse> data = Event
+            .wrap(new JsonResponse(dataToJson, Handlers.DELETED_FILE.getHandlerName()));
+        this.messagePublishingService.publish(user, data);
+      });
     }
   }
 

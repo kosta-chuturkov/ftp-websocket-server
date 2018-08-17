@@ -68,12 +68,12 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
   }
 
   @Override
-  public File addFileToUser(final Long fileId, final Long userId) {
+  public File addFileToUser(final Long fileId, final String email) {
     final File file = this.fileRepository.findOne(fileId);
     if (file != null) {
-      final User user = findOne(userId);
+      final User user = getUserByEmail(email);
       user.addUploadedFile(file);
-      saveAndFlush(user);
+      save(user);
     }
     return file;
   }
@@ -98,12 +98,12 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
     return this.userRepository.findByEmail(email);
   }
 
-  public void updateRemainingStorageForUser(final long fileSize, final Long userId,
+  public void updateRemainingStorageForUser(final long fileSize, final String email,
       long remainingStorage) {
     remainingStorage -= fileSize;
-    final User userById = findOne(userId);
+    final User userById = getUserByEmail(email);
     userById.setRemainingStorage(remainingStorage);
-    saveAndFlush(userById);
+    save(userById);
   }
 
   @Override
@@ -133,12 +133,12 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
         .withEnabled(true)
         .build();
 
-    User savedUser = saveAndFlush(user);
+    User savedUser = save(user);
     User registeredUser = findOne(savedUser.getId());
     Authority authority = new Authority(Authorities.USER);
     this.authorityService.save(authority);
     registeredUser.addAuthority(authority);
-    saveAndFlush(registeredUser);
+    save(registeredUser);
     return registeredUser;
   }
 

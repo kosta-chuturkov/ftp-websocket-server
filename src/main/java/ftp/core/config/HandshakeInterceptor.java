@@ -1,7 +1,6 @@
 package ftp.core.config;
 
 import ftp.core.constants.ServerConstants;
-import ftp.core.api.UserSessionCounter;
 import ftp.core.model.entities.User;
 import ftp.core.service.face.tx.UserService;
 import java.util.Enumeration;
@@ -21,12 +20,9 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 
   private final UserService userService;
 
-  private final UserSessionCounter userSessionCounter;
 
-  public HandshakeInterceptor(UserService userService,
-      UserSessionCounter userSessionCounter) {
+  public HandshakeInterceptor(UserService userService) {
     this.userService = userService;
-    this.userSessionCounter = userSessionCounter;
   }
 
   @Override
@@ -49,7 +45,6 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
       attributes.put(nextElement, attribute);
     }
     attributes.put(ServerConstants.CURRENT_USER, current);
-    this.userSessionCounter.addUserSession(current.getNickName());
     return super.beforeHandshake(request, response, wsHandler, attributes);
   }
 

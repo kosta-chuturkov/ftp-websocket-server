@@ -1,9 +1,11 @@
 package ftp.core.websocket.dto;
 
+import java.io.Serializable;
+
 /**
  * Created by Kosta_Chuturkov on 2/24/2016.
  */
-public class JsonResponse {
+public class JsonResponse implements Serializable{
 
   private String responseMethod;
 

@@ -19,7 +19,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
     PersistenceExceptionTranslationAutoConfiguration.class,
     SpringApplicationAdminJmxAutoConfiguration.class})
 @EnableConfigurationProperties({FtpConfigurationProperties.class})
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 20)
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 20, redisNamespace = "ftp-server")
 public class BootLoader {
 
   private static final Logger log = LoggerFactory.getLogger(BootLoader.class);
@@ -35,11 +35,12 @@ public class BootLoader {
     log.info("\n----------------------------------------------------------\n\t" +
             "Application '{}' is running! Access URLs:\n\t" +
             "Local: \t\thttp://127.0.0.1:{}\n\t" +
-            "External: \thttp://{}:{}\n----------------------------------------------------------",
+            "External: \thttp://{}:{}\nRedis Namespace {}\n----------------------------------------------------------",
         env.getProperty("spring.application.name"),
         env.getProperty("server.port"),
         hostAddress,
-        env.getProperty("server.port"));
+        env.getProperty("server.port"),
+        env.getProperty("spring.session.redis.namespace"));
 
   }
 

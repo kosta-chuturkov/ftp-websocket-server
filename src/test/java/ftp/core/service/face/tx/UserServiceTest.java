@@ -91,7 +91,7 @@ UserServiceTest extends AbstractTest {
     assertThat(savedFile, is(notNullValue()));
 
     //when
-    this.userService.addFileToUser(savedFile.getId(), User.getCurrent().getId());
+    this.userService.addFileToUser(savedFile.getId(), User.getCurrent().getEmail());
 
     //then
     UploadedFilesProjection uploadedFilesProjection = this.userService
