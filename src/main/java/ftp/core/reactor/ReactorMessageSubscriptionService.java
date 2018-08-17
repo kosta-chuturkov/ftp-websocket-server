@@ -15,7 +15,7 @@ import org.springframework.web.socket.WebSocketSession;
 import reactor.bus.EventBus;
 import reactor.bus.registry.Registration;
 
-@Profile("dev")
+@Profile({"dev", "test"})
 @Service
 public class ReactorMessageSubscriptionService implements MessageSubscriptionService {
 

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 
-@Profile("dev")
+@Profile({"dev", "test"})
 @Service
 public class ReactorMessageProducer implements MessagePublishingService {
 
