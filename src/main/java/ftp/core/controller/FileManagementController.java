@@ -12,7 +12,7 @@ import ftp.core.model.dto.UploadedFilesDto;
 import ftp.core.model.entities.User;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
-import ftp.core.service.impl.EventService;
+import ftp.core.service.impl.SchedulingService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +38,7 @@ public class FileManagementController {
   private Gson gson;
 
   @Resource
-  private EventService eventService;
+  private SchedulingService schedulingService;
 
   @Autowired
   public FileManagementController(FileManagementService fileManagementService, Gson gson) {
@@ -50,8 +50,8 @@ public class FileManagementController {
   @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS}, method = RequestMethod.POST)
   public DeferredResult<String> updateProfilePicture(
       @RequestParam("files[]") final MultipartFile file) {
-    return this.eventService
-        .scheduleTaskToReactor(() -> this.fileManagementService.updateProfilePicture(file), 10000L);
+    return this.schedulingService
+        .scheduleTask(() -> this.fileManagementService.updateProfilePicture(file), 10000L);
   }
 
   @Secured(Authorities.USER)
@@ -59,8 +59,8 @@ public class FileManagementController {
   public DeferredResult<UploadedFilesDto<JsonFileDto>> uploadFile(
       @RequestParam("files[]") final MultipartFile file,
       @RequestParam("userNickNames") final String nickNamesAsString) {
-    return this.eventService
-        .scheduleTaskToReactor(() -> {
+    return this.schedulingService
+        .scheduleTask(() -> {
           Set<String> userNickNames = this.gson.fromJson(nickNamesAsString, HashSet.class);
           return this.fileManagementService
               .uploadFile(file, userNickNames == null ? Sets.newHashSet() : userNickNames);
@@ -71,8 +71,8 @@ public class FileManagementController {
   @RequestMapping(value = {APIAliases.DELETE_FILE_ALIAS}, method = RequestMethod.GET)
   public DeferredResult<DeletedFilesDto> deleteFiles(
       @NotNull @PathVariable final String deleteHash) {
-    return this.eventService
-        .scheduleTaskToReactor(() -> this.fileManagementService.deleteFiles(deleteHash), 10000L);
+    return this.schedulingService
+        .scheduleTask(() -> this.fileManagementService.deleteFiles(deleteHash), 10000L);
   }
 
   @RequestMapping(value = {APIAliases.PROFILE_PIC_ALIAS + "{userName}"}, method = RequestMethod.GET)
@@ -93,8 +93,8 @@ public class FileManagementController {
   public DeferredResult<List<SharedFileWithMeDto>> getSharedFilesForUser(
       @NotNull @ModelAttribute("firstResult") final Integer firstResult,
       @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
-    return this.eventService
-        .scheduleTaskToReactor(() -> this.fileManagementService
+    return this.schedulingService
+        .scheduleTask(() -> this.fileManagementService
             .getFilesSharedToMe(firstResult, maxResults, User.getCurrent().getNickName()), 10000L);
   }
 
@@ -103,8 +103,8 @@ public class FileManagementController {
   public DeferredResult<List<PrivateFileWithMeDto>> getPrivateFilesForUser(
       @NotNull @ModelAttribute("firstResult") final Integer firstResult,
       @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
-    return this.eventService
-        .scheduleTaskToReactor(() -> this.fileManagementService
+    return this.schedulingService
+        .scheduleTask(() -> this.fileManagementService
             .getPrivateFiles(firstResult, maxResults, User.getCurrent().getNickName()), 10000L);
   }
 
@@ -113,8 +113,8 @@ public class FileManagementController {
   public DeferredResult<List<FileWithSharedUsersWithMeDto>> getUploadedFilesByUser(
       @NotNull @ModelAttribute("firstResult") final Integer firstResult,
       @NotNull @ModelAttribute("maxResults") final Integer maxResults) {
-    return this.eventService
-        .scheduleTaskToReactor(() -> this.fileManagementService
+    return this.schedulingService
+        .scheduleTask(() -> this.fileManagementService
             .getFilesISharedWithOtherUsers(firstResult, maxResults,
                 User.getCurrent().getNickName()), 10000L);
   }

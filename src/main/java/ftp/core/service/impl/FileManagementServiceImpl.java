@@ -3,9 +3,10 @@ package ftp.core.service.impl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import ftp.core.api.MessagePublishingService;
 import ftp.core.config.ApplicationConfig;
-import ftp.core.config.FtpConfigurationProperties;
 import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.DeletedFileDto;
@@ -24,53 +25,54 @@ import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.util.DtoUtil;
 import ftp.core.util.ServerUtil;
+import ftp.core.websocket.dto.JsonResponse;
+import ftp.core.websocket.handler.Handlers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.bus.Event;
 
 @Service("fileManagementService")
 public class FileManagementServiceImpl implements FileManagementService {
 
-  private static final Logger logger = Logger.getLogger(FileManagementServiceImpl.class);
+  private static final Logger logger = LoggerFactory.getLogger(FileManagementServiceImpl.class);
 
-  private Executor executor;
   private UserService userService;
   private FileService fileService;
-  private EventService eventService;
+  private MessagePublishingService messagePublishingService;
   private ResourceLoader resourceLoader;
   private StorageService storageService;
   private ApplicationConfig applicationConfig;
-  private FtpConfigurationProperties ftpConfigurationProperties;
+  private final Gson gson;
 
   @Autowired
-  public FileManagementServiceImpl(Executor executor, UserService userService,
-      FileService fileService, EventService eventService, StorageService storageService,
-      ApplicationConfig applicationConfig, ResourceLoader resourceLoader,
-      FtpConfigurationProperties ftpConfigurationProperties) {
-    this.executor = executor;
+  public FileManagementServiceImpl(UserService userService,
+      FileService fileService,
+      MessagePublishingService messagePublishingService, StorageService storageService,
+      ApplicationConfig applicationConfig, ResourceLoader resourceLoader, Gson gson) {
     this.userService = userService;
     this.fileService = fileService;
-    this.eventService = eventService;
+    this.messagePublishingService = messagePublishingService;
     this.storageService = storageService;
     this.applicationConfig = applicationConfig;
     this.resourceLoader = resourceLoader;
-    this.ftpConfigurationProperties = ftpConfigurationProperties;
+    this.gson = gson;
   }
 
   @Override
@@ -105,7 +107,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     final Long token = currentUser.getToken();
     final String fileName = StringEscapeUtils.escapeSql(multipartFile.getOriginalFilename());
     final long currentTime = System.currentTimeMillis();
-    final String tempFileName = new Long(currentTime).toString();
+    final String tempFileName = Long.toString(currentTime);
     final String serverFileName = tempFileName + "_" + fileName;
     final String deleteHash = ServerUtil
         .hashSHA256(ServerUtil.hashSHA256(serverFileName + token) + ServerConstants.DELETE_SALT);
@@ -118,7 +120,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         .withDownloadHash(downloadHash)
         .withDeleteHash(deleteHash)
         .withFileSize(multipartFile.getSize())
-        .withCreator(currentUser)
+        .withCreator(userService.getUserByEmail(currentUser.getEmail()))
         .withSharedWithUsers(userNickNames)
         .withFileType(userNickNames.isEmpty() ? File.FileType.PRIVATE : File.FileType.SHARED)
         .build();
@@ -169,7 +171,7 @@ public class FileManagementServiceImpl implements FileManagementService {
 
   @Override
   public DeletedFilesDto deleteFiles(final String deleteHash) {
-    final User current = User.getCurrent();
+    final User current = userService.getUserByEmail(User.getCurrent().getEmail());
     final String nickName = current.getNickName();
     final File findByDeleteHash = getFile(deleteHash, nickName);
     final String downloadHash = findByDeleteHash.getDownloadHash();
@@ -180,11 +182,12 @@ public class FileManagementServiceImpl implements FileManagementService {
     final String name = findByDeleteHash.getName();
     final Date timestamp = findByDeleteHash.getTimestamp();
 
+    current.getUploadedFiles().remove(findByDeleteHash);
+    current.setRemainingStorage(current.getRemainingStorage() + fileSize);
+    this.userService.save(current);
     this.fileService.delete(findByDeleteHash.getId());
 
-    current.setRemainingStorage(current.getRemainingStorage() + fileSize);
-    this.userService.saveAndFlush(current);
-    final User updatedUser = this.userService.findOne(current.getId());
+    final User updatedUser = this.userService.getUserByEmail(current.getEmail());
     final String storageInfo =
         FileUtils.byteCountToDisplaySize(updatedUser.getRemainingStorage()) + " left from "
             + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT) + ".";
@@ -195,8 +198,12 @@ public class FileManagementServiceImpl implements FileManagementService {
     } finally {
       this.storageService
           .deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
-      this.eventService
-          .fireRemovedFileEvent(usersToBeNotifiedFileDeleted, new DeletedFileDto(downloadHash));
+      String dataToJson = this.gson.toJson(new DeletedFileDto(downloadHash));
+      usersToBeNotifiedFileDeleted.forEach(user -> {
+        Event<JsonResponse> data = Event
+            .wrap(new JsonResponse(dataToJson, Handlers.DELETED_FILE.getHandlerName()));
+        this.messagePublishingService.publish(user, data);
+      });
     }
   }
 
@@ -289,7 +296,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     return this.fileService
         .getFilesISharedWithOtherUsers(nickName, firstResult, maxResults)
         .stream()
-        .map((file -> DtoUtil.toSharedFileWithOtherUsersDto(file)))
+        .map((DtoUtil::toSharedFileWithOtherUsersDto))
         .collect(Collectors.toList());
   }
 
@@ -309,7 +316,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     return this.fileService
         .getSharedFilesWithMe(nickName, firstResult, maxResults)
         .stream()
-        .map(file -> DtoUtil.toSharedFileWithMeDto(file))
+        .map(DtoUtil::toSharedFileWithMeDto)
         .collect(Collectors.toList());
   }
 

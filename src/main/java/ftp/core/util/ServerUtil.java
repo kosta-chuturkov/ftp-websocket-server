@@ -6,15 +6,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.log4j.Logger;
 import org.springframework.core.io.Resource;
 
 public final class ServerUtil {
 
   private ServerUtil() {
   }
-
-  private static final Logger logger = Logger.getLogger(ServerUtil.class);
 
   public static void invalidateSession(final HttpServletRequest request,
       final HttpServletResponse response) {

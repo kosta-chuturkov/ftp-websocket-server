@@ -1,11 +1,11 @@
 package ftp.core.websocket.dto;
 
-import ftp.core.websocket.handler.Handlers;
+import java.io.Serializable;
 
 /**
  * Created by Kosta_Chuturkov on 2/24/2016.
  */
-public class JsonResponse {
+public class JsonResponse implements Serializable{
 
   private String responseMethod;
 
@@ -17,8 +17,8 @@ public class JsonResponse {
 
   }
 
-  public JsonResponse(final Handlers handlers, final String result) {
-    this.responseMethod = handlers.getHandlerName();
+  public JsonResponse(final String result, String handlerName) {
+    this.responseMethod = handlerName;
     this.result = result;
   }
 

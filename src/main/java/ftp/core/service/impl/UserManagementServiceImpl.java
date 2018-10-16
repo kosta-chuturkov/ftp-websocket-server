@@ -29,8 +29,6 @@ public class UserManagementServiceImpl implements UserManagementService {
   @Resource
   private FileService fileService;
   @Resource
-  private EventService eventService;
-  @Resource
   private FileManagementService fileManagementService;
   @Autowired
   private ApplicationConfig applicationConfig;

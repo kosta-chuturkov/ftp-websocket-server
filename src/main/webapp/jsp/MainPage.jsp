@@ -424,9 +424,10 @@ p,:focus {
      };
      ws.onclose = function (event) {
         setConnected(false);
-        establishConnection();
         console.log('Info: connection closed.');
         console.log(event);
+        //redirect to main
+        window.location.replace(serverAddress)
      };
      }
 

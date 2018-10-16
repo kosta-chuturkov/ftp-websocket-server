@@ -1,6 +1,5 @@
 package ftp.core.config;
 
-import ftp.core.listener.SessionToConsumerMapper;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.websocket.dispatcher.JsonRequestDispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +25,10 @@ public class WebSocketConfiguration extends WebMvcConfigurerAdapter implements W
   @Autowired
   private UserService userService;
 
-  @Autowired
-  private SessionToConsumerMapper sessionToConsumerMapper;
-
   @Override
   public void registerWebSocketHandlers(final WebSocketHandlerRegistry registry) {
-    registry.addHandler(echoWebSocketHandler(), "/echo");
-    registry.addHandler(echoWebSocketHandler(), "/sockjs/files")
+    registry
+        .addHandler(echoWebSocketHandler(), "/sockjs/files")
         .withSockJS()
         .setInterceptors(handshakeInterceptor());
   }
@@ -44,7 +40,7 @@ public class WebSocketConfiguration extends WebMvcConfigurerAdapter implements W
 
   @Bean
   public org.springframework.web.socket.server.HandshakeInterceptor handshakeInterceptor() {
-    return new HandshakeInterceptor(this.userService, this.sessionToConsumerMapper);
+    return new HandshakeInterceptor(this.userService);
   }
 
   // Allow serving HTML files through the default Servlet

@@ -1,7 +1,6 @@
 package ftp.core.config;
 
 import ftp.core.constants.ServerConstants;
-import ftp.core.listener.SessionToConsumerMapper;
 import ftp.core.model.entities.User;
 import ftp.core.service.face.tx.UserService;
 import java.util.Enumeration;
@@ -19,14 +18,11 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
  */
 public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 
-  private UserService userService;
+  private final UserService userService;
 
-  private SessionToConsumerMapper sessionToConsumerMapper;
 
-  public HandshakeInterceptor(UserService userService,
-      SessionToConsumerMapper sessionToConsumerMapper) {
+  public HandshakeInterceptor(UserService userService) {
     this.userService = userService;
-    this.sessionToConsumerMapper = sessionToConsumerMapper;
   }
 
   @Override
@@ -37,10 +33,10 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
         .getServletRequest();
     final String email = getSessionParam(servletRequest, ServerConstants.EMAIL_PARAMETER);
     final String password = getSessionParam(servletRequest, ServerConstants.PASSWORD);
-    final User current = this.userService.findByEmailAndPassword(email, password);
-    if (current == null) {
-      throw new RuntimeException("Invalid username or password.");
+    if (email == null || password == null) {
+      throw new RuntimeException("Invalid session, please login again.");
     }
+    final User current = this.userService.findByEmailAndPassword(email, password);
     final HttpSession session = servletRequest.getSession(false);
     final Enumeration<String> attributeNames = session.getAttributeNames();
     while (attributeNames.hasMoreElements()) {
@@ -49,7 +45,6 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
       attributes.put(nextElement, attribute);
     }
     attributes.put(ServerConstants.CURRENT_USER, current);
-    this.sessionToConsumerMapper.addConsumer(current.getNickName());
     return super.beforeHandshake(request, response, wsHandler, attributes);
   }
 

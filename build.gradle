@@ -59,10 +59,18 @@ dependencies {
     //EVENTS
     compile("io.projectreactor:reactor-bus")
 
+    //REDIS
+    compile group: 'org.springframework.data', name: 'spring-data-redis'
+    compile group: 'redis.clients', name: 'jedis', version: '2.9.0'
+
+    //SPRING SESSION REDIS
+    compile group: 'org.springframework.session', name: 'spring-session-data-redis'
+
     compile("com.zaxxer:HikariCP")
     compile("org.springframework.boot:spring-boot-devtools")
 
     // IMAGE THUMBNAILING
     compile('net.coobird:thumbnailator:0.4.8')
+
 
 }

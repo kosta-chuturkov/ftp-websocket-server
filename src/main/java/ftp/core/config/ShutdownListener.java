@@ -6,11 +6,12 @@ import java.sql.SQLException;
 import java.util.Enumeration;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ShutdownListener implements ServletContextListener {
 
-  private final Logger logger = Logger.getLogger(ShutdownListener.class);
+  private final Logger logger = LoggerFactory.getLogger(ShutdownListener.class);
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {

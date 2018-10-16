@@ -21,7 +21,7 @@ public interface UserService extends GenericService<User, Long> {
 
   User getUserByEmail(String email);
 
-  void updateRemainingStorageForUser(long fileSize, Long userId, long remainingStorage);
+  void updateRemainingStorageForUser(long fileSize, String userId, long remainingStorage);
 
   List<NickNameProjection> getUserByNickLike(String userNickName);//
 
@@ -31,7 +31,7 @@ public interface UserService extends GenericService<User, Long> {
   User registerUser(String email, String nickName, String password, String password_repeated)
       throws IllegalArgumentException;
 
-  File addFileToUser(final Long fileId, final Long userId);//
+  File addFileToUser(final Long fileId, final String email);//
 
   String getUserSaltedPassword(final String rawPassword, final Long token);//
 
