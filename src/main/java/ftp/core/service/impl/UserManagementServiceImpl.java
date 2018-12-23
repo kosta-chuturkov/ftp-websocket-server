@@ -13,7 +13,6 @@ import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
@@ -24,14 +23,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Service("userManagementService")
 public class UserManagementServiceImpl implements UserManagementService {
 
-  @Resource
   private UserService userService;
-  @Resource
   private FileService fileService;
-  @Resource
   private FileManagementService fileManagementService;
+  private final ApplicationConfig applicationConfig;
+
   @Autowired
-  private ApplicationConfig applicationConfig;
+  public UserManagementServiceImpl(UserService userService,
+      FileService fileService, FileManagementService fileManagementService,
+      ApplicationConfig applicationConfig) {
+    this.userService = userService;
+    this.fileService = fileService;
+    this.fileManagementService = fileManagementService;
+    this.applicationConfig = applicationConfig;
+  }
 
   @Secured(Authorities.USER)
   @RequestMapping(value = {APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS}, method = RequestMethod.POST)

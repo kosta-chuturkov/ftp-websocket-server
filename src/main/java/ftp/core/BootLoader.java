@@ -13,13 +13,11 @@ import org.springframework.boot.autoconfigure.dao.PersistenceExceptionTranslatio
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.env.Environment;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 @SpringBootApplication(exclude = {ValidationAutoConfiguration.class,
     PersistenceExceptionTranslationAutoConfiguration.class,
     SpringApplicationAdminJmxAutoConfiguration.class})
 @EnableConfigurationProperties({FtpConfigurationProperties.class})
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 20, redisNamespace = "ftp-server")
 public class BootLoader {
 
   private static final Logger log = LoggerFactory.getLogger(BootLoader.class);

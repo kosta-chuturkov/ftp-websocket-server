@@ -44,7 +44,7 @@ public class FileManagementControllerTest extends AbstractTest {
     @Resource
     private FileManagementController fileManagementController;
 
-    @Resource
+    @Autowired
     private ResourceLoader resourceLoader;
 
     @Autowired

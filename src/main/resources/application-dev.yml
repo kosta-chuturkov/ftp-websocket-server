@@ -38,6 +38,8 @@ server:
 spring:
     application:
         name: ftp.server
+    session:
+        store-type: none
     datasource:
         driverClassName: org.postgresql.Driver
         type: com.zaxxer.hikari.HikariDataSource
