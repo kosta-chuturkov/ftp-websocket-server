@@ -6,8 +6,8 @@ import ftp.core.security.Authorities;
 import ftp.core.service.face.UserManagementService;
 import ftp.core.service.impl.SchedulingService;
 import java.util.Set;
-import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,11 +20,16 @@ import org.springframework.web.context.request.async.DeferredResult;
 @RestController
 public class UserManagementController {
 
-  @Resource
   private UserManagementService userManagementService;
 
-  @Resource
   private SchedulingService schedulingService;
+
+  @Autowired
+  public UserManagementController(UserManagementService userManagementService,
+      SchedulingService schedulingService) {
+    this.userManagementService = userManagementService;
+    this.schedulingService = schedulingService;
+  }
 
   @Secured(Authorities.USER)
   @RequestMapping(value = {APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS}, method = RequestMethod.POST)

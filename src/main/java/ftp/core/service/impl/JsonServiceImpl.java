@@ -6,7 +6,7 @@ import ftp.core.service.face.JsonService;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.websocket.dto.JsonResponse;
 import java.util.Collection;
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,12 +15,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class JsonServiceImpl implements JsonService {
 
-
-  @Resource
   private Gson gson;
-
-  @Resource
   private FileService fileService;
+
+  @Autowired
+  public JsonServiceImpl(Gson gson, FileService fileService) {
+    this.gson = gson;
+    this.fileService = fileService;
+  }
 
 
   @Override

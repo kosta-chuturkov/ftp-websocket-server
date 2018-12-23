@@ -8,11 +8,11 @@ import ftp.core.service.face.tx.UserService;
 import ftp.core.service.impl.SchedulingService;
 import ftp.core.util.ServerUtil;
 import java.io.IOException;
-import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -27,11 +27,15 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 public class PageNavigationController {
 
-  @Resource
   private UserService userService;
-
-  @Resource
   private SchedulingService schedulingService;
+
+  @Autowired
+  public PageNavigationController(UserService userService,
+      SchedulingService schedulingService) {
+    this.userService = userService;
+    this.schedulingService = schedulingService;
+  }
 
 
   @RequestMapping(value = {APIAliases.REGISTRATION_ALIAS}, method = RequestMethod.POST)
@@ -39,8 +43,7 @@ public class PageNavigationController {
       @NotNull @ModelAttribute("email") final String email,
       @NotNull @ModelAttribute("pswd") final String password,
       @NotNull @ModelAttribute("nickname") final String nickName,
-      @NotNull @ModelAttribute("password_repeated") final String password_repeated)
-      throws IOException, ServletException {
+      @NotNull @ModelAttribute("password_repeated") final String password_repeated) {
     return this.schedulingService
         .scheduleTask(() -> register(email, password, nickName, password_repeated),
             10000L);

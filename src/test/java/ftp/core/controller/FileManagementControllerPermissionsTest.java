@@ -6,9 +6,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import ftp.core.base.AbstractTest;
 import java.io.IOException;
 import java.util.function.Consumer;
-import javax.annotation.Resource;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -16,8 +16,13 @@ import org.springframework.security.access.AccessDeniedException;
  */
 public class FileManagementControllerPermissionsTest extends AbstractTest {
 
-  @Resource
   private FileManagementController fileManagementController;
+
+  @Autowired
+  public FileManagementControllerPermissionsTest(
+      FileManagementController fileManagementController) {
+    this.fileManagementController = fileManagementController;
+  }
 
   @Test
   public void profilePicUpdateprofilePicUpdateNoPerm() throws IOException {

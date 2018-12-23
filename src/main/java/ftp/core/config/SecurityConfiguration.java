@@ -10,12 +10,12 @@ import ftp.core.security.CustomAccessDeniedHandler;
 import ftp.core.security.Http401UnauthorizedEntryPoint;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.web.filter.CsrfCookieGeneratorFilter;
-import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authentication.dao.ReflectionSaltSource;
@@ -40,26 +40,31 @@ import org.springframework.security.web.csrf.CsrfFilter;
 @AutoConfigureOrder(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-  @Resource
+  private UserService userService;
+  private UserDetailsService userDetailsService;
+  private RememberMeServices rememberMeServices;
+  private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
+  private Http401UnauthorizedEntryPoint authenticationEntryPoint;
   private AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
-
-  @Resource
   private AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler;
 
-  @Resource
-  private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
-
-  @Resource
-  private Http401UnauthorizedEntryPoint authenticationEntryPoint;
-
-  @Resource
-  private UserDetailsService userDetailsService;
-
-  @Resource
-  private UserService userService;
-
-  @Resource
-  private RememberMeServices rememberMeServices;
+  @Autowired
+  public SecurityConfiguration(
+      AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler,
+      @Lazy UserService userService,
+      AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler,
+      AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler,
+      Http401UnauthorizedEntryPoint authenticationEntryPoint,
+      UserDetailsService userDetailsService,
+      RememberMeServices rememberMeServices) {
+    this.ajaxAuthenticationSuccessHandler = ajaxAuthenticationSuccessHandler;
+    this.userService = userService;
+    this.ajaxAuthenticationFailureHandler = ajaxAuthenticationFailureHandler;
+    this.ajaxLogoutSuccessHandler = ajaxLogoutSuccessHandler;
+    this.authenticationEntryPoint = authenticationEntryPoint;
+    this.userDetailsService = userDetailsService;
+    this.rememberMeServices = rememberMeServices;
+  }
 
   @Bean(name = "passwordEncoder")
   public PasswordEncoder passwordEncoder() {

@@ -23,10 +23,10 @@ import ftp.core.websocket.handler.Handlers;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -34,17 +34,19 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class FileServiceImpl extends AbstractGenericService<File, Long> implements FileService {
 
-  @Resource
-  private FileRepository fileRepository;
-
-  @Resource
-  private UserService userService;
-
-  @Resource
   private Gson gson;
-
-  @Resource
+  private UserService userService;
+  private FileRepository fileRepository;
   private MessagePublishingService messagePublishingService;
+
+  @Autowired
+  public FileServiceImpl(Gson gson, UserService userService,
+      FileRepository fileRepository, MessagePublishingService messagePublishingService) {
+    this.gson = gson;
+    this.userService = userService;
+    this.fileRepository = fileRepository;
+    this.messagePublishingService = messagePublishingService;
+  }
 
   @Override
   public File getFileByDownloadHash(final String downloadHash) {

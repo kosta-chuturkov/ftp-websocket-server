@@ -8,7 +8,6 @@ import ftp.core.repository.UserRepository;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.Arrays;
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -17,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
@@ -51,17 +51,18 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
   private final Logger log = LoggerFactory.getLogger(CustomPersistentRememberMeServices.class);
   private final SecureRandom random;
 
-  @Resource
-  private PersistentTokenRepository persistentTokenRepository;
-
-  @Resource
   private UserRepository userRepository;
+  private PersistentTokenRepository persistentTokenRepository;
 
   @Autowired
   public CustomPersistentRememberMeServices(
-      final org.springframework.security.core.userdetails.UserDetailsService userDetailsService) {
+      final UserDetailsService userDetailsService,
+      PersistentTokenRepository persistentTokenRepository,
+      UserRepository userRepository) {
 
     super(ServerConstants.REMEMBER_ME_SECURITY_KEY, userDetailsService);
+    this.persistentTokenRepository = persistentTokenRepository;
+    this.userRepository = userRepository;
     this.random = new SecureRandom();
   }
 

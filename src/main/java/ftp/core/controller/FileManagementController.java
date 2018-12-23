@@ -16,7 +16,6 @@ import ftp.core.service.impl.SchedulingService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -37,13 +36,14 @@ public class FileManagementController {
 
   private Gson gson;
 
-  @Resource
   private SchedulingService schedulingService;
 
   @Autowired
-  public FileManagementController(FileManagementService fileManagementService, Gson gson) {
+  public FileManagementController(FileManagementService fileManagementService, Gson gson,
+      SchedulingService schedulingService) {
     this.fileManagementService = fileManagementService;
     this.gson = gson;
+    this.schedulingService = schedulingService;
   }
 
   @Secured(Authorities.USER)

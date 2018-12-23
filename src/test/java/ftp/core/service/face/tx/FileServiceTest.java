@@ -12,19 +12,23 @@ import ftp.core.model.entities.User;
 import ftp.core.repository.projections.UploadedFilesProjection;
 import java.util.Date;
 import java.util.Set;
-import javax.annotation.Resource;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by Kosta_Chuturkov on 11/2/2016.
  */
 public class FileServiceTest extends AbstractTest {
 
-  @Resource
   private FileService fileService;
 
-  @Resource
   private UserService userService;
+
+  @Autowired
+  public FileServiceTest(FileService fileService, UserService userService) {
+    this.fileService = fileService;
+    this.userService = userService;
+  }
 
   @Test
   public void testSaveFile() throws Exception {
