@@ -1,11 +1,15 @@
 package ftp.core.service.face.tx;
 
+import ftp.core.model.dto.FileSharedWithUsersDto;
 import ftp.core.model.dto.ModifiedUserDto;
+import ftp.core.model.dto.PersonalFileDto;
+import ftp.core.model.dto.SharedFileDto;
 import ftp.core.model.entities.File;
 import ftp.core.service.generic.GenericService;
-import java.util.List;
 import java.util.Set;
 import javax.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Transactional
 public interface FileService extends GenericService<File, Long> {
@@ -20,11 +24,11 @@ public interface FileService extends GenericService<File, Long> {
 
   boolean isFileCreator(Long fileId, String userNickName);
 
-  List<File> getFilesISharedWithOtherUsers(String userNickName, int firstResult, int maxResults);
+  Page<FileSharedWithUsersDto> getFilesISharedWithOtherUsers(String userNickName, Pageable pageable);
 
-  List<File> getPrivateFilesForUser(String userNickName, int firstResult, int maxResults);
+  Page<PersonalFileDto> getPrivateFilesForUser(String userNickName, Pageable pageable);
 
-  List<File> getSharedFilesWithMe(String userNickName, int firstResult, int maxResults);
+  Page<SharedFileDto> getSharedFilesWithMe(String userNickName, Pageable pageable);
 
   void updateUsers(final String deleteHash, final Set<ModifiedUserDto> modifiedUserDto);
 }

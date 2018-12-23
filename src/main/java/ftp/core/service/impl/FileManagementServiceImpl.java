@@ -11,10 +11,10 @@ import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.DeletedFileDto;
 import ftp.core.model.dto.DeletedFilesDto;
-import ftp.core.model.dto.FileWithSharedUsersWithMeDto;
+import ftp.core.model.dto.FileSharedWithUsersDto;
 import ftp.core.model.dto.JsonFileDto;
-import ftp.core.model.dto.PrivateFileWithMeDto;
-import ftp.core.model.dto.SharedFileWithMeDto;
+import ftp.core.model.dto.PersonalFileDto;
+import ftp.core.model.dto.SharedFileDto;
 import ftp.core.model.dto.UploadedFilesDto;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
@@ -23,7 +23,6 @@ import ftp.core.service.face.StorageService;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.util.DtoUtil;
 import ftp.core.util.ServerUtil;
 import ftp.core.websocket.dto.JsonResponse;
 import ftp.core.websocket.handler.Handlers;
@@ -31,9 +30,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
 import org.apache.commons.io.FileUtils;
@@ -45,6 +44,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.bus.Event;
@@ -101,7 +103,8 @@ public class FileManagementServiceImpl implements FileManagementService {
 
   @Override
   public UploadedFilesDto<JsonFileDto> uploadFile(final MultipartFile multipartFile,
-      final Set<String> userNickNames) {
+      final String userNickNamesRaw) {
+    HashSet userNickNames = this.gson.fromJson(userNickNamesRaw, HashSet.class);
     final String fileUploadServerUrl =
         this.applicationConfig.getServerAddress() + APIAliases.DOWNLOAD_FILE_ALIAS;
     User currentUser = User.getCurrent();
@@ -199,10 +202,10 @@ public class FileManagementServiceImpl implements FileManagementService {
     } finally {
       this.storageService
           .deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
-      String dataToJson = this.gson.toJson(new DeletedFileDto(downloadHash));
+      DeletedFileDto deletedFileDto = new DeletedFileDto(downloadHash);
       usersToBeNotifiedFileDeleted.forEach(user -> {
         Event<JsonResponse> data = Event
-            .wrap(new JsonResponse(dataToJson, Handlers.DELETED_FILE.getHandlerName()));
+            .wrap(new JsonResponse<>(new PageImpl<>(Lists.newArrayList(deletedFileDto)), Handlers.DELETED_FILE.getHandlerName()));
         this.messagePublishingService.publish(user, data);
       });
     }
@@ -292,33 +295,18 @@ public class FileManagementServiceImpl implements FileManagementService {
   }
 
   @Override
-  public List<FileWithSharedUsersWithMeDto> getFilesISharedWithOtherUsers(Integer firstResult,
-      Integer maxResults, String nickName) {
-    return this.fileService
-        .getFilesISharedWithOtherUsers(nickName, firstResult, maxResults)
-        .stream()
-        .map((DtoUtil::toSharedFileWithOtherUsersDto))
-        .collect(Collectors.toList());
+  public Page<FileSharedWithUsersDto> getFilesISharedWithOtherUsers(Pageable pageable) {
+    return this.fileService.getFilesISharedWithOtherUsers(User.getCurrent().getNickName(), pageable);
   }
 
   @Override
-  public List<PrivateFileWithMeDto> getPrivateFiles(Integer firstResult, Integer maxResults,
-      String nickName) {
-    return this.fileService
-        .getPrivateFilesForUser(nickName, firstResult, maxResults)
-        .stream()
-        .map((DtoUtil::toPrivateFileDto))
-        .collect(Collectors.toList());
+  public Page<PersonalFileDto> getPrivateFiles(Pageable pageable) {
+    return this.fileService.getPrivateFilesForUser(User.getCurrent().getNickName(), pageable);
   }
 
   @Override
-  public List<SharedFileWithMeDto> getFilesSharedToMe(Integer firstResult, Integer maxResults,
-      String nickName) {
-    return this.fileService
-        .getSharedFilesWithMe(nickName, firstResult, maxResults)
-        .stream()
-        .map(DtoUtil::toSharedFileWithMeDto)
-        .collect(Collectors.toList());
+  public Page<SharedFileDto> getFilesSharedToMe(Pageable pageable) {
+    return this.fileService.getSharedFilesWithMe(User.getCurrent().getNickName(), pageable);
   }
 
 }

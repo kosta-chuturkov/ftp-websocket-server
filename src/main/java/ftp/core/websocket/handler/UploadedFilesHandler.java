@@ -1,12 +1,11 @@
 package ftp.core.websocket.handler;
 
-import ftp.core.model.entities.User;
 import ftp.core.service.face.FileManagementService;
 import ftp.core.service.face.JsonService;
 import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
-import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,9 +26,8 @@ public class UploadedFilesHandler extends BaseJsonRequestHandler {
   @Override
   public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
     return super.handle(jsonRequest,
-        (firstResult, maxResults) -> this.fileManagementService
-            .getFilesISharedWithOtherUsers(firstResult, maxResults,
-                Objects.requireNonNull(User.getCurrent()).getNickName()));
+        (firstResult, maxResults) ->
+            this.fileManagementService.getFilesISharedWithOtherUsers(new PageRequest(firstResult, maxResults)));
   }
 
   @Override

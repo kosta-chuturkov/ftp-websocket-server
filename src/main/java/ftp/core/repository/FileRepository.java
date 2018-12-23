@@ -1,7 +1,10 @@
 package ftp.core.repository;
 
+import ftp.core.model.dto.FileSharedWithUsersDto;
+import ftp.core.model.dto.PersonalFileDto;
+import ftp.core.model.dto.SharedFileDto;
 import ftp.core.model.entities.File;
-import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,10 +21,12 @@ public interface FileRepository extends JpaRepository<File, Long> {
       "               left outer join fetch file.sharedWithUsers swu" +
       "               where :userNickName in(swu)" +
       "               and file.fileType = :fileType")
-  List<File> findSharedFilesWithMe(@Param("userNickName") String userNickName,
+  Page<SharedFileDto> findSharedFilesWithMe(@Param("userNickName") String userNickName,
       @Param("fileType") File.FileType fileType, Pageable pageable);
 
-  List<File> findByCreatorNickNameAndFileType(String creatorNickName, File.FileType fileType,
+  Page<PersonalFileDto> findByCreatorNickNameAndFileType(String creatorNickName, File.FileType fileType,
       Pageable pageable);
+
+  Page<FileSharedWithUsersDto> findByFileTypeAndCreatorNickName(File.FileType fileType, String creatorNickName, Pageable pageable);
 
 }

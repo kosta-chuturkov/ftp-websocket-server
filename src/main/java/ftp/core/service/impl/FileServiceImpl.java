@@ -1,13 +1,16 @@
 package ftp.core.service.impl;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import ftp.core.api.MessagePublishingService;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.DataTransferObject;
 import ftp.core.model.dto.DeletedFileDto;
+import ftp.core.model.dto.FileSharedWithUsersDto;
 import ftp.core.model.dto.ModifiedUserDto;
-import ftp.core.model.dto.SharedFileWithMeDto;
+import ftp.core.model.dto.PersonalFileDto;
+import ftp.core.model.dto.SharedFileDto;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.File.FileType;
 import ftp.core.model.entities.User;
@@ -27,7 +30,9 @@ import javax.transaction.Transactional;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service("fileService")
@@ -77,9 +82,9 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
           .updateRemainingStorageForUser(fileSize, currentUser.getEmail(), remainingStorage);
       this.userService.addFileToUser(savedFile.getId(), currentUser.getEmail());
       if (!validatedUsers.isEmpty()) {
-        SharedFileWithMeDto data = DtoUtil.toSharedFileWithMeDto(savedFile);
-        String dataToJson = this.gson.toJson(data);
-        validatedUsers.forEach(user -> this.messagePublishingService.publish(user, new JsonResponse(dataToJson,
+        SharedFileDto data = DtoUtil.toSharedFileWithMeDto(savedFile);
+        validatedUsers.forEach(user -> this.messagePublishingService.publish(user,
+            new JsonResponse<SharedFileDto>(new PageImpl<>(Lists.newArrayList(data)),
             Handlers.FILES_SHARED_WITH_ME_HANDLER.getHandlerName())));
       }
     } else {
@@ -127,23 +132,18 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
   }
 
   @Override
-  public List<File> getFilesISharedWithOtherUsers(final String userNickName, final int firstResult,
-      final int maxResults) {
-    return this.fileRepository.findByCreatorNickNameAndFileType(userNickName, FileType.SHARED,
-        new PageRequest(firstResult, maxResults));
+  public Page<FileSharedWithUsersDto> getFilesISharedWithOtherUsers(final String userNickName, Pageable pageable) {
+    return this.fileRepository.findByFileTypeAndCreatorNickName(FileType.SHARED, userNickName, pageable);
   }
 
   @Override
-  public List<File> getPrivateFilesForUser(final String userNickName, final int firstResult,
-      final int maxResults) {
-    return this.fileRepository.findByCreatorNickNameAndFileType(userNickName, FileType.PRIVATE,
-        new PageRequest(firstResult, maxResults));
+  public Page<PersonalFileDto> getPrivateFilesForUser(final String userNickName, Pageable pageable) {
+    return this.fileRepository.findByCreatorNickNameAndFileType(userNickName, FileType.PRIVATE, pageable);
   }
 
   @Override
-  public List<File> getSharedFilesWithMe(String userNickName, int firstResult, int maxResults) {
-    return this.fileRepository.findSharedFilesWithMe(userNickName, FileType.SHARED,
-        new PageRequest(firstResult, maxResults));
+  public Page<SharedFileDto> getSharedFilesWithMe(String userNickName, Pageable pageable) {
+    return this.fileRepository.findSharedFilesWithMe(userNickName, FileType.SHARED, pageable);
   }
 
   private File updateUsersForFile(final String fileHash, final Set<String> userNickNames) {
@@ -156,9 +156,11 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     persistentSharedToUsers.removeAll(userNickNames);
     file.setSharedWithUsers(userNickNames);
     save(file);
-    String dataToJson = this.gson.toJson(new DeletedFileDto(downloadHash));
+    DeletedFileDto deletedFileDto = new DeletedFileDto(downloadHash);
     persistentSharedToUsers.forEach(user -> {
-      JsonResponse data = new JsonResponse(dataToJson, Handlers.DELETED_FILE.getHandlerName());
+      JsonResponse data = new JsonResponse<>(
+          new PageImpl<>(Lists.newArrayList(deletedFileDto)),
+          Handlers.DELETED_FILE.getHandlerName());
       this.messagePublishingService.publish(user, data);
     });
     return file;
@@ -191,8 +193,9 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     final File file = updateUsersForFile(deleteHash, userNickNames);
     final DataTransferObject fileDto = DtoUtil.toSharedFileWithMeDto(file);
     for (final String userNickName : userNickNames) {
-      this.messagePublishingService.publish(userNickName, new JsonResponse(this.gson.toJson(fileDto),
-          Handlers.FILES_SHARED_WITH_ME_HANDLER.getHandlerName()));
+      this.messagePublishingService.publish(userNickName,
+          new JsonResponse<>(new PageImpl<>(Lists.newArrayList(fileDto)),
+              Handlers.FILES_SHARED_WITH_ME_HANDLER.getHandlerName()));
     }
   }
 }

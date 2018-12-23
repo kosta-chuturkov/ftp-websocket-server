@@ -220,7 +220,7 @@
 //
 //        //when
 //        super.makeRequestAs(user1);
-//        List<SharedFileWithMeDto> sharedFilesToUser1 = this.fileManagementController.getSharedFilesForUser(0, 10);
+//        List<SharedFileDto> sharedFilesToUser1 = this.fileManagementController.getSharedFilesForUser(0, 10);
 //
 //        //then
 //        assertThat(sharedFilesToUser1, is(notNullValue()));
@@ -228,7 +228,7 @@
 //        assertThat(sharedFilesToUser1.get(0).getName(), is(mp3FileName));
 //
 //        super.makeRequestAs(user2);
-//        List<SharedFileWithMeDto> sharedFilesToUser2 = this.fileManagementController.getSharedFilesForUser(0, 10);
+//        List<SharedFileDto> sharedFilesToUser2 = this.fileManagementController.getSharedFilesForUser(0, 10);
 //        assertThat(sharedFilesToUser2, is(notNullValue()));
 //        assertThat(sharedFilesToUser2.size(), is(2));
 //        Set<String> user1FileNames = sharedFilesToUser2
@@ -239,7 +239,7 @@
 //        assertThat(user1FileNames.contains(jpgFileName),is(true));
 //
 //        super.makeRequestAs(user3);
-//        List<SharedFileWithMeDto> sharedFilesToUser3 = this.fileManagementController.getSharedFilesForUser(0, 10);
+//        List<SharedFileDto> sharedFilesToUser3 = this.fileManagementController.getSharedFilesForUser(0, 10);
 //        assertThat(sharedFilesToUser3, is(notNullValue()));
 //        assertThat(sharedFilesToUser3.size(), is(3));
 //        Set<String> user2FileNames = sharedFilesToUser3
@@ -268,7 +268,7 @@
 //        uploadedFileAndGetDownloadHash(sampleTarFile, tarFileName);
 //
 //        //when
-//        List<PrivateFileWithMeDto> privateFiles = this.fileManagementController.getPrivateFilesForUser(0, 10);
+//        List<PersonalFileDto> privateFiles = this.fileManagementController.getPrivateFilesForUser(0, 10);
 //
 //        //then
 //        assertThat(privateFiles, is(notNullValue()));
@@ -304,7 +304,7 @@
 //                this.gson.toJson(Sets.newHashSet(user2.getNickName(), user1.getNickName())));
 //
 //        //when
-//        List<FileWithSharedUsersWithMeDto> sharedFilesToUser = this.fileManagementController.getUploadedFilesByUser(0, 10);
+//        List<FileSharedWithUsersDto> sharedFilesToUser = this.fileManagementController.getUploadedFilesByUser(0, 10);
 //
 //
 //        //then
