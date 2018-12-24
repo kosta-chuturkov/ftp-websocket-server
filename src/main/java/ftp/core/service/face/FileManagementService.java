@@ -13,18 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface FileManagementService {
 
-  String updateProfilePicture(MultipartFile file);
-
   UploadedFilesDto<JsonFileDto> uploadFile(MultipartFile file,
       String userNickNames);
 
   DeletedFilesDto deleteFiles(String deleteHash);
 
   FileSystemResource downloadFile(String downloadHash);
-
-  FileSystemResource sendProfilePicture(String filename);
-
-  String getProfilePicUrl(String userName, String serverContext);
 
   Page<FileSharedWithUsersDto> getFilesISharedWithOtherUsers(Pageable pageable);
 

@@ -1,18 +1,12 @@
 package ftp.core.security;
 
-import ftp.core.config.ApplicationConfig;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.entities.User;
-import ftp.core.service.face.FileManagementService;
-import java.io.IOException;
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -23,18 +17,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class AjaxAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-  @Lazy
-  @Autowired
-  private FileManagementService fileManagementService;
-
-  @Autowired
-  private ApplicationConfig applicationConfig;
-
   @Override
   public void onAuthenticationSuccess(final HttpServletRequest request,
       final HttpServletResponse response,
-      final Authentication authentication)
-      throws IOException, ServletException {
+      final Authentication authentication) {
     final User springSecurityUser = (User) authentication.getPrincipal();
     final String email = springSecurityUser.getEmail();
     final String password = springSecurityUser.getPassword();
@@ -51,9 +37,6 @@ public class AjaxAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
     session.setAttribute(ServerConstants.PASSWORD, password);
     session.setAttribute(ServerConstants.HOST, request.getServerName());
     session.setAttribute(ServerConstants.PORT, request.getServerPort());
-    String profilePicUrl = this.fileManagementService
-        .getProfilePicUrl(nickName, this.applicationConfig.getServerAddress());
-    session.setAttribute(ServerConstants.PROFILE_PICTURE_PARAM, profilePicUrl);
     session
         .setAttribute(ServerConstants.STORAGE_PARAMETER, FileUtils.byteCountToDisplaySize(storage));
     session.setAttribute(ServerConstants.MAX_STORAGE_PARAMETER,

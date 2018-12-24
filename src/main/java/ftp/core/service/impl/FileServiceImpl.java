@@ -2,7 +2,6 @@ package ftp.core.service.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
 import ftp.core.api.MessagePublishingService;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.DataTransferObject;
@@ -19,11 +18,11 @@ import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.service.generic.AbstractGenericService;
 import ftp.core.util.DtoUtil;
 import ftp.core.websocket.dto.JsonResponse;
 import ftp.core.websocket.handler.Handlers;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -37,17 +36,15 @@ import org.springframework.stereotype.Service;
 
 @Service("fileService")
 @Transactional
-public class FileServiceImpl extends AbstractGenericService<File, Long> implements FileService {
+public class FileServiceImpl implements FileService {
 
-  private Gson gson;
   private UserService userService;
   private FileRepository fileRepository;
   private MessagePublishingService messagePublishingService;
 
   @Autowired
-  public FileServiceImpl(Gson gson, UserService userService,
+  public FileServiceImpl(UserService userService,
       FileRepository fileRepository, MessagePublishingService messagePublishingService) {
-    this.gson = gson;
     this.userService = userService;
     this.fileRepository = fileRepository;
     this.messagePublishingService = messagePublishingService;
@@ -76,7 +73,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
               + " remainig storage.");
     }
     Set<String> validatedUsers = validateUserNickNames(fileToBeSaved.getSharedWithUsers());
-    final File savedFile = save(fileToBeSaved);
+    final File savedFile = fileRepository.save(fileToBeSaved);
     if (savedFile != null) {
       this.userService
           .updateRemainingStorageForUser(fileSize, currentUser.getEmail(), remainingStorage);
@@ -113,22 +110,22 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
   }
 
   public boolean isUserFromFileSharedUsers(final Long fileId, final String nickName) {
-    final File exists = findOne(fileId);
-    if (exists == null) {
+    final Optional<File> exists = fileRepository.findById(fileId);
+    if (!exists.isPresent()) {
       return false;
     }
-    final Set<String> sharedWithUsers = exists.getSharedWithUsers();
+    final Set<String> sharedWithUsers = exists.get().getSharedWithUsers();
     return sharedWithUsers.contains(nickName);
   }
 
   @Override
   public boolean isFileCreator(final Long fileId, final String userNickName) {
-    final File exists = findOne(fileId);
-    if (exists == null) {
+    final Optional<File> exists = fileRepository.findById(fileId);
+    if (!exists.isPresent()) {
       return false;
     }
     final User userByNickName = this.userService.getUserByNickName(userNickName);
-    return exists.getCreator().getNickName().equals(userByNickName.getNickName());
+    return exists.get().getCreator().getNickName().equals(userByNickName.getNickName());
   }
 
   @Override
@@ -155,7 +152,7 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
     final Set<String> persistentSharedToUsers = Sets.newHashSet(file.getSharedWithUsers());
     persistentSharedToUsers.removeAll(userNickNames);
     file.setSharedWithUsers(userNickNames);
-    save(file);
+    fileRepository.save(file);
     DeletedFileDto deletedFileDto = new DeletedFileDto(downloadHash);
     persistentSharedToUsers.forEach(user -> {
       JsonResponse data = new JsonResponse<>(
@@ -197,5 +194,20 @@ public class FileServiceImpl extends AbstractGenericService<File, Long> implemen
           new JsonResponse<>(new PageImpl<>(Lists.newArrayList(fileDto)),
               Handlers.FILES_SHARED_WITH_ME_HANDLER.getHandlerName()));
     }
+  }
+
+  @Override
+  public void delete(Long id) {
+    fileRepository.deleteById(id);
+  }
+
+  @Override
+  public File save(File file) {
+    return fileRepository.save(file);
+  }
+
+  @Override
+  public Optional<File> findById(Long fileId) {
+    return this.fileRepository.findById(fileId);
   }
 }

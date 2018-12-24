@@ -5,14 +5,14 @@ import ftp.core.model.dto.ModifiedUserDto;
 import ftp.core.model.dto.PersonalFileDto;
 import ftp.core.model.dto.SharedFileDto;
 import ftp.core.model.entities.File;
-import ftp.core.service.generic.GenericService;
+import java.util.Optional;
 import java.util.Set;
 import javax.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 @Transactional
-public interface FileService extends GenericService<File, Long> {
+public interface FileService {
 
   File getFileByDownloadHash(String downloadHash);
 
@@ -31,4 +31,10 @@ public interface FileService extends GenericService<File, Long> {
   Page<SharedFileDto> getSharedFilesWithMe(String userNickName, Pageable pageable);
 
   void updateUsers(final String deleteHash, final Set<ModifiedUserDto> modifiedUserDto);
+
+  void delete(Long id);
+
+  File save(File file);
+
+  Optional<File> findById(Long fileId);
 }

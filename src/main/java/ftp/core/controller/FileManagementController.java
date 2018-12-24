@@ -11,6 +11,8 @@ import ftp.core.model.dto.UploadedFilesDto;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
 import ftp.core.service.impl.SchedulingService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -29,7 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController("fileManagementController")
 @RequestMapping(path = FileManagementController.PATH, produces = APPLICATION_JSON_VALUE)
+@Api(tags = FileManagementController.TAG)
 public class FileManagementController {
+
+  public static final String TAG = "Files";
 
   public static final String PATH = "/api/v1/files";
 
@@ -43,6 +48,7 @@ public class FileManagementController {
   }
 
   @Secured(Authorities.USER)
+  @ApiOperation(value = "", nickname = "uploadFile")
   @PostMapping(path = "/upload")
   public DeferredResult<UploadedFilesDto<JsonFileDto>> uploadFile(
       @RequestParam("files[]") final MultipartFile file,
@@ -55,6 +61,7 @@ public class FileManagementController {
   }
 
   @Secured(Authorities.USER)
+  @ApiOperation(value = "", nickname = "deleteFile")
   @DeleteMapping(path = "/{deleteHash}")
   public DeferredResult<DeletedFilesDto> deleteFile(
       @NotNull @PathVariable final String deleteHash) {
@@ -63,6 +70,7 @@ public class FileManagementController {
   }
 
   @Secured(Authorities.USER)
+  @ApiOperation(value = "", nickname = "downloadFile")
   @GetMapping(path = "/{downloadHash}")
   public FileSystemResource downloadFile(
       @NotNull @PathVariable String downloadHash) {
@@ -70,6 +78,7 @@ public class FileManagementController {
   }
 
   @Secured(Authorities.USER)
+  @ApiOperation(value = "", nickname = "getSharedFilesForUser")
   @GetMapping(path = "/shared")
   public DeferredResult<Page<SharedFileDto>> getSharedFilesForUser(Pageable pageable) {
     return this.schedulingService
@@ -78,6 +87,7 @@ public class FileManagementController {
   }
 
   @Secured(Authorities.USER)
+  @ApiOperation(value = "", nickname = "getPrivateFilesForUser")
   @GetMapping(path = "/private")
   public DeferredResult<Page<PersonalFileDto>> getPrivateFilesForUser(Pageable pageable) {
     return this.schedulingService
@@ -86,6 +96,7 @@ public class FileManagementController {
   }
 
   @Secured(Authorities.USER)
+  @ApiOperation(value = "", nickname = "getUploadedFilesByUser")
   @GetMapping(path = "/uploaded")
   public DeferredResult<Page<FileSharedWithUsersDto>> getUploadedFilesByUser(Pageable pageable) {
     return this.schedulingService

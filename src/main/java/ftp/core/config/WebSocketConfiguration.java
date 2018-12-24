@@ -6,8 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -18,9 +17,8 @@ import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
  * Created by Kosta_Chuturkov on 2/10/2016.
  */
 @Configuration
-@EnableWebMvc
 @EnableWebSocket
-public class WebSocketConfiguration extends WebMvcConfigurerAdapter implements WebSocketConfigurer {
+public class WebSocketConfiguration implements WebSocketConfigurer, WebMvcConfigurer {
 
   @Autowired
   private UserService userService;

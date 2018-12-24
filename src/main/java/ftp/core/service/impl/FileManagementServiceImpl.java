@@ -2,12 +2,8 @@ package ftp.core.service.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import ftp.core.api.MessagePublishingService;
-import ftp.core.config.ApplicationConfig;
-import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.DeletedFileDto;
 import ftp.core.model.dto.DeletedFilesDto;
@@ -33,13 +29,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import net.coobird.thumbnailator.Thumbnails;
-import net.coobird.thumbnailator.name.Rename;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.FileSystemResource;
@@ -54,60 +45,30 @@ import reactor.bus.Event;
 @Service("fileManagementService")
 public class FileManagementServiceImpl implements FileManagementService {
 
-  private static final Logger logger = LoggerFactory.getLogger(FileManagementServiceImpl.class);
-
   private UserService userService;
   private FileService fileService;
   private MessagePublishingService messagePublishingService;
-  private ResourceLoader resourceLoader;
   private StorageService storageService;
-  private ApplicationConfig applicationConfig;
   private final Gson gson;
 
   @Autowired
   public FileManagementServiceImpl(@Lazy UserService userService,
       FileService fileService,
       MessagePublishingService messagePublishingService, StorageService storageService,
-      ApplicationConfig applicationConfig, ResourceLoader resourceLoader, Gson gson) {
+      Gson gson) {
     this.userService = userService;
     this.fileService = fileService;
     this.messagePublishingService = messagePublishingService;
     this.storageService = storageService;
-    this.applicationConfig = applicationConfig;
-    this.resourceLoader = resourceLoader;
     this.gson = gson;
-  }
-
-  @Override
-  public String updateProfilePicture(final MultipartFile file) {
-
-    try {
-      final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
-      final String extension = FilenameUtils.getExtension(fileName);
-      checkFileExtention(extension);
-      String nickName = User.getCurrent().getNickName();
-      final String serverFileName = nickName + "." + extension;
-      this.storageService.storeProfilePicture(getInputStream(file), serverFileName);
-      org.springframework.core.io.Resource profilePicture = this.storageService
-          .loadProfilePicture(nickName);
-      createImageThumbnail(profilePicture.getFile(), 50, 50);
-      profilePicture.getInputStream().close();
-      final JsonObject jsonObject = new JsonObject();
-      jsonObject.addProperty("imageUrl",
-          getProfilePicUrl(nickName, this.applicationConfig.getServerAddress()));
-      return jsonObject.toString();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   @Override
   public UploadedFilesDto<JsonFileDto> uploadFile(final MultipartFile multipartFile,
       final String userNickNamesRaw) {
-    HashSet userNickNames = this.gson.fromJson(userNickNamesRaw, HashSet.class);
-    final String fileUploadServerUrl =
-        this.applicationConfig.getServerAddress() + APIAliases.DOWNLOAD_FILE_ALIAS;
+    Set<String> userNickNames = this.gson.fromJson(userNickNamesRaw, HashSet.class);
     User currentUser = User.getCurrent();
+    if(currentUser == null) throw new RuntimeException("You are not logged in.");
     final Long token = currentUser.getToken();
     final String fileName = StringEscapeUtils.escapeSql(multipartFile.getOriginalFilename());
     final long currentTime = System.currentTimeMillis();
@@ -131,7 +92,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     this.fileService.saveFile(fileToBeSaved);
     this.storageService
         .store(getInputStream(multipartFile), serverFileName, currentUser.getEmail());
-    return buildResponseObject(multipartFile, fileUploadServerUrl, fileName, deleteHash,
+    return buildResponseObject(multipartFile, "", fileName, deleteHash,
         downloadHash);
 
   }
@@ -141,23 +102,6 @@ public class FileManagementServiceImpl implements FileManagementService {
       return file.getInputStream();
     } catch (Exception e) {
       throw new RuntimeException(e);
-    }
-  }
-
-
-  private void createImageThumbnail(java.io.File targetFile, int width, int height)
-      throws IOException {
-    Thumbnails.of(targetFile)
-        .size(width, height)
-        .outputFormat("jpg")
-        .toFiles(Rename.NO_CHANGE);
-  }
-
-  final Set<String> ALLOWED_EXTENTIONS = Sets.newHashSet("jpg", "JPG");
-
-  private void checkFileExtention(String extension) {
-    if (!this.ALLOWED_EXTENTIONS.contains(extension)) {
-      throw new FtpServerException("Image expected...");
     }
   }
 
@@ -175,7 +119,9 @@ public class FileManagementServiceImpl implements FileManagementService {
 
   @Override
   public DeletedFilesDto deleteFiles(final String deleteHash) {
-    final User current = userService.getUserByEmail(User.getCurrent().getEmail());
+    User currentU = User.getCurrent();
+    if(currentU == null) throw new RuntimeException("You are not logged in.");
+    final User current = userService.getUserByEmail(currentU.getEmail());
     final String nickName = current.getNickName();
     final File findByDeleteHash = getFile(deleteHash, nickName);
     final String downloadHash = findByDeleteHash.getDownloadHash();
@@ -220,25 +166,9 @@ public class FileManagementServiceImpl implements FileManagementService {
   }
 
   @Override
-  public FileSystemResource sendProfilePicture(String userName) {
-    org.springframework.core.io.Resource resource = this.storageService
-        .loadProfilePicture(userName);
-    try {
-      if (ServerUtil.existsAndIsReadable(resource)) {
-        return new FileSystemResource(resource.getFile());
-      } else {
-        org.springframework.core.io.Resource defaultPic = this.resourceLoader
-            .getResource(ServerConstants.DEFAULT_PROFILE_PICTURE);
-        return new FileSystemResource(defaultPic.getFile());
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
   public FileSystemResource downloadFile(String downloadHash) {
     final User current = User.getCurrent();
+    if(current == null) throw new RuntimeException("You are not logged in.");
     final File fileByDownloadHash = getFile(downloadHash);
     final Date timestamp = fileByDownloadHash.getTimestamp();
     final String fileName = fileByDownloadHash.getName();
@@ -290,23 +220,18 @@ public class FileManagementServiceImpl implements FileManagementService {
   }
 
   @Override
-  public String getProfilePicUrl(final String userName, String serverContext) {
-    return serverContext.concat(APIAliases.PROFILE_PIC_ALIAS + userName + ".jpg");
-  }
-
-  @Override
   public Page<FileSharedWithUsersDto> getFilesISharedWithOtherUsers(Pageable pageable) {
-    return this.fileService.getFilesISharedWithOtherUsers(User.getCurrent().getNickName(), pageable);
+    return this.fileService.getFilesISharedWithOtherUsers(User.getCurrent() == null ? null: User.getCurrent().getNickName(), pageable);
   }
 
   @Override
   public Page<PersonalFileDto> getPrivateFiles(Pageable pageable) {
-    return this.fileService.getPrivateFilesForUser(User.getCurrent().getNickName(), pageable);
+    return this.fileService.getPrivateFilesForUser(User.getCurrent() == null ? null: User.getCurrent().getNickName(), pageable);
   }
 
   @Override
   public Page<SharedFileDto> getFilesSharedToMe(Pageable pageable) {
-    return this.fileService.getSharedFilesWithMe(User.getCurrent().getNickName(), pageable);
+    return this.fileService.getSharedFilesWithMe(User.getCurrent() == null ? null: User.getCurrent().getNickName(), pageable);
   }
 
 }

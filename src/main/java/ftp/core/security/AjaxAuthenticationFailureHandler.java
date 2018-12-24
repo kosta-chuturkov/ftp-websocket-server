@@ -1,6 +1,5 @@
 package ftp.core.security;
 
-import ftp.core.constants.APIAliases;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +20,7 @@ public class AjaxAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
       final AuthenticationException exception) throws IOException, ServletException {
 
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    redirect(APIAliases.LOGIN_ALIAS, response);
+    redirect("/login", response);
   }
 
   public void redirect(final String resourceName, final HttpServletResponse response)

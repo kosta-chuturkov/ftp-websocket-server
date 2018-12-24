@@ -1,17 +1,17 @@
 package ftp.core.service.face.tx;
 
+import ftp.core.model.dto.ModifiedUserDto;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
 import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.repository.projections.UploadedFilesProjection;
-import ftp.core.service.generic.GenericService;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.transaction.Transactional;
 
 @Transactional
-public interface UserService extends GenericService<User, Long> {
+public interface UserService {
 
   User findByEmailAndPassword(String email, String password);
 
@@ -38,4 +38,12 @@ public interface UserService extends GenericService<User, Long> {
   Set<NickNameProjection> findByNickNameIn(Collection<String> nickNames);//
 
   UploadedFilesProjection findUploadedFilesByUserId(Long userId);
+
+  User save(User current);
+
+  String getUserDetails(String userNickName);
+
+  void updateUsers(String deleteHash, Set<ModifiedUserDto> modifiedUserDto);
+
+  List<User> findAll();
 }

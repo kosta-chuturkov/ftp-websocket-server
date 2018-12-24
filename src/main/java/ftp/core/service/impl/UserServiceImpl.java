@@ -1,6 +1,9 @@
 package ftp.core.service.impl;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import ftp.core.constants.ServerConstants;
+import ftp.core.model.dto.ModifiedUserDto;
 import ftp.core.model.entities.Authority;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
@@ -10,28 +13,31 @@ import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.repository.projections.UploadedFilesProjection;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.AuthorityService;
+import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.service.generic.AbstractGenericService;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.transaction.Transactional;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service("userService")
 @Transactional
-public class UserServiceImpl extends AbstractGenericService<User, Long> implements UserService {
+public class UserServiceImpl implements UserService {
 
   static final String SALT = "fKWCH(1UafNFK&QK-Vg`FEG(sAE5f^Q.vEA-+Wj?]Sbc+<crP,x]7M/+S}dnb-,^";
 
   private UserRepository userRepository;
 
-  private FileRepository fileRepository;
+  private FileService fileService;
 
   private PasswordEncoder passwordEncoder;
 
@@ -40,12 +46,46 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
   private SecureRandom random = new SecureRandom();
 
   @Autowired
-  public UserServiceImpl(UserRepository userRepository, FileRepository fileRepository,
+  public UserServiceImpl(UserRepository userRepository,@Lazy FileService fileService,
       PasswordEncoder passwordEncoder, AuthorityService authorityService) {
     this.userRepository = userRepository;
-    this.fileRepository = fileRepository;
+    this.fileService = fileService;
     this.passwordEncoder = passwordEncoder;
     this.authorityService = authorityService;
+  }
+
+  @Secured(Authorities.USER)
+  public String getUserDetails(final String userNickName) {
+    final JsonObject jsonResponse = new JsonObject();
+    final JsonArray jsonArrayWrapper = new JsonArray();
+    List<NickNameProjection> userByNickLike = getUserByNickLike(userNickName);
+    userByNickLike
+        .forEach(userName -> {
+          final JsonObject userObject = new JsonObject();
+          userObject.addProperty("id", userName.getNickName());
+          userObject.addProperty("full_name", userName.getNickName());
+          final JsonObject owner = new JsonObject();
+          owner.addProperty("id", Math.random());
+          userObject.add("owner", owner);
+          jsonArrayWrapper.add(userObject);
+        });
+
+    jsonResponse.addProperty("total_count", userByNickLike.size());
+    jsonResponse.addProperty("incomplete_results", Boolean.FALSE);
+    jsonResponse.add("items", jsonArrayWrapper);
+
+    return jsonResponse.toString();
+  }
+
+
+  @Secured(Authorities.USER)
+  public void updateUsers(final String deleteHash, final Set<ModifiedUserDto> modifiedUserDto) {
+    this.fileService.updateUsers(deleteHash, modifiedUserDto);
+  }
+
+  @Override
+  public List<User> findAll() {
+    return (List<User>) userRepository.findAll();
   }
 
   @Override
@@ -63,19 +103,24 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
     return this.userRepository.findUploadedFilesById(userId);
   }
 
+  @Override
+  public User save(User current) {
+    return userRepository.save(current);
+  }
+
   public String encodePassword(final String rawPassword) {
     return this.passwordEncoder.encode(rawPassword);
   }
 
   @Override
   public File addFileToUser(final Long fileId, final String email) {
-    final File file = this.fileRepository.findOne(fileId);
-    if (file != null) {
+    final Optional<File> file = this.fileService.findById(fileId);
+    if (file.isPresent()) {
       final User user = getUserByEmail(email);
-      user.addUploadedFile(file);
+      user.addUploadedFile(file.get());
       save(user);
     }
-    return file;
+    return file.orElse(null);
   }
 
   @Override
@@ -134,12 +179,16 @@ public class UserServiceImpl extends AbstractGenericService<User, Long> implemen
         .build();
 
     User savedUser = save(user);
-    User registeredUser = findOne(savedUser.getId());
-    Authority authority = new Authority(Authorities.USER);
-    this.authorityService.save(authority);
-    registeredUser.addAuthority(authority);
-    save(registeredUser);
-    return registeredUser;
+    Optional<User> registeredUserOpt = userRepository.findById(savedUser.getId());
+    if (registeredUserOpt.isPresent()) {
+      User registeredUser = registeredUserOpt.get();
+      Authority authority = new Authority(Authorities.USER);
+      this.authorityService.save(authority);
+      registeredUser.addAuthority(authority);
+      save(registeredUser);
+      return registeredUser;
+    }
+    return null;
   }
 
   @Override
