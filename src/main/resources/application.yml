@@ -58,7 +58,7 @@ spring:
         password: ${FTP_DB_PASSWORD:ribamech}
     jpa:
         hibernate:
-          ddl-auto: validate
+          ddl-auto: create
           use-new-id-generator-mappings: true
         database-platform: org.hibernate.dialect.PostgreSQLDialect
         properties:

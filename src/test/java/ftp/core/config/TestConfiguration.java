@@ -6,7 +6,7 @@ import ftp.core.constants.ServerConstants;
 import ftp.core.profiles.Profiles;
 import ftp.core.service.face.StorageService;
 import java.io.IOException;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +36,7 @@ public class TestConfiguration {
         .getResource(ServerConstants.DEFAULT_PROFILE_PICTURE);
     StorageService storageService = Mockito.mock(StorageService.class);
     try {
-      when(storageService.loadProfilePicture(Matchers.anyString()))
+      when(storageService.loadProfilePicture(ArgumentMatchers.anyString()))
           .thenReturn(new FileSystemResource(defaultPic.getFile()));
     } catch (IOException e) {
       throw new RuntimeException(e);
