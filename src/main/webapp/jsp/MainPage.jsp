@@ -509,7 +509,7 @@ p,:focus {
 		var size2 = parseInt(entry.size);
 		var row1 = table2.insertRow(rowCount2);
 		row1.insertCell(0).innerHTML = entry.name;
-		row1.insertCell(1).innerHTML = entry.timestamp;
+		row1.insertCell(1).innerHTML = entry.createdDate;
 		row1.insertCell(2).innerHTML = size2.fileSize(1);
 		row1.insertCell(3).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">Download</a>';
 		row1.insertCell(4).innerHTML = entry.sharingUserName;
@@ -532,11 +532,11 @@ p,:focus {
     		var rowCount2 = table2.rows.length;
     		var size2 = parseInt(entry.size);
     		var row1 = table2.insertRow(rowCount2);
-    		var deleteLinkURL1 = deleteUrl + entry.deleteHash;
-    		var updateUrl = updateUsersUrl + entry.deleteHash;
+    		var deleteLinkURL1 = deleteUrl + entry.downloadHash;
+    		var updateUrl = updateUsersUrl + entry.downloadHash;
     		var selectName = 'sharedSelect'+currentItteration;
     		row1.insertCell(0).innerHTML = entry.name;
-    		row1.insertCell(1).innerHTML = entry.timestamp;
+    		row1.insertCell(1).innerHTML = entry.createdDate;
     		row1.insertCell(2).innerHTML = size2.fileSize(1);
     		row1.insertCell(3).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">Download</a>';
     		row1.insertCell(4).innerHTML = '<input type="button" class="delbtn" value = "Delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName2 + '\')">';
@@ -555,9 +555,9 @@ p,:focus {
 		var row1 = table1.insertRow(rowCount1);
 		var size = parseInt(entry.size);
 		var downloadLinkURL = downloadUrl + entry.downloadHash;
-		var deleteLinkURL1 = deleteUrl + entry.deleteHash;
+		var deleteLinkURL1 = deleteUrl + entry.downloadHash;
 		row1.insertCell(0).innerHTML = entry.name;
-		row1.insertCell(1).innerHTML = entry.timestamp;
+		row1.insertCell(1).innerHTML = entry.createdDate;
 		row1.insertCell(2).innerHTML = size.fileSize(1);
 		row1.insertCell(3).innerHTML = '<a class="downloadBtn" href="' + downloadLinkURL + '" download="' + entry.name + '">Download</a>';
 		row1.insertCell(4).innerHTML = '<input type="button" class="delbtn" value = "Delete" onClick="deleteFileAndRemoveRow(\'' + deleteLinkURL1 + '\',this,\'' + tableName + '\')">';

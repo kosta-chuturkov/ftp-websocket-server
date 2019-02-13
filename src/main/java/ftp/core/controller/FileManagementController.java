@@ -4,15 +4,18 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import ftp.core.model.dto.DeletedFilesDto;
 import ftp.core.model.dto.FileSharedWithUsersDto;
+import ftp.core.model.dto.FileUpdateRequest;
 import ftp.core.model.dto.JsonFileDto;
 import ftp.core.model.dto.PersonalFileDto;
 import ftp.core.model.dto.SharedFileDto;
 import ftp.core.model.dto.UploadedFilesDto;
+import ftp.core.model.entities.File;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
 import ftp.core.service.impl.SchedulingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -23,6 +26,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -67,6 +72,15 @@ public class FileManagementController {
       @NotNull @PathVariable final String deleteHash) {
     return this.schedulingService
         .scheduleTask(() -> this.fileManagementService.deleteFiles(deleteHash), 10000L);
+  }
+
+
+  @Secured(Authorities.USER)
+  @ApiOperation(value = "", nickname = "updateFile")
+  @PutMapping(path = "/{downloadHash}")
+  public File updateFile(
+      @NotNull @Valid @RequestBody FileUpdateRequest file) {
+    return this.fileManagementService.updateFile(file);
   }
 
   @Secured(Authorities.USER)

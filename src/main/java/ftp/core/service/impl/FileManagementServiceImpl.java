@@ -8,6 +8,7 @@ import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.DeletedFileDto;
 import ftp.core.model.dto.DeletedFilesDto;
 import ftp.core.model.dto.FileSharedWithUsersDto;
+import ftp.core.model.dto.FileUpdateRequest;
 import ftp.core.model.dto.JsonFileDto;
 import ftp.core.model.dto.PersonalFileDto;
 import ftp.core.model.dto.SharedFileDto;
@@ -34,7 +35,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -68,7 +68,9 @@ public class FileManagementServiceImpl implements FileManagementService {
       final String userNickNamesRaw) {
     Set<String> userNickNames = this.gson.fromJson(userNickNamesRaw, HashSet.class);
     User currentUser = User.getCurrent();
-    if(currentUser == null) throw new RuntimeException("You are not logged in.");
+    if (currentUser == null) {
+      throw new RuntimeException("You are not logged in.");
+    }
     final Long token = currentUser.getToken();
     final String fileName = StringEscapeUtils.escapeSql(multipartFile.getOriginalFilename());
     final long currentTime = System.currentTimeMillis();
@@ -120,7 +122,9 @@ public class FileManagementServiceImpl implements FileManagementService {
   @Override
   public DeletedFilesDto deleteFiles(final String deleteHash) {
     User currentU = User.getCurrent();
-    if(currentU == null) throw new RuntimeException("You are not logged in.");
+    if (currentU == null) {
+      throw new RuntimeException("You are not logged in.");
+    }
     final User current = userService.getUserByEmail(currentU.getEmail());
     final String nickName = current.getNickName();
     final File findByDeleteHash = getFile(deleteHash, nickName);
@@ -130,7 +134,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     usersToBeNotifiedFileDeleted.add(current.getNickName());
     final long fileSize = findByDeleteHash.getFileSize();
     final String name = findByDeleteHash.getName();
-    final Date timestamp = findByDeleteHash.getTimestamp();
+    final Date timestamp = findByDeleteHash.getCreatedDate();
 
     current.getUploadedFiles().remove(findByDeleteHash);
     current.setRemainingStorage(current.getRemainingStorage() + fileSize);
@@ -151,7 +155,8 @@ public class FileManagementServiceImpl implements FileManagementService {
       DeletedFileDto deletedFileDto = new DeletedFileDto(downloadHash);
       usersToBeNotifiedFileDeleted.forEach(user -> {
         Event<JsonResponse> data = Event
-            .wrap(new JsonResponse<>(new PageImpl<>(Lists.newArrayList(deletedFileDto)), Handlers.DELETED_FILE.getHandlerName()));
+            .wrap(new JsonResponse<>(new PageImpl<>(Lists.newArrayList(deletedFileDto)),
+                Handlers.DELETED_FILE.getHandlerName()));
         this.messagePublishingService.publish(user, data);
       });
     }
@@ -168,9 +173,11 @@ public class FileManagementServiceImpl implements FileManagementService {
   @Override
   public FileSystemResource downloadFile(String downloadHash) {
     final User current = User.getCurrent();
-    if(current == null) throw new RuntimeException("You are not logged in.");
+    if (current == null) {
+      throw new RuntimeException("You are not logged in.");
+    }
     final File fileByDownloadHash = getFile(downloadHash);
-    final Date timestamp = fileByDownloadHash.getTimestamp();
+    final Date timestamp = fileByDownloadHash.getCreatedDate();
     final String fileName = fileByDownloadHash.getName();
     final File.FileType fileType = fileByDownloadHash.getFileType();
     String fileLocationFolder = getFolderNameByFileType(current, fileByDownloadHash, fileType);
@@ -221,17 +228,38 @@ public class FileManagementServiceImpl implements FileManagementService {
 
   @Override
   public Page<FileSharedWithUsersDto> getFilesISharedWithOtherUsers(Pageable pageable) {
-    return this.fileService.getFilesISharedWithOtherUsers(User.getCurrent() == null ? null: User.getCurrent().getNickName(), pageable);
+    return this.fileService.getFilesISharedWithOtherUsers(
+        User.getCurrent() == null ? null : User.getCurrent().getNickName(), pageable);
   }
 
   @Override
   public Page<PersonalFileDto> getPrivateFiles(Pageable pageable) {
-    return this.fileService.getPrivateFilesForUser(User.getCurrent() == null ? null: User.getCurrent().getNickName(), pageable);
+    return this.fileService
+        .getPrivateFilesForUser(User.getCurrent() == null ? null : User.getCurrent().getNickName(),
+            pageable);
   }
 
   @Override
   public Page<SharedFileDto> getFilesSharedToMe(Pageable pageable) {
-    return this.fileService.getSharedFilesWithMe(User.getCurrent() == null ? null: User.getCurrent().getNickName(), pageable);
+    return this.fileService
+        .getSharedFilesWithMe(User.getCurrent() == null ? null : User.getCurrent().getNickName(),
+            pageable);
   }
 
+  @Override
+  public File updateFile(FileUpdateRequest updateRequest) {
+    final User current = User.getCurrent();
+    if (current == null) {
+      throw new RuntimeException("You are not logged in.");
+    }
+    final File file = getFile(updateRequest.getDownloadHash());
+    if (file.getCreator() != current) {
+      throw new RuntimeException("You are not the owner of this file and cannot update it.");
+    }
+    file.setSharedWithUsers(updateRequest.getSharedWithUsers());
+    file.setFileType(updateRequest.getFileType());
+    file.setName(updateRequest.getName());
+    file.setUpdatedDate(new Date());
+    return fileService.save(file);
+  }
 }

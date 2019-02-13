@@ -16,7 +16,7 @@ public final class DtoUtil {
   public static SharedFileDto toSharedFileWithMeDto(File file) {
     return new SharedFileDtoImpl(file.getFileSize(),
         file.getName(),
-        file.getTimestamp().toString(),
+        file.getCreatedDate().toString(),
         file.getDownloadHash(),
         file.getCreator().getNickName(),
         file.getFileType());
