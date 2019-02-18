@@ -25,7 +25,6 @@
     <logger name="org.springframework.web" level="WARN"/>
     <logger name="org.springframework.security" level="WARN"/>
     <logger name="org.springframework.cache" level="WARN"/>
-    <logger name="org.thymeleaf" level="WARN"/>
     <logger name="org.apache.tomcat.util.digester.Digester" level="INFO"/>
     <logger name="org.xnio" level="WARN"/>
     <logger name="springfox" level="WARN"/>

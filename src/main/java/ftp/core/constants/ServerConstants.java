@@ -24,4 +24,7 @@ public class ServerConstants {
 
   public static final String DOWNLOAD_SALT = "P5esIq0RXXvqZigZfdUSUzatUcVotQTQCx8HKLT83tUVVScq2oymCiQZ2N26kBgpfC5HANyZheJaiaQ4";
 
+  public static final String REQUEST_ID_HEADER = "RequestId";
+  public static final String AUTHORIZATION_HEADER = "Authorization";
+
 }

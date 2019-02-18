@@ -48,12 +48,9 @@ public class File extends AbstractEntity<Long> implements Serializable{
   private Long fileSize;
 
   @Column(name = "createdDate")
-  @Type(type = "createdDate")
   private Date createdDate;
 
-
   @Column(name = "updatedDate")
-  @Type(type = "updatedDate")
   private Date updatedDate;
 
   @NotNull

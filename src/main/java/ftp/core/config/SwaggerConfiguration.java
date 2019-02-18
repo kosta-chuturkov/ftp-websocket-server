@@ -1,30 +1,34 @@
 package ftp.core.config;
 
+import static ftp.core.constants.ServerConstants.AUTHORIZATION_HEADER;
+import static ftp.core.constants.ServerConstants.REQUEST_ID_HEADER;
 import static springfox.documentation.builders.PathSelectors.regex;
 
-import com.google.common.io.Resources;
 import ftp.core.controller.FileManagementController;
 import ftp.core.controller.UserManagementController;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.view.RedirectView;
 import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.ResponseMessageBuilder;
+import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Parameter;
 import springfox.documentation.service.ResponseMessage;
 import springfox.documentation.service.Tag;
 import springfox.documentation.spi.DocumentationType;
@@ -54,6 +58,45 @@ public class SwaggerConfiguration extends WebMvcConfigurationSupport {
 
     registry.addResourceHandler("/webjars/**")
         .addResourceLocations("classpath:/META-INF/resources/webjars/");
+  }
+
+
+  @Bean
+  public RequestParameterAddition authorizationHeader() {
+
+    final String PARAM_TYPE = "header";
+    final String PARAM_DESCRIPTION = "Authorization hedear needed for user authentication";
+
+    final Parameter parameter = new ParameterBuilder()
+        .name(AUTHORIZATION_HEADER)
+        .description(PARAM_DESCRIPTION)
+        .defaultValue("dummy-authorization")
+        .required(true)
+        .modelRef(new ModelRef("string"))
+        .parameterType(PARAM_TYPE)
+        .build();
+
+    return new RequestParameterAddition(parameter,
+        EnumSet.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.PUT));
+  }
+
+  @Bean
+  public RequestParameterAddition requestIdHeader() {
+
+    final String PARAM_TYPE = "header";
+    final String PARAM_DESCRIPTION = "Request id";
+
+    final Parameter parameter = new ParameterBuilder()
+        .name(REQUEST_ID_HEADER)
+        .description(PARAM_DESCRIPTION)
+        .defaultValue("dummy-request-id")
+        .required(true)
+        .modelRef(new ModelRef("string"))
+        .parameterType(PARAM_TYPE)
+        .build();
+
+    return new RequestParameterAddition(parameter,
+        EnumSet.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.PUT));
   }
 
   @Bean
