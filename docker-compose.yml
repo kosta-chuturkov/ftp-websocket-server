@@ -2,8 +2,7 @@ version: '3.1'
 services:
   db:
     image: postgres
-    restart: unless-stopped
-    restart: always
+    restart:  unless-stopped
     environment:
       POSTGRES_PASSWORD: ribamech
       POSTGRES_DB: ftp_server
@@ -15,7 +14,6 @@ services:
       spring.datasource.url: jdbc:postgresql://db:5432/ftp_server
       spring.datasource.username: postgres
       spring.datasource.password: ribamech
-    restart: always
     build: .
     ports:
     - "8443:8443"
