@@ -1,0 +1,16 @@
+spring:
+  profiles: postgres
+  jpa.hibernate.ddl-auto: update
+  jpa.database-platform: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    url: jdbc:postgresql://${FTP_DB_HOST:localhost}:${FTP_DB_PORT:5432}/${FTP_DB_NAME:ftp_server}?currentSchema=${FTP_DB_SCHEMA:public}${FTP_DB_SSL:}
+    username: ${FTP_DB_USER:ftp_user}
+    password: ${FTP_DB_PASSWORD:ribamech}
+    type: com.zaxxer.hikari.HikariDataSource
+  session:
+    store-type: jdbc
+    jdbc:
+      table-name: SPRING_SESSION
+      initializer:
+        enabled: false
+
