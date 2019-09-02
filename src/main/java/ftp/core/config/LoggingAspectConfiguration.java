@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Profile;
 public class LoggingAspectConfiguration {
 
   @Bean
-  @Profile(Profiles.DEVELOPMENT)
+//  @Profile(Profiles.PRODUCTION)
   public LoggingAspect loggingAspect() {
     return new LoggingAspect();
   }

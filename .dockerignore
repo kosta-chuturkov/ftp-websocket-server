@@ -50,6 +50,11 @@ cmake-build-release/
 
 # IntelliJ
 out/
+# Gradle
+build/
+
+# Local storage
+FileStorage/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/

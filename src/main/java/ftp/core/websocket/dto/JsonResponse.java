@@ -1,15 +1,16 @@
 package ftp.core.websocket.dto;
 
 import java.io.Serializable;
+import org.springframework.data.domain.Page;
 
 /**
  * Created by Kosta_Chuturkov on 2/24/2016.
  */
-public class JsonResponse implements Serializable{
+public class JsonResponse<T> implements Serializable{
 
   private String responseMethod;
 
-  private String result;
+  private Page<T> result;
 
   private String error;
 
@@ -17,12 +18,12 @@ public class JsonResponse implements Serializable{
 
   }
 
-  public JsonResponse(final String result, String handlerName) {
+  public JsonResponse(final Page<T> result, String handlerName) {
     this.responseMethod = handlerName;
     this.result = result;
   }
 
-  public JsonResponse(final String responseMethod, final String error, final String result) {
+  public JsonResponse(final String responseMethod, final String error, final Page<T> result) {
     this.responseMethod = responseMethod;
     this.error = error;
     this.result = result;
@@ -36,11 +37,11 @@ public class JsonResponse implements Serializable{
     this.responseMethod = responseMethod;
   }
 
-  public String getResult() {
+  public Page<T> getResult() {
     return this.result;
   }
 
-  public void setResult(final String result) {
+  public void setResult(final Page<T> result) {
     this.result = result;
   }
 

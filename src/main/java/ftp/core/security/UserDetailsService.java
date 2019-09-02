@@ -4,9 +4,9 @@ import ftp.core.model.entities.User;
 import ftp.core.repository.UserRepository;
 import ftp.core.service.face.tx.UserService;
 import java.util.Locale;
-import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -21,11 +21,12 @@ public class UserDetailsService implements
 
   private final Logger log = LoggerFactory.getLogger(UserDetailsService.class);
 
-  @Resource
   private UserRepository userRepository;
 
-  @Resource
-  private UserService userService;
+  @Autowired
+  public UserDetailsService(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
   @Override
   @Transactional

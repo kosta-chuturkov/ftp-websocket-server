@@ -1,37 +1,32 @@
 package ftp.core.service.face;
 
 import ftp.core.model.dto.DeletedFilesDto;
-import ftp.core.model.dto.FileWithSharedUsersWithMeDto;
+import ftp.core.model.dto.FileSharedWithUsersDto;
+import ftp.core.model.dto.FileUpdateRequest;
 import ftp.core.model.dto.JsonFileDto;
-import ftp.core.model.dto.PrivateFileWithMeDto;
-import ftp.core.model.dto.SharedFileWithMeDto;
+import ftp.core.model.dto.PersonalFileDto;
+import ftp.core.model.dto.SharedFileDto;
 import ftp.core.model.dto.UploadedFilesDto;
-import java.util.List;
-import java.util.Set;
+import ftp.core.model.entities.File;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface FileManagementService {
 
-  String updateProfilePicture(MultipartFile file);
-
   UploadedFilesDto<JsonFileDto> uploadFile(MultipartFile file,
-      Set<String> userNickNames);
+      String userNickNames);
 
   DeletedFilesDto deleteFiles(String deleteHash);
 
   FileSystemResource downloadFile(String downloadHash);
 
-  FileSystemResource sendProfilePicture(String filename);
+  Page<FileSharedWithUsersDto> getFilesISharedWithOtherUsers(Pageable pageable);
 
-  String getProfilePicUrl(final String userName, String serverContext);
+  Page<PersonalFileDto> getPrivateFiles(Pageable pageable);
 
-  List<FileWithSharedUsersWithMeDto> getFilesISharedWithOtherUsers(Integer firstResult,
-      Integer maxResults, String nickName);
+  Page<SharedFileDto> getFilesSharedToMe(Pageable pageable);
 
-  List<PrivateFileWithMeDto> getPrivateFiles(Integer firstResult, Integer maxResults,
-      String nickName);
-
-  List<SharedFileWithMeDto> getFilesSharedToMe(Integer firstResult, Integer maxResults,
-      String nickName);
+  File updateFile(FileUpdateRequest updateRequest);
 }

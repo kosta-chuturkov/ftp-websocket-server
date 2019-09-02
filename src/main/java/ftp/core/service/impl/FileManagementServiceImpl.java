@@ -2,19 +2,16 @@ package ftp.core.service.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import ftp.core.api.MessagePublishingService;
-import ftp.core.config.ApplicationConfig;
-import ftp.core.constants.APIAliases;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.DeletedFileDto;
 import ftp.core.model.dto.DeletedFilesDto;
-import ftp.core.model.dto.FileWithSharedUsersWithMeDto;
+import ftp.core.model.dto.FileSharedWithUsersDto;
+import ftp.core.model.dto.FileUpdateRequest;
 import ftp.core.model.dto.JsonFileDto;
-import ftp.core.model.dto.PrivateFileWithMeDto;
-import ftp.core.model.dto.SharedFileWithMeDto;
+import ftp.core.model.dto.PersonalFileDto;
+import ftp.core.model.dto.SharedFileDto;
 import ftp.core.model.dto.UploadedFilesDto;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
@@ -23,7 +20,6 @@ import ftp.core.service.face.StorageService;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.util.DtoUtil;
 import ftp.core.util.ServerUtil;
 import ftp.core.websocket.dto.JsonResponse;
 import ftp.core.websocket.handler.Handlers;
@@ -31,19 +27,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import net.coobird.thumbnailator.Thumbnails;
-import net.coobird.thumbnailator.name.Rename;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.bus.Event;
@@ -51,59 +45,32 @@ import reactor.bus.Event;
 @Service("fileManagementService")
 public class FileManagementServiceImpl implements FileManagementService {
 
-  private static final Logger logger = LoggerFactory.getLogger(FileManagementServiceImpl.class);
-
   private UserService userService;
   private FileService fileService;
   private MessagePublishingService messagePublishingService;
-  private ResourceLoader resourceLoader;
   private StorageService storageService;
-  private ApplicationConfig applicationConfig;
   private final Gson gson;
 
   @Autowired
-  public FileManagementServiceImpl(UserService userService,
+  public FileManagementServiceImpl(@Lazy UserService userService,
       FileService fileService,
       MessagePublishingService messagePublishingService, StorageService storageService,
-      ApplicationConfig applicationConfig, ResourceLoader resourceLoader, Gson gson) {
+      Gson gson) {
     this.userService = userService;
     this.fileService = fileService;
     this.messagePublishingService = messagePublishingService;
     this.storageService = storageService;
-    this.applicationConfig = applicationConfig;
-    this.resourceLoader = resourceLoader;
     this.gson = gson;
   }
 
   @Override
-  public String updateProfilePicture(final MultipartFile file) {
-
-    try {
-      final String fileName = StringEscapeUtils.escapeSql(file.getOriginalFilename());
-      final String extension = FilenameUtils.getExtension(fileName);
-      checkFileExtention(extension);
-      String nickName = User.getCurrent().getNickName();
-      final String serverFileName = nickName + "." + extension;
-      this.storageService.storeProfilePicture(getInputStream(file), serverFileName);
-      org.springframework.core.io.Resource profilePicture = this.storageService
-          .loadProfilePicture(nickName);
-      createImageThumbnail(profilePicture.getFile(), 50, 50);
-      profilePicture.getInputStream().close();
-      final JsonObject jsonObject = new JsonObject();
-      jsonObject.addProperty("imageUrl",
-          getProfilePicUrl(nickName, this.applicationConfig.getServerAddress()));
-      return jsonObject.toString();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
   public UploadedFilesDto<JsonFileDto> uploadFile(final MultipartFile multipartFile,
-      final Set<String> userNickNames) {
-    final String fileUploadServerUrl =
-        this.applicationConfig.getServerAddress() + APIAliases.DOWNLOAD_FILE_ALIAS;
+      final String userNickNamesRaw) {
+    Set<String> userNickNames = this.gson.fromJson(userNickNamesRaw, HashSet.class);
     User currentUser = User.getCurrent();
+    if (currentUser == null) {
+      throw new RuntimeException("You are not logged in.");
+    }
     final Long token = currentUser.getToken();
     final String fileName = StringEscapeUtils.escapeSql(multipartFile.getOriginalFilename());
     final long currentTime = System.currentTimeMillis();
@@ -127,7 +94,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     this.fileService.saveFile(fileToBeSaved);
     this.storageService
         .store(getInputStream(multipartFile), serverFileName, currentUser.getEmail());
-    return buildResponseObject(multipartFile, fileUploadServerUrl, fileName, deleteHash,
+    return buildResponseObject(multipartFile, "", fileName, deleteHash,
         downloadHash);
 
   }
@@ -137,23 +104,6 @@ public class FileManagementServiceImpl implements FileManagementService {
       return file.getInputStream();
     } catch (Exception e) {
       throw new RuntimeException(e);
-    }
-  }
-
-
-  private void createImageThumbnail(java.io.File targetFile, int width, int height)
-      throws IOException {
-    Thumbnails.of(targetFile)
-        .size(width, height)
-        .outputFormat("jpg")
-        .toFiles(Rename.NO_CHANGE);
-  }
-
-  final Set<String> ALLOWED_EXTENTIONS = Sets.newHashSet("jpg", "JPG");
-
-  private void checkFileExtention(String extension) {
-    if (!this.ALLOWED_EXTENTIONS.contains(extension)) {
-      throw new FtpServerException("Image expected...");
     }
   }
 
@@ -171,7 +121,11 @@ public class FileManagementServiceImpl implements FileManagementService {
 
   @Override
   public DeletedFilesDto deleteFiles(final String deleteHash) {
-    final User current = userService.getUserByEmail(User.getCurrent().getEmail());
+    User currentU = User.getCurrent();
+    if (currentU == null) {
+      throw new RuntimeException("You are not logged in.");
+    }
+    final User current = userService.getUserByEmail(currentU.getEmail());
     final String nickName = current.getNickName();
     final File findByDeleteHash = getFile(deleteHash, nickName);
     final String downloadHash = findByDeleteHash.getDownloadHash();
@@ -180,7 +134,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     usersToBeNotifiedFileDeleted.add(current.getNickName());
     final long fileSize = findByDeleteHash.getFileSize();
     final String name = findByDeleteHash.getName();
-    final Date timestamp = findByDeleteHash.getTimestamp();
+    final Date timestamp = findByDeleteHash.getCreatedDate();
 
     current.getUploadedFiles().remove(findByDeleteHash);
     current.setRemainingStorage(current.getRemainingStorage() + fileSize);
@@ -198,10 +152,11 @@ public class FileManagementServiceImpl implements FileManagementService {
     } finally {
       this.storageService
           .deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
-      String dataToJson = this.gson.toJson(new DeletedFileDto(downloadHash));
+      DeletedFileDto deletedFileDto = new DeletedFileDto(downloadHash);
       usersToBeNotifiedFileDeleted.forEach(user -> {
         Event<JsonResponse> data = Event
-            .wrap(new JsonResponse(dataToJson, Handlers.DELETED_FILE.getHandlerName()));
+            .wrap(new JsonResponse<>(new PageImpl<>(Lists.newArrayList(deletedFileDto)),
+                Handlers.DELETED_FILE.getHandlerName()));
         this.messagePublishingService.publish(user, data);
       });
     }
@@ -216,27 +171,13 @@ public class FileManagementServiceImpl implements FileManagementService {
   }
 
   @Override
-  public FileSystemResource sendProfilePicture(String userName) {
-    org.springframework.core.io.Resource resource = this.storageService
-        .loadProfilePicture(userName);
-    try {
-      if (ServerUtil.existsAndIsReadable(resource)) {
-        return new FileSystemResource(resource.getFile());
-      } else {
-        org.springframework.core.io.Resource defaultPic = this.resourceLoader
-            .getResource(ServerConstants.DEFAULT_PROFILE_PICTURE);
-        return new FileSystemResource(defaultPic.getFile());
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
   public FileSystemResource downloadFile(String downloadHash) {
     final User current = User.getCurrent();
+    if (current == null) {
+      throw new RuntimeException("You are not logged in.");
+    }
     final File fileByDownloadHash = getFile(downloadHash);
-    final Date timestamp = fileByDownloadHash.getTimestamp();
+    final Date timestamp = fileByDownloadHash.getCreatedDate();
     final String fileName = fileByDownloadHash.getName();
     final File.FileType fileType = fileByDownloadHash.getFileType();
     String fileLocationFolder = getFolderNameByFileType(current, fileByDownloadHash, fileType);
@@ -286,38 +227,39 @@ public class FileManagementServiceImpl implements FileManagementService {
   }
 
   @Override
-  public String getProfilePicUrl(final String userName, String serverContext) {
-    return serverContext.concat(APIAliases.PROFILE_PIC_ALIAS + userName + ".jpg");
+  public Page<FileSharedWithUsersDto> getFilesISharedWithOtherUsers(Pageable pageable) {
+    return this.fileService.getFilesISharedWithOtherUsers(
+        User.getCurrent() == null ? null : User.getCurrent().getNickName(), pageable);
   }
 
   @Override
-  public List<FileWithSharedUsersWithMeDto> getFilesISharedWithOtherUsers(Integer firstResult,
-      Integer maxResults, String nickName) {
+  public Page<PersonalFileDto> getPrivateFiles(Pageable pageable) {
     return this.fileService
-        .getFilesISharedWithOtherUsers(nickName, firstResult, maxResults)
-        .stream()
-        .map((DtoUtil::toSharedFileWithOtherUsersDto))
-        .collect(Collectors.toList());
+        .getPrivateFilesForUser(User.getCurrent() == null ? null : User.getCurrent().getNickName(),
+            pageable);
   }
 
   @Override
-  public List<PrivateFileWithMeDto> getPrivateFiles(Integer firstResult, Integer maxResults,
-      String nickName) {
+  public Page<SharedFileDto> getFilesSharedToMe(Pageable pageable) {
     return this.fileService
-        .getPrivateFilesForUser(nickName, firstResult, maxResults)
-        .stream()
-        .map((DtoUtil::toPrivateFileDto))
-        .collect(Collectors.toList());
+        .getSharedFilesWithMe(User.getCurrent() == null ? null : User.getCurrent().getNickName(),
+            pageable);
   }
 
   @Override
-  public List<SharedFileWithMeDto> getFilesSharedToMe(Integer firstResult, Integer maxResults,
-      String nickName) {
-    return this.fileService
-        .getSharedFilesWithMe(nickName, firstResult, maxResults)
-        .stream()
-        .map(DtoUtil::toSharedFileWithMeDto)
-        .collect(Collectors.toList());
+  public File updateFile(FileUpdateRequest updateRequest) {
+    final User current = User.getCurrent();
+    if (current == null) {
+      throw new RuntimeException("You are not logged in.");
+    }
+    final File file = getFile(updateRequest.getDownloadHash());
+    if (file.getCreator() != current) {
+      throw new RuntimeException("You are not the owner of this file and cannot update it.");
+    }
+    file.setSharedWithUsers(updateRequest.getSharedWithUsers());
+    file.setFileType(updateRequest.getFileType());
+    file.setName(updateRequest.getName());
+    file.setUpdatedDate(new Date());
+    return fileService.save(file);
   }
-
 }

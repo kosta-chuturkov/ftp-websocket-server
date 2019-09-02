@@ -2,7 +2,9 @@ package ftp.core.config;
 
 import javax.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
+@Validated
 @ConfigurationProperties(prefix = "ftpserver", ignoreUnknownFields = false)
 public class FtpConfigurationProperties {
 

@@ -15,8 +15,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import org.hibernate.annotations.Type;
-import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name = "files")
@@ -32,26 +32,26 @@ public class File extends AbstractEntity<Long> implements Serializable{
   private User creator;
 
   @NotNull
-  @NotEmpty
+  @Size(min = 1, max = 255)
   @Column(name = "name")
   private String name;
 
   @NotNull
-  @NotEmpty
   @Column(name = "download_hash", unique = true, length = 64)
   private String downloadHash;
 
   @NotNull
-  @NotEmpty
   @Column(name = "delete_hash", unique = true, length = 64)
   private String deleteHash;
 
   @Column(name = "file_size")
   private Long fileSize;
 
-  @Column(name = "timestamp")
-  @Type(type = "timestamp")
-  private Date timestamp;
+  @Column(name = "createdDate")
+  private Date createdDate;
+
+  @Column(name = "updatedDate")
+  private Date updatedDate;
 
   @NotNull
   @Enumerated
@@ -69,7 +69,7 @@ public class File extends AbstractEntity<Long> implements Serializable{
     setDownloadHash(builder.downloadHash);
     setDeleteHash(builder.deleteHash);
     setFileSize(builder.fileSize);
-    setTimestamp(builder.timestamp);
+    setCreatedDate(builder.timestamp);
     setFileType(builder.fileType);
   }
 
@@ -117,12 +117,12 @@ public class File extends AbstractEntity<Long> implements Serializable{
     this.fileSize = fileSize;
   }
 
-  public Date getTimestamp() {
-    return this.timestamp;
+  public Date getCreatedDate() {
+    return this.createdDate;
   }
 
-  public void setTimestamp(final Date timestamp) {
-    this.timestamp = timestamp;
+  public void setCreatedDate(final Date createdDate) {
+    this.createdDate = createdDate;
   }
 
   public FileType getFileType() {
@@ -145,6 +145,14 @@ public class File extends AbstractEntity<Long> implements Serializable{
     if (sharedWithUsers != null) {
       this.sharedWithUsers.addAll(sharedWithUsers);
     }
+  }
+
+  public Date getUpdatedDate() {
+    return updatedDate;
+  }
+
+  public void setUpdatedDate(Date updatedDate) {
+    this.updatedDate = updatedDate;
   }
 
 
@@ -174,7 +182,7 @@ public class File extends AbstractEntity<Long> implements Serializable{
       this.downloadHash = copy.downloadHash;
       this.deleteHash = copy.deleteHash;
       this.fileSize = copy.fileSize;
-      this.timestamp = copy.timestamp;
+      this.timestamp = copy.createdDate;
       this.fileType = copy.fileType;
     }
 
@@ -241,7 +249,7 @@ public class File extends AbstractEntity<Long> implements Serializable{
         Objects.equals(getDownloadHash(), file.getDownloadHash()) &&
         Objects.equals(getDeleteHash(), file.getDeleteHash()) &&
         Objects.equals(getFileSize(), file.getFileSize()) &&
-        Objects.equals(getTimestamp(), file.getTimestamp()) &&
+        Objects.equals(getCreatedDate(), file.getCreatedDate()) &&
         getFileType() == file.getFileType();
   }
 
@@ -250,6 +258,6 @@ public class File extends AbstractEntity<Long> implements Serializable{
 
     return Objects
         .hash(super.hashCode(), getSharedWithUsers(), getCreator(), getName(), getDownloadHash(),
-            getDeleteHash(), getFileSize(), getTimestamp(), getFileType());
+            getDeleteHash(), getFileSize(), getCreatedDate(), getFileType());
   }
 }

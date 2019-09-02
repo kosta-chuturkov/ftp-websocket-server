@@ -1,7 +1,5 @@
 package ftp.core.config;
 
-import ftp.core.constants.APIAliases;
-import ftp.core.constants.ServerConstants;
 import ftp.core.security.AjaxAuthenticationFailureHandler;
 import ftp.core.security.AjaxAuthenticationSuccessHandler;
 import ftp.core.security.AjaxLogoutSuccessHandler;
@@ -10,16 +8,14 @@ import ftp.core.security.CustomAccessDeniedHandler;
 import ftp.core.security.Http401UnauthorizedEntryPoint;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.web.filter.CsrfCookieGeneratorFilter;
-import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.authentication.dao.ReflectionSaltSource;
-import org.springframework.security.authentication.dao.SaltSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,58 +23,50 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
-import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.csrf.CsrfFilter;
 
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-@AutoConfigureOrder(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+@AutoConfigureOrder(SecurityProperties.BASIC_AUTH_ORDER)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-  @Resource
+  private UserService userService;
+  private UserDetailsService userDetailsService;
+  private PasswordEncoder passwordEncoder;
+  private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
+  private Http401UnauthorizedEntryPoint authenticationEntryPoint;
   private AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
-
-  @Resource
   private AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler;
 
-  @Resource
-  private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
-
-  @Resource
-  private Http401UnauthorizedEntryPoint authenticationEntryPoint;
-
-  @Resource
-  private UserDetailsService userDetailsService;
-
-  @Resource
-  private UserService userService;
-
-  @Resource
-  private RememberMeServices rememberMeServices;
-
-  @Bean(name = "passwordEncoder")
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
+  @Autowired
+  public SecurityConfiguration(
+      AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler,
+      @Lazy UserService userService,
+      AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler,
+      AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler,
+      Http401UnauthorizedEntryPoint authenticationEntryPoint,
+      UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    this.ajaxAuthenticationSuccessHandler = ajaxAuthenticationSuccessHandler;
+    this.userService = userService;
+    this.ajaxAuthenticationFailureHandler = ajaxAuthenticationFailureHandler;
+    this.ajaxLogoutSuccessHandler = ajaxLogoutSuccessHandler;
+    this.authenticationEntryPoint = authenticationEntryPoint;
+    this.userDetailsService = userDetailsService;
+    this.passwordEncoder = passwordEncoder;
   }
 
-  @Bean
-  public SaltSource saltSource() {
-    final ReflectionSaltSource reflectionSaltSource = new ReflectionSaltSource();
-    reflectionSaltSource.setUserPropertyToUse("getToken");
-    return reflectionSaltSource;
-  }
+
 
   @Bean
   public DaoAuthenticationProvider daoAuthenticationProvider() {
     final DaoAuthenticationProvider daoAuthenticationProvider = new CusomDaoAuthenticationProvider(
         this.userService);
     daoAuthenticationProvider.setUserDetailsService(this.userDetailsService);
-    daoAuthenticationProvider.setPasswordEncoder(this.passwordEncoder());
+    daoAuthenticationProvider.setPasswordEncoder(this.passwordEncoder);
     return daoAuthenticationProvider;
   }
 
@@ -111,13 +99,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .accessDeniedHandler(new CustomAccessDeniedHandler())
         .authenticationEntryPoint(this.authenticationEntryPoint)
         .and()
-        .rememberMe()
-        .rememberMeServices(this.rememberMeServices)
-        .rememberMeParameter("remember-me")
-        .key(ServerConstants.REMEMBER_ME_SECURITY_KEY)
-        .and()
         .formLogin()
-        .loginProcessingUrl(APIAliases.LOGIN_ALIAS)
+        .loginProcessingUrl("/login")
         .successHandler(this.ajaxAuthenticationSuccessHandler)
         .failureHandler(this.ajaxAuthenticationFailureHandler)
         .usernameParameter("email")
@@ -125,7 +108,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .permitAll()
         .and()
         .logout()
-        .logoutUrl(APIAliases.LOGOUT_ALIAS)
+        .logoutUrl("/logout")
         .logoutSuccessHandler(this.ajaxLogoutSuccessHandler)
         .deleteCookies("JSESSIONID", "CSRF-TOKEN")
         .permitAll()
@@ -135,11 +118,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .disable()
         .and()
         .authorizeRequests()
-        .antMatchers(APIAliases.REGISTRATION_ALIAS).permitAll()
-        .antMatchers(APIAliases.LOGIN_ALIAS).permitAll()
-        .antMatchers(APIAliases.QUERY_USERS_BY_NICK_NAME_ALIAS).permitAll()
-        .antMatchers("/api/**")
-        .authenticated();
+        .antMatchers("/register").permitAll()
+        .antMatchers("/login").permitAll()
+        .antMatchers("/api/**").permitAll();
+       // .authenticated();
 
   }
 

@@ -13,14 +13,9 @@ import reactor.fn.Consumer;
 @Configuration
 public class ReactorEventsConfig {
 
-  @Bean(name = "environment")
-  Environment env() {
-    return Environment.initializeIfEmpty().assignErrorJournal();
-  }
-
   @Bean(name = "eventBus")
-  EventBus createEventBus(final Environment env) {
-    return EventBus.create(env,
+  EventBus createEventBus() {
+    return EventBus.create(Environment.initializeIfEmpty().assignErrorJournal(),
         new WorkQueueDispatcher
             ("appWorkQueueDispatcher", 4, 8192, new ExceptionHandler()));
   }

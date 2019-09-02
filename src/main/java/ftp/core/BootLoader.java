@@ -1,35 +1,45 @@
 package ftp.core;
 
-import ftp.core.config.DefaultProfileUtil;
+import ch.qos.logback.classic.LoggerContext;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ftp.core.config.FtpConfigurationProperties;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.TimeZone;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration;
-import org.springframework.boot.autoconfigure.dao.PersistenceExceptionTranslationAutoConfiguration;
-import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.env.Environment;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-@SpringBootApplication(exclude = {ValidationAutoConfiguration.class,
-    PersistenceExceptionTranslationAutoConfiguration.class,
-    SpringApplicationAdminJmxAutoConfiguration.class})
+@SpringBootApplication
+@EnableTransactionManagement
+@EnableScheduling
+@EnableAspectJAutoProxy(proxyTargetClass = true)
+@EnableWebMvc
+@EntityScan("ftp.core.model.entities")
+@EnableJpaRepositories("ftp.core.repository")
 @EnableConfigurationProperties({FtpConfigurationProperties.class})
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 20, redisNamespace = "ftp-server")
 public class BootLoader {
 
   private static final Logger log = LoggerFactory.getLogger(BootLoader.class);
 
-  /**
-   * Starts the spring boot application
-   */
   public static void main(String[] args) throws UnknownHostException {
     SpringApplication app = new SpringApplication(BootLoader.class);
-    DefaultProfileUtil.addDefaultProfile(app);
     Environment env = app.run(args).getEnvironment();
     String hostAddress = InetAddress.getLocalHost().getHostAddress();
     log.info("\n----------------------------------------------------------\n\t" +
@@ -41,7 +51,27 @@ public class BootLoader {
         hostAddress,
         env.getProperty("server.port"),
         env.getProperty("spring.session.redis.namespace"));
-
+  }
+  @PostConstruct
+  private void init() {
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
+  @PreDestroy
+  public void onContextDestroyed() {
+    ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+    if (factory instanceof LoggerContext) {
+      LoggerContext ctx = (LoggerContext) factory;
+      ctx.stop();
+    }
+  }
+
+  @Bean(name = "passwordEncoder")
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
+  @Bean
+  public Gson gson() {
+    return new GsonBuilder().serializeNulls().create();
+  }
 }

@@ -10,9 +10,9 @@ import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
 import ftp.core.websocket.factory.JsonHandlerFactory;
 import java.util.Map;
-import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -29,14 +29,18 @@ public class JsonRequestDispatcher extends TextWebSocketHandler {
 
   private final Logger logger = LoggerFactory.getLogger(JsonRequestDispatcher.class);
 
-  @Resource
-  private JsonHandlerFactory jsonHandlerFactory;
-
-  @Resource
   private Gson gson;
-
-  @Resource
+  private JsonHandlerFactory jsonHandlerFactory;
   private MessageSubscriptionService messageSubscriptionService;
+
+  @Autowired
+  public JsonRequestDispatcher(Gson gson,
+      JsonHandlerFactory jsonHandlerFactory,
+      MessageSubscriptionService messageSubscriptionService) {
+    this.gson = gson;
+    this.jsonHandlerFactory = jsonHandlerFactory;
+    this.messageSubscriptionService = messageSubscriptionService;
+  }
 
   @SendTo
   @Override

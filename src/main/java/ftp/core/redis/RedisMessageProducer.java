@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-@Profile("prod")
 @Service
 public class RedisMessageProducer implements MessagePublishingService {
 

@@ -1,12 +1,8 @@
 package ftp.core.service.impl;
 
-import com.google.gson.Gson;
-import ftp.core.model.dto.DataTransferObject;
 import ftp.core.service.face.JsonService;
-import ftp.core.service.face.tx.FileService;
 import ftp.core.websocket.dto.JsonResponse;
-import java.util.Collection;
-import javax.annotation.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,20 +11,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class JsonServiceImpl implements JsonService {
 
-
-  @Resource
-  private Gson gson;
-
-  @Resource
-  private FileService fileService;
-
-
   @Override
-  public JsonResponse getJsonResponse(final String method,
-      final Collection<? extends DataTransferObject> data) {
-    final JsonResponse jsonResponse = new JsonResponse();
+  public <T> JsonResponse<T> getJsonResponse(final String method,
+      final Page<T> data) {
+    final JsonResponse<T> jsonResponse = new JsonResponse<>();
     jsonResponse.setResponseMethod(method);
-    jsonResponse.setResult(this.gson.toJson(data));
+    jsonResponse.setResult(data);
     return jsonResponse;
   }
 }

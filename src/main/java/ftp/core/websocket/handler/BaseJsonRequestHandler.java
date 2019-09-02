@@ -9,8 +9,8 @@ import ftp.core.service.face.JsonService;
 import ftp.core.websocket.api.JsonTypedHandler;
 import ftp.core.websocket.dto.JsonRequest;
 import ftp.core.websocket.dto.JsonResponse;
-import java.util.List;
 import java.util.function.BiFunction;
+import org.springframework.data.domain.Page;
 
 /**
  * Created by Kosta_Chuturkov on 2/24/2016.
@@ -24,7 +24,7 @@ public abstract class BaseJsonRequestHandler implements JsonTypedHandler {
   }
 
   protected <T extends DataTransferObject> JsonResponse handle(final JsonRequest jsonRequest,
-      BiFunction<Integer, Integer, List<T>> function) {
+      BiFunction<Integer, Integer, Page<T>> function) {
     final JsonObject params = jsonRequest.getParams();
     final String method = jsonRequest.getMethod();
     final JsonElement firstResult = params.get("firstResult");
@@ -38,7 +38,7 @@ public abstract class BaseJsonRequestHandler implements JsonTypedHandler {
     }
     final Integer firstResultAsInt = firstResult.getAsInt();
     final Integer maxResultsAsInt = maxResults.getAsInt();
-    final List<T> fileDtos = function.apply(firstResultAsInt, maxResultsAsInt);
+    final Page<T> fileDtos = function.apply(firstResultAsInt, maxResultsAsInt);
     return this.jsonService.getJsonResponse(method, fileDtos);
   }
 }

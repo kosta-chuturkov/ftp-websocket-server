@@ -1,6 +1,5 @@
 package ftp.core.security;
 
-import ftp.core.constants.APIAliases;
 import ftp.core.util.ServerUtil;
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -32,7 +31,7 @@ public class Http401UnauthorizedEntryPoint implements AuthenticationEntryPoint {
     this.log.debug("Pre-authenticated entry point called. Rejecting access");
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     ServerUtil.invalidateSession(request, response);
-    redirect(APIAliases.LOGIN_ALIAS, response);
+    redirect("/login", response);
   }
 
   public void redirect(final String resourceName, final HttpServletResponse response)

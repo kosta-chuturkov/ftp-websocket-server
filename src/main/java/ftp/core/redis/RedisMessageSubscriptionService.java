@@ -11,7 +11,6 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
-@Profile("prod")
 @Service
 public class RedisMessageSubscriptionService implements MessageSubscriptionService{
 

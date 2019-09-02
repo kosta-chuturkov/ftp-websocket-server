@@ -23,7 +23,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile(value = {Profiles.DEVELOPMENT, Profiles.PRODUCTION})
+//@Profile(value = {Profiles.DEVELOPMENT, Profiles.PRODUCTION})
 public class FileSystemStorageService implements StorageService {
 
   private final Path rootLocation;

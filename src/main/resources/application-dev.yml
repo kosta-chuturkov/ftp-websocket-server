@@ -1,8 +1,15 @@
+spring.profiles.include:
+  - postgres
+app:
+  instance-id: ${random.uuid}
+# patch swagger-ui.html
+spring.resources.static-locations: classpath:/patch/, classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
+
 ftp:
  server:
     redis:
         namespace: ftpserver
-        host: localhost
+        host: ${FTP_REDIS_HOST:localhost}
         port: 6379
 ftpserver:
     cache:
@@ -11,56 +18,29 @@ ftpserver:
         timeToLiveSeconds: 3600
     storage:
         rootStorageFolderName: ./FileStorage
-logging:
-    level:
-        ROOT: DEBUG
-        ftp:
-            core: DEBUG
-        org:
-            hibernate: INFO
-            springframework:
-                data: INFO
-                security: INFO
-                web: INFO
+
 server:
+    tomcat:
+        remote_ip_header: X-Forwarded-For
+        protocol_header: X-Forwarded-Proto
+        internalProxies: .*
     servlet:
+        contextPath: /
         session:
             timeout: 30
+            persistent: true
     compression:
         enabled: true
         min-response-size: 1
-    contextPath: /
     port: 8443
-    session:
-        persistent: true
     ssl:
         enabled: false
 spring:
     application:
         name: ftp.server
-    datasource:
-        driverClassName: org.postgresql.Driver
-        type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:postgresql://${FTP_DB_HOST:localhost}:${FTP_DB_PORT:5432}/${FTP_DB_NAME:ftp_server}?currentSchema=${FTP_DB_SCHEMA:public}${FTP_DB_SSL:}
-        username: ${FTP_DB_USER:ftp_user}
-        password: ${FTP_DB_PASSWORD:ribamech}
-    http:
+    servlet:
         multipart:
-            enabled: true
+            max-file-size: 10GB
+            max-request-size: 10GB
             location: ${java.io.tmpdir}
-            max-file-size: 5000MB
-            max-request-size: 5000MB
-    jpa:
-        hibernate:
-            ddl-auto: update
-            naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
-            use-new-id-generator-mappings: true
-        properties:
-            hibernate:
-                cache:
-                    use_query_cache: false
-                    use_second_level_cache: false
-                dialect: org.hibernate.dialect.PostgreSQLDialect
-                format_sql: false
-                generate_statistics: false
-        show-sql: false
+            enabled: true

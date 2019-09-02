@@ -1,9 +1,9 @@
 package ftp.core.config;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +17,12 @@ import org.springframework.web.servlet.DispatcherServlet;
 @Configuration
 public class WebAppInitializer implements WebApplicationInitializer, ApplicationContextAware {
 
-  @Resource
   private ApplicationContext appContext;
+
+  @Autowired
+  public WebAppInitializer(ApplicationContext appContext) {
+    this.appContext = appContext;
+  }
 
   @Override
   public void onStartup(final ServletContext container) {
