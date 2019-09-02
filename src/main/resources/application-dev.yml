@@ -1,0 +1,46 @@
+spring.profiles.include:
+  - postgres
+app:
+  instance-id: ${random.uuid}
+# patch swagger-ui.html
+spring.resources.static-locations: classpath:/patch/, classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
+
+ftp:
+ server:
+    redis:
+        namespace: ftpserver
+        host: ${FTP_REDIS_HOST:localhost}
+        port: 6379
+ftpserver:
+    cache:
+        ehcache:
+            maxBytesLocalHeap: 16M
+        timeToLiveSeconds: 3600
+    storage:
+        rootStorageFolderName: ./FileStorage
+
+server:
+    tomcat:
+        remote_ip_header: X-Forwarded-For
+        protocol_header: X-Forwarded-Proto
+        internalProxies: .*
+    servlet:
+        contextPath: /
+        session:
+            timeout: 30
+            persistent: true
+    compression:
+        enabled: true
+        min-response-size: 1
+    port: 8443
+    ssl:
+        enabled: false
+spring:
+    application:
+        name: ftp.server
+    servlet:
+        multipart:
+            max-file-size: 10GB
+            max-request-size: 10GB
+            location: ${java.io.tmpdir}
+            enabled: true

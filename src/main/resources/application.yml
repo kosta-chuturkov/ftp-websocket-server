@@ -1,82 +1,37 @@
-app:
-  instance-id: ${random.uuid}
-# patch swagger-ui.html
-spring.resources.static-locations: classpath:/patch/, classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
+# maximum lifetime of a connection. It will be removed once that timeout last and the connection is not in use
+spring.datasource.hikari.max-lifetime: 180
+  # the min number of idle connections.
+spring.datasource.hikari.minimum-idle: 1
+  # how long a connection to stay idle till the pool close and clear it
+spring.datasource.hikari.idle-timeout: 90
+  # max num of conns
+spring.datasource.hikari.maximum-pool-size: 15
+  # how long our application to wait for connection from the pool
+spring.datasource.hikari.connection-timeout: 40000
+  # LOGGING
+logging.level.root: INFO
+logging.level.ftp.core: DEBUG
+logging.level.org.springframework.security: DEBUG
+logging.level.org.springframework.web: DEBUG
+logging.level.org.springframework.data: INFO
+logging.level.org.hibernate: INFO
+logging.level.springfox.bean.validators.plugins.parameter.SizeAnnotationPlugin: ERROR
+logging.level.org.springframework.boot.actuate.trace.WebRequestTraceFilter: TRACE
 
-ftp:
- server:
-    redis:
-        namespace: ftpserver
-        host: ${FTP_REDIS_HOST:localhost}
-        port: 6379
-ftpserver:
-    cache:
-        ehcache:
-            maxBytesLocalHeap: 16M
-        timeToLiveSeconds: 3600
-    storage:
-        rootStorageFolderName: ./FileStorage
-logging:
-    level:
-        ROOT: DEBUG
-        ftp:
-            core: DEBUG
-        org:
-            hibernate: INFO
-            springframework:
-                data: INFO
-                security: INFO
-                web: INFO
-server:
-    tomcat:
-        remote_ip_header: X-Forwarded-For
-        protocol_header: X-Forwarded-Proto
-        internalProxies: .*
-    servlet:
-        contextPath: /
-        session:
-            timeout: 30
-            persistent: true
-    compression:
-        enabled: true
-        min-response-size: 1
-    port: 8443
-    ssl:
-        enabled: false
-spring:
-    session:
-        redis:
-            flush-mode: ON_SAVE
-            namespace: ftp-server
-        store-type: redis
-    application:
-        name: ftp.server
-    datasource:
-        type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:postgresql://${FTP_DB_HOST:localhost}:${FTP_DB_PORT:5432}/${FTP_DB_NAME:ftp_server}?currentSchema=${FTP_DB_SCHEMA:public}${FTP_DB_SSL:}
-        username: ${FTP_DB_USER:ftp_user}
-        password: ${FTP_DB_PASSWORD:ribamech}
-    jpa:
-        hibernate:
-          ddl-auto: update
-          use-new-id-generator-mappings: true
-        database-platform: org.hibernate.dialect.PostgreSQLDialect
-        properties:
-            hibernate:
-                temp:
-                    use_jdbc_metadata_defaults: false
-                jdbc.time_zone: UTC
-                cache:
-                    use_query_cache: false
-                    use_second_level_cache: false
-                dialect: org.hibernate.dialect.PostgreSQLDialect
-                format_sql: false
-                generate_statistics: false
-        show-sql: false
-
-    servlet:
-        multipart:
-            max-file-size: 10GB
-            max-request-size: 10GB
-            location: ${java.io.tmpdir}
-            enabled: true
+  # Hibernate configuration
+hibernate.jdbc.time_zone: UTC
+spring.jpa.properties.hibernate.cache.use_second_level_cache: false
+spring.jpa.properties.hibernate.cache.use_query_cache: false
+spring.jpa.properties.hibernate.jdbc.time_zone: UTC
+spring.jpa.properties.hibernate.generate_statistics: true
+spring.jpa.properties.hibernate.cache.use_structured_entries: true
+spring.jpa.properties.hibernate.session.events.log: false
+spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults: false
+spring.jpa.show-sql: false
+spring.jpa.hibernate.ddl-auto: none
+spring.jackson.serialization.FAIL_ON_EMPTY_BEANS: false
+spring.session:
+  redis:
+    flush-mode: ON_SAVE
+    namespace: ftp-server
+  store-type: redis
