@@ -4,6 +4,7 @@ app:
   instance-id: ${random.uuid}
 # patch swagger-ui.html
 spring.resources.static-locations: classpath:/patch/, classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
+security.enabled: false
 
 ftp:
  server:

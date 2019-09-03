@@ -10,7 +10,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -81,24 +83,27 @@ public class FileManagementController {
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getSharedFilesForUser")
     @GetMapping(path = "/shared")
-    public PageResource<SharedFileDto> getSharedFilesForUser(Pageable pageable) {
+    public PageResource<SharedFileDto> getSharedFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
+                                                             @RequestParam(required = false, defaultValue = "50")int pageSize) {
         return new PageResource<>(this.fileManagementService
-                .getFilesSharedToMe(pageable));
+                .getFilesSharedToMe(PageRequest.of(pageNumber, pageSize)));
     }
 
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getPrivateFilesForUser")
     @GetMapping(path = "/private")
-    public PageResource<PersonalFileDto> getPrivateFilesForUser(Pageable pageable) {
+    public PageResource<PersonalFileDto> getPrivateFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
+                                                                @RequestParam(required = false, defaultValue = "50")int pageSize) {
         return new PageResource<>(this.fileManagementService
-                .getPrivateFiles(pageable));
+                .getPrivateFiles(PageRequest.of(pageNumber, pageSize)));
     }
 
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getUploadedFilesByUser")
     @GetMapping(path = "/uploaded")
-    public PageResource<FileSharedWithUsersDto> getUploadedFilesByUser(Pageable pageable) {
+    public PageResource<FileSharedWithUsersDto> getUploadedFilesByUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
+                                                                       @RequestParam(required = false, defaultValue = "50")int pageSize) {
         return new PageResource<>(this.fileManagementService
-                .getFilesISharedWithOtherUsers(pageable));
+                .getFilesISharedWithOtherUsers(PageRequest.of(pageNumber, pageSize)));
     }
 }

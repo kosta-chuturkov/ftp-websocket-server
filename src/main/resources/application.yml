@@ -30,6 +30,8 @@ spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults: false
 spring.jpa.show-sql: false
 spring.jpa.hibernate.ddl-auto: none
 spring.jackson.serialization.FAIL_ON_EMPTY_BEANS: false
+spring.data.redis.repositories.enabled: false
+spring.jpa.open-in-view: false
 spring.session:
   redis:
     flush-mode: ON_SAVE

@@ -14,12 +14,9 @@ import org.hibernate.annotations.Parameter;
 public abstract class AbstractEntity<T extends Serializable> implements Entity<T> {
 
   @Id
-  @GeneratedValue(generator = "pooled")
-  @GenericGenerator(name = "pooled", strategy = "enhanced-table", parameters = {
-      @Parameter(name = "value_column_name", value = "sequence_next_hi_value"),
-      @Parameter(name = "prefer_entity_table_as_segment_value", value = "true"),
-      @Parameter(name = "optimizer", value = "pooled-lo"),
-      @Parameter(name = "increment_size", value = "100")})
+  @GeneratedValue(generator = "sequenceGenerator")
+  @GenericGenerator(name = "sequenceGenerator", strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator", parameters = {
+      @Parameter(name = "value_column_name", value = "sequence_next_hi_value")})
   private T id;
 
   @Override
