@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  * By default, it only runs with the "dev" profile.
  */
-@Aspect
+//@Aspect
 public class LoggingAspect {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());

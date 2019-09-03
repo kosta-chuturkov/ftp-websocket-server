@@ -6,9 +6,11 @@ import ftp.core.repository.projections.UploadedFilesProjection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 
-public interface UserRepository extends CrudRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
   User findByEmailAndPassword(String email, String password);
 

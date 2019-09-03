@@ -6,13 +6,14 @@ import ftp.core.model.dto.SharedFileDto;
 import ftp.core.model.entities.File;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface FileRepository extends CrudRepository<File, Long> {
+public interface FileRepository extends JpaRepository<File, Long> {
 
   File findByDownloadHash(String downloadHash);
 

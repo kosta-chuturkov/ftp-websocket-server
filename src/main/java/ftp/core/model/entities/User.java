@@ -27,12 +27,12 @@ public class User extends AbstractEntity<Long> implements UserDetails {
 
   @NotNull
   @NotEmpty
-  @Column(name = "nickname", length = 32)
+  @Column(name = "nickname", length = 36)
   private String nickName;
 
   @NotNull
   @NotEmpty
-  @Column(name = "email", length = 32)
+  @Column(name = "email", length = 36)
   private String email;
 
   @NotNull

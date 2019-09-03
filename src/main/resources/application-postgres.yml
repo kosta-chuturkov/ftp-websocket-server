@@ -1,6 +1,6 @@
 spring:
   profiles: postgres
-  jpa.hibernate.ddl-auto: update
+  jpa.hibernate.ddl-auto: create-drop
   jpa.hibernate.use-new-id-generator-mappings: false
   jpa.database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:

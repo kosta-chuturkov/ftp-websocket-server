@@ -1,22 +1,15 @@
 package ftp.core.model.entities;
 
 import com.google.common.collect.Sets;
+
+import javax.persistence.Entity;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "files")
@@ -24,7 +17,6 @@ public class File extends AbstractEntity<Long> implements Serializable{
 
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "file_shared_to_users", joinColumns = @JoinColumn(name = "file_id"))
-  @Column(name = "nickname", length = 32)
   private Set<String> sharedWithUsers = Sets.newHashSet();
 
   @ManyToOne(fetch = FetchType.EAGER)

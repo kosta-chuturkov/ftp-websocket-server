@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 import javax.annotation.PostConstruct;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,7 @@ public class FileSystemStorageService implements StorageService {
 
   @PostConstruct
   public void initialize() {
+    UUID.randomUUID();
     String multipartFileLocation = this.context.getEnvironment()
         .getProperty("spring.http.multipart.location");
     if (multipartFileLocation != null) {

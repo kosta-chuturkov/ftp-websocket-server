@@ -8,6 +8,7 @@ import ftp.core.model.dto.PersonalFileDto;
 import ftp.core.model.dto.SharedFileDto;
 import ftp.core.model.dto.UploadedFilesDto;
 import ftp.core.model.entities.File;
+import ftp.core.model.entities.FileSharedToUser;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,18 +16,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface FileManagementService {
 
-  UploadedFilesDto<JsonFileDto> uploadFile(MultipartFile file,
-      String userNickNames);
+    UploadedFilesDto<JsonFileDto> uploadFile(MultipartFile file,
+                                             String userNickNames);
 
-  DeletedFilesDto deleteFiles(String deleteHash);
+    DeletedFilesDto deleteFiles(String deleteHash);
 
-  FileSystemResource downloadFile(String downloadHash);
+    FileSystemResource downloadFile(String downloadHash);
 
-  Page<FileSharedWithUsersDto> getFilesISharedWithOtherUsers(Pageable pageable);
+    Page<FileSharedWithUsersDto> getFilesISharedWithOtherUsers(Pageable pageable);
 
-  Page<PersonalFileDto> getPrivateFiles(Pageable pageable);
+    Page<PersonalFileDto> getPrivateFiles(Pageable pageable);
 
-  Page<SharedFileDto> getFilesSharedToMe(Pageable pageable);
+    Page<SharedFileDto> getFilesSharedToMe(Pageable pageable);
 
-  File updateFile(FileUpdateRequest updateRequest);
+    File updateFile(FileUpdateRequest updateRequest);
+
+    FileSharedToUser test();
 }

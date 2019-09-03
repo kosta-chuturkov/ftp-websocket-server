@@ -2,6 +2,7 @@ package ftp.core.controller;
 
 import ftp.core.model.dto.*;
 import ftp.core.model.entities.File;
+import ftp.core.model.entities.FileSharedToUser;
 import ftp.core.rest.PageResource;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
@@ -11,8 +12,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -105,5 +104,12 @@ public class FileManagementController {
                                                                        @RequestParam(required = false, defaultValue = "50")int pageSize) {
         return new PageResource<>(this.fileManagementService
                 .getFilesISharedWithOtherUsers(PageRequest.of(pageNumber, pageSize)));
+    }
+
+    @ApiOperation(value = "", nickname = "test")
+    @GetMapping(path = "/test")
+    public DeferredResult<FileSharedToUser> test() {
+        return this.schedulingService
+                .scheduleTask(() -> this.fileManagementService.test(),10000L);
     }
 }

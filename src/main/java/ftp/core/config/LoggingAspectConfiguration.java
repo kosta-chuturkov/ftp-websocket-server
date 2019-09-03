@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Profile;
 @EnableAspectJAutoProxy
 public class LoggingAspectConfiguration {
 
-  @Bean
-//  @Profile(Profiles.PRODUCTION)
-  public LoggingAspect loggingAspect() {
-    return new LoggingAspect();
-  }
+//  @Bean
+////  @Profile(Profiles.PRODUCTION)
+//  public LoggingAspect loggingAspect() {
+//    return new LoggingAspect();
+//  }
 }
