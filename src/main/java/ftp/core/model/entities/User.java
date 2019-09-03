@@ -48,10 +48,6 @@ public class User extends AbstractEntity<Long> implements UserDetails {
   @JsonIgnore
   private Long token;
 
-  @OneToMany(fetch = FetchType.EAGER)
-  @JoinColumn(name = "user_id")
-  private Set<File> uploadedFiles = Sets.newHashSet();
-
   @JsonIgnore
   @OneToMany(fetch = FetchType.EAGER)
   @JoinColumn(name = "user_id")
@@ -84,7 +80,6 @@ public class User extends AbstractEntity<Long> implements UserDetails {
     setPassword(builder.password);
     setRemainingStorage(builder.remainingStorage);
     setToken(builder.token);
-    setUploadedFiles(builder.uploadedFiles);
     setAuthorities(builder.authorities);
     this.accountNonExpired = builder.accountNonExpired;
     this.accountNonLocked = builder.accountNonLocked;
@@ -227,14 +222,6 @@ public class User extends AbstractEntity<Long> implements UserDetails {
     this.token = token;
   }
 
-  public Set<File> getUploadedFiles() {
-    return this.uploadedFiles;
-  }
-
-  public void setUploadedFiles(final Set<File> uploadedFiles) {
-    this.uploadedFiles = uploadedFiles;
-  }
-
   @Override
   public Set<Authority> getAuthorities() {
     return this.authorities;
@@ -242,13 +229,6 @@ public class User extends AbstractEntity<Long> implements UserDetails {
 
   public void setAuthorities(final Set<Authority> authorities) {
     this.authorities = authorities;
-  }
-
-  public boolean addUploadedFile(final File file) {
-    if (!this.uploadedFiles.contains(file)) {
-      return this.uploadedFiles.add(file);
-    }
-    return false;
   }
 
   @Override
@@ -304,7 +284,6 @@ public class User extends AbstractEntity<Long> implements UserDetails {
     private String password;
     private long remainingStorage;
     private Long token;
-    private Set<File> uploadedFiles;
     private Set<Authority> authorities;
     private Boolean accountNonExpired;
     private Boolean accountNonLocked;
@@ -320,7 +299,6 @@ public class User extends AbstractEntity<Long> implements UserDetails {
       this.password = copy.password;
       this.remainingStorage = copy.remainingStorage;
       this.token = copy.token;
-      this.uploadedFiles = copy.uploadedFiles;
       this.authorities = copy.authorities;
       this.accountNonExpired = copy.accountNonExpired;
       this.accountNonLocked = copy.accountNonLocked;
@@ -350,11 +328,6 @@ public class User extends AbstractEntity<Long> implements UserDetails {
 
     public Builder withToken(Long val) {
       this.token = val;
-      return this;
-    }
-
-    public Builder withUploadedFiles(Set<File> val) {
-      this.uploadedFiles = val;
       return this;
     }
 

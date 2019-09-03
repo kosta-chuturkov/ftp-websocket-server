@@ -73,10 +73,6 @@ public class File extends AbstractEntity<Long> implements Serializable{
     setFileType(builder.fileType);
   }
 
-  public boolean addUser(final String user) {
-    return !this.sharedWithUsers.contains(user) && this.sharedWithUsers.add(user);
-  }
-
   public User getCreator() {
     return this.creator;
   }

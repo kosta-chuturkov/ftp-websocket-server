@@ -77,7 +77,6 @@ public class FileServiceImpl implements FileService {
     if (savedFile != null) {
       this.userService
           .updateRemainingStorageForUser(fileSize, currentUser.getEmail(), remainingStorage);
-      this.userService.addFileToUser(savedFile.getId(), currentUser.getEmail());
       if (!validatedUsers.isEmpty()) {
         SharedFileDto data = DtoUtil.toSharedFileWithMeDto(savedFile);
         validatedUsers.forEach(user -> this.messagePublishingService.publish(user,

@@ -10,9 +10,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface FileRepository extends CrudRepository<File, Long> {
 
   File findByDownloadHash(String downloadHash);
+
+  List<File> findByCreator_Id(Long creatorId);
 
   File findByDeleteHashAndCreatorNickName(String deleteHash, String creatorNickName);
 

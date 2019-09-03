@@ -113,17 +113,6 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public File addFileToUser(final Long fileId, final String email) {
-    final Optional<File> file = this.fileService.findById(fileId);
-    if (file.isPresent()) {
-      final User user = getUserByEmail(email);
-      user.addUploadedFile(file.get());
-      save(user);
-    }
-    return file.orElse(null);
-  }
-
-  @Override
   public User findByEmailAndPassword(final String email, final String password) {
     return this.userRepository.findByEmailAndPassword(email, password);
   }

@@ -136,7 +136,6 @@ public class FileManagementServiceImpl implements FileManagementService {
     final String name = findByDeleteHash.getName();
     final Date timestamp = findByDeleteHash.getCreatedDate();
 
-    current.getUploadedFiles().remove(findByDeleteHash);
     current.setRemainingStorage(current.getRemainingStorage() + fileSize);
     this.userService.save(current);
     this.fileService.delete(findByDeleteHash.getId());

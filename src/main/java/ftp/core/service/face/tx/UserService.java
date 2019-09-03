@@ -31,8 +31,6 @@ public interface UserService {
   User registerUser(String email, String nickName, String password, String password_repeated)
       throws IllegalArgumentException;
 
-  File addFileToUser(final Long fileId, final String email);//
-
   String getUserSaltedPassword(final String rawPassword, final Long token);//
 
   Set<NickNameProjection> findByNickNameIn(Collection<String> nickNames);//
