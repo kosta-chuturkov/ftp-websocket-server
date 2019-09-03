@@ -22,6 +22,6 @@ ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
 ENV APP_HOME=/app/
 WORKDIR $APP_HOME
 COPY --from=TEMP_BUILD_IMAGE $APP_HOME/build/libs/ftp-websocket-server.jar .
-EXPOSE 8443
+EXPOSE 8081
 ENTRYPOINT java $JAVA_OPTS -jar /app/$ARTIFACT_NAME
 

@@ -16,4 +16,4 @@ services:
       spring.datasource.password: ribamech
     build: .
     ports:
-    - "8443:8443"
+    - "8081:8081"

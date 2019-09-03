@@ -21,7 +21,7 @@ server:
     port: 8081
 spring:
     datasource:
-        driverClassName: org.hsqldb.jdbcDriver
+        driverClassName:org.hsqldb.jdbc.JdbcDriver
         password: ''
         url: jdbc:hsqldb:mem:aname
         username: sa

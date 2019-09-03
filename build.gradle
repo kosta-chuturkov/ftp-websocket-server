@@ -45,6 +45,7 @@ dependencies {
 
     compile group: 'org.springframework.security', name: 'spring-security-data'
     compile("org.springframework.boot:spring-boot-starter-websocket")
+    compile('org.springframework.boot:spring-boot-starter-hateoas')
     compile("org.springframework:spring-messaging")
     compile("org.springframework:spring-context-support")
     testCompile('org.hsqldb:hsqldb')

@@ -51,17 +51,6 @@ public class UserManagementController {
             10000L);
   }
 
-//  @Secured(Authorities.USER)
-//  @ApiOperation(value = "", nickname = "getUserDetails")
-//  @GetMapping()
-//  public DeferredResult<String> getUserInfo(
-//      @NotNull @ModelAttribute("q") final String userNickName) {
-//    return this.schedulingService
-//        .scheduleTask(() -> this.userService.getUserDetails(userNickName),
-//            10000L);
-//  }
-
-
   @Secured(Authorities.USER)
   @ApiOperation(value = "", nickname = "updateUsers")
   @PostMapping(value = "/{deleteHash}")
