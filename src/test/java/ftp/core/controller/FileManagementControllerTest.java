@@ -168,7 +168,7 @@
 //        verify(this.storageService, times(1)).deleteResource(anyString(), anyString());
 //        assertThat(response.getFiles().get(fileName).toString(), is("true"));
 //
-//        File persistentFile = this.fileService.findByDeleteHash(deleteHash, User.getCurrent().getNickName());
+//        File persistentFile = this.fileService.findByDeleteHashAndCreatorNickName(deleteHash, User.getCurrent().getNickName());
 //        assertThat(persistentFile, is(nullValue()));
 //
 //        User one = this.userService.findOne(User.getCurrent().getId());

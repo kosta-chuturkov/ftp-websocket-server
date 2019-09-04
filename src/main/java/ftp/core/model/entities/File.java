@@ -15,10 +15,6 @@ import java.util.Set;
 @Table(name = "files")
 public class File extends AbstractEntity<Long> implements Serializable{
 
-  @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "file_shared_to_users", joinColumns = @JoinColumn(name = "file_id"))
-  private Set<String> sharedWithUsers = Sets.newHashSet();
-
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "user_id")
   private User creator;
@@ -55,7 +51,6 @@ public class File extends AbstractEntity<Long> implements Serializable{
   }
 
   private File(Builder builder) {
-    setSharedWithUsers(builder.sharedWithUsers);
     setCreator(builder.creator);
     setName(builder.name);
     setDownloadHash(builder.downloadHash);
@@ -121,20 +116,6 @@ public class File extends AbstractEntity<Long> implements Serializable{
     this.fileType = fileType;
   }
 
-  public Set<String> getSharedWithUsers() {
-    if (this.sharedWithUsers == null) {
-      return Sets.newHashSet();
-    }
-    return this.sharedWithUsers;
-  }
-
-  public void setSharedWithUsers(final Set<String> sharedWithUsers) {
-    this.sharedWithUsers.clear();
-    if (sharedWithUsers != null) {
-      this.sharedWithUsers.addAll(sharedWithUsers);
-    }
-  }
-
   public Date getUpdatedDate() {
     return updatedDate;
   }
@@ -151,7 +132,6 @@ public class File extends AbstractEntity<Long> implements Serializable{
 
   public static final class Builder {
 
-    private Set<String> sharedWithUsers;
     private User creator;
     private String name;
     private String downloadHash;
@@ -164,7 +144,6 @@ public class File extends AbstractEntity<Long> implements Serializable{
     }
 
     public Builder(File copy) {
-      this.sharedWithUsers = copy.sharedWithUsers;
       this.creator = copy.creator;
       this.name = copy.name;
       this.downloadHash = copy.downloadHash;
@@ -172,11 +151,6 @@ public class File extends AbstractEntity<Long> implements Serializable{
       this.fileSize = copy.fileSize;
       this.timestamp = copy.createdDate;
       this.fileType = copy.fileType;
-    }
-
-    public Builder withSharedWithUsers(Set<String> val) {
-      this.sharedWithUsers = val;
-      return this;
     }
 
     public Builder withCreator(User val) {
@@ -219,33 +193,24 @@ public class File extends AbstractEntity<Long> implements Serializable{
     }
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        File file = (File) o;
+        return Objects.equals(creator, file.creator) &&
+                Objects.equals(name, file.name) &&
+                Objects.equals(downloadHash, file.downloadHash) &&
+                Objects.equals(deleteHash, file.deleteHash) &&
+                Objects.equals(fileSize, file.fileSize) &&
+                Objects.equals(createdDate, file.createdDate) &&
+                Objects.equals(updatedDate, file.updatedDate) &&
+                fileType == file.fileType;
     }
-    if (!(o instanceof File)) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-    File file = (File) o;
-    return Objects.equals(getSharedWithUsers(), file.getSharedWithUsers()) &&
-        Objects.equals(getCreator(), file.getCreator()) &&
-        Objects.equals(getName(), file.getName()) &&
-        Objects.equals(getDownloadHash(), file.getDownloadHash()) &&
-        Objects.equals(getDeleteHash(), file.getDeleteHash()) &&
-        Objects.equals(getFileSize(), file.getFileSize()) &&
-        Objects.equals(getCreatedDate(), file.getCreatedDate()) &&
-        getFileType() == file.getFileType();
-  }
 
-  @Override
-  public int hashCode() {
-
-    return Objects
-        .hash(super.hashCode(), getSharedWithUsers(), getCreator(), getName(), getDownloadHash(),
-            getDeleteHash(), getFileSize(), getCreatedDate(), getFileType());
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), creator, name, downloadHash, deleteHash, fileSize, createdDate, updatedDate, fileType);
+    }
 }

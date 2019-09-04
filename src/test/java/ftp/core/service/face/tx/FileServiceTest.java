@@ -45,11 +45,10 @@ public class FileServiceTest extends AbstractTest {
         .withDeleteHash(deleteHash)
         .withFileSize(34324231L)
         .withCreator(currentUser)
-        .withSharedWithUsers(Sets.newHashSet())
         .withFileType(File.FileType.PRIVATE)
         .build();
     //when
-    this.fileService.saveFile(fileToBeSaved);
+    this.fileService.saveFile(fileToBeSaved, Sets.newHashSet());
 
     //then
     UploadedFilesProjection uploadedFilesByUserId = this.userService

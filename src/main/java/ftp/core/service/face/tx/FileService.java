@@ -8,6 +8,8 @@ import ftp.core.model.entities.File;
 import java.util.Optional;
 import java.util.Set;
 import javax.transaction.Transactional;
+
+import ftp.core.model.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,11 +18,11 @@ public interface FileService {
 
   File getFileByDownloadHash(String downloadHash);
 
-  File findByDeleteHash(String deleteHash, String creatorNickName);
+  File findByDeleteHashAndCreatorNickName(String deleteHash, String creatorNickName);
 
-  void saveFile(File fileToBeSaved);
+  void saveFile(File fileToBeSaved, Set<String> userNickNames);
 
-  boolean isUserFromFileSharedUsers(Long fileId, String nickName);
+  boolean isUserFromFileSharedUsers(File fileId, String nickName);
 
   boolean isFileCreator(Long fileId, String userNickName);
 
@@ -28,7 +30,7 @@ public interface FileService {
 
   Page<PersonalFileDto> getPrivateFilesForUser(String userNickName, Pageable pageable);
 
-  Page<SharedFileDto> getSharedFilesWithMe(String userNickName, Pageable pageable);
+  Page<SharedFileDto> getSharedFilesWithCurrent(String userNickName, Pageable pageable);
 
   void updateUsers(final String deleteHash, final Set<ModifiedUserDto> modifiedUserDto);
 
@@ -37,4 +39,10 @@ public interface FileService {
   File save(File file);
 
   Optional<File> findById(Long fileId);
+
+  void shareFileWithUsers(File file, Set<String> sharedWithUsers);
+
+  void shareFileWithUser(File file, User user);
+
+  Set<String> getListOfUsersFileIsSharedWith(File findByDeleteHash);
 }

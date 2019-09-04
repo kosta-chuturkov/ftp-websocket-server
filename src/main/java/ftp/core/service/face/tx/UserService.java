@@ -17,7 +17,7 @@ public interface UserService {
 
   Long getRandomTokenFromDB();
 
-  User getUserByNickName(String nickName);
+  User findUserByNickName(String nickName);
 
   User getUserByEmail(String email);
 

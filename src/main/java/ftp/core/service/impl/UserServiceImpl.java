@@ -5,9 +5,7 @@ import com.google.gson.JsonObject;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.ModifiedUserDto;
 import ftp.core.model.entities.Authority;
-import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
-import ftp.core.repository.FileRepository;
 import ftp.core.repository.UserRepository;
 import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.repository.projections.UploadedFilesProjection;
@@ -123,7 +121,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User getUserByNickName(final String nickName) {
+  public User findUserByNickName(final String nickName) {
     return this.userRepository.findByNickName(nickName);
   }
 
@@ -194,7 +192,7 @@ public class UserServiceImpl implements UserService {
     if (!isNickNameValid(nickName)) {
       throw new UsernameNotFoundException("Wrong nickname format.");
     }
-    final User userByNickName = getUserByNickName(nickName);
+    final User userByNickName = findUserByNickName(nickName);
     if (userByNickName != null) {
       throw new UsernameNotFoundException("User with this nickname already exists.");
     }

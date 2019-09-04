@@ -21,13 +21,6 @@ public interface FileRepository extends JpaRepository<File, Long> {
 
   File findByDeleteHashAndCreatorNickName(String deleteHash, String creatorNickName);
 
-  @Query("select file " +
-      "from File file" +
-      " where :userNickName in(file.sharedWithUsers)" +
-      "and file.fileType = :fileType")
-  Page<SharedFileDto> findSharedFilesWithMe(@Param("userNickName") String userNickName,
-      @Param("fileType") File.FileType fileType, Pageable pageable);
-
   Page<PersonalFileDto> findByCreatorNickNameAndFileType(String creatorNickName, File.FileType fileType, Pageable pageable);
 
   Page<FileSharedWithUsersDto> findByFileTypeAndCreatorNickName(File.FileType fileType, String creatorNickName, Pageable pageable);

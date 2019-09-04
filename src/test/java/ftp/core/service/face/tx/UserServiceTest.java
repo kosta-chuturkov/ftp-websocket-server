@@ -36,7 +36,7 @@ UserServiceTest extends AbstractTest {
   @Test
   public void testGetUserByNickName() throws Exception {
     //when
-    User admin = this.userService.getUserByNickName("admin");
+    User admin = this.userService.findUserByNickName("admin");
 
     //then
     assertThat(admin, is(notNullValue()));
@@ -86,7 +86,6 @@ UserServiceTest extends AbstractTest {
         .withDeleteHash(deleteHash)
         .withFileSize(fileSize)
         .withCreator(currentUser)
-        .withSharedWithUsers(Sets.newHashSet())
         .withFileType(File.FileType.PRIVATE)
         .build();
     File savedFile = this.fileService.save(file);

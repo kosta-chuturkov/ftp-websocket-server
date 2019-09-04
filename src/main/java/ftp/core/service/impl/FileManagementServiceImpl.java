@@ -90,10 +90,9 @@ public class FileManagementServiceImpl implements FileManagementService {
                 .withDeleteHash(deleteHash)
                 .withFileSize(multipartFile.getSize())
                 .withCreator(userService.getUserByEmail(currentUser.getEmail()))
-                .withSharedWithUsers(userNickNames)
                 .withFileType(userNickNames.isEmpty() ? File.FileType.PRIVATE : File.FileType.SHARED)
                 .build();
-        this.fileService.saveFile(fileToBeSaved);
+        this.fileService.saveFile(fileToBeSaved, userNickNames);
         this.storageService
                 .store(getInputStream(multipartFile), serverFileName, currentUser.getEmail());
         return buildResponseObject(multipartFile, "", fileName, deleteHash,
@@ -131,7 +130,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         final String nickName = current.getNickName();
         final File findByDeleteHash = getFile(deleteHash, nickName);
         final String downloadHash = findByDeleteHash.getDownloadHash();
-        final Set<String> sharedWithUsers = findByDeleteHash.getSharedWithUsers();
+        final Set<String> sharedWithUsers = fileService.getListOfUsersFileIsSharedWith(findByDeleteHash);
         final List<String> usersToBeNotifiedFileDeleted = Lists.newArrayList(sharedWithUsers);
         usersToBeNotifiedFileDeleted.add(current.getNickName());
         final long fileSize = findByDeleteHash.getFileSize();
@@ -164,7 +163,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     private File getFile(String deleteHash, String nickName) {
-        final File findByDeleteHash = this.fileService.findByDeleteHash(deleteHash, nickName);
+        final File findByDeleteHash = this.fileService.findByDeleteHashAndCreatorNickName(deleteHash, nickName);
         if (findByDeleteHash == null) {
             throw new RuntimeException("File does not exist.");
         }
@@ -214,7 +213,7 @@ public class FileManagementServiceImpl implements FileManagementService {
                 case PRIVATE:
                     throw new FtpServerException("You dont have permission to access this file.");
                 case SHARED:
-                    if (!this.fileService.isUserFromFileSharedUsers(file.getId(), nickName)) {
+                    if (!this.fileService.isUserFromFileSharedUsers(file, nickName)) {
                         throw new FtpServerException(
                                 "This file is not shared with you. You dont have permission to access this file.");
                     }
@@ -243,7 +242,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     @Override
     public Page<SharedFileDto> getFilesSharedToMe(Pageable pageable) {
         return this.fileService
-                .getSharedFilesWithMe(User.getCurrent() == null ? null : User.getCurrent().getNickName(),
+                .getSharedFilesWithCurrent(User.getCurrent() == null ? null : User.getCurrent().getNickName(),
                         pageable);
     }
 
@@ -257,12 +256,14 @@ public class FileManagementServiceImpl implements FileManagementService {
         if (file.getCreator() != current) {
             throw new RuntimeException("You are not the owner of this file and cannot update it.");
         }
-        file.setSharedWithUsers(updateRequest.getSharedWithUsers());
+
+        fileService.shareFileWithUsers(file, updateRequest.getSharedWithUsers());
         file.setFileType(updateRequest.getFileType());
         file.setName(updateRequest.getName());
         file.setUpdatedDate(new Date());
         return fileService.save(file);
     }
+
 
     @Override
     public FileSharedToUser test() {
