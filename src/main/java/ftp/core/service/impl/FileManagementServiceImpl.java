@@ -287,4 +287,9 @@ public class FileManagementServiceImpl implements FileManagementService {
         return fileSharedToUserRepository.save(fileSharedToUser);
     }
 
+    @Override
+    public List<File> getAllFiles() {
+        return fileService.findAllFiles();
+    }
+
 }

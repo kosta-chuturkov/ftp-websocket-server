@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -83,7 +84,7 @@ public class FileManagementController {
     @ApiOperation(value = "", nickname = "getSharedFilesForUser")
     @GetMapping(path = "/shared")
     public PageResource<SharedFileDto> getSharedFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
-                                                             @RequestParam(required = false, defaultValue = "50")int pageSize) {
+                                                             @RequestParam(required = false, defaultValue = "50") int pageSize) {
         return new PageResource<>(this.fileManagementService
                 .getFilesSharedToMe(PageRequest.of(pageNumber, pageSize)));
     }
@@ -92,7 +93,7 @@ public class FileManagementController {
     @ApiOperation(value = "", nickname = "getPrivateFilesForUser")
     @GetMapping(path = "/private")
     public PageResource<PersonalFileDto> getPrivateFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
-                                                                @RequestParam(required = false, defaultValue = "50")int pageSize) {
+                                                                @RequestParam(required = false, defaultValue = "50") int pageSize) {
         return new PageResource<>(this.fileManagementService
                 .getPrivateFiles(PageRequest.of(pageNumber, pageSize)));
     }
@@ -101,7 +102,7 @@ public class FileManagementController {
     @ApiOperation(value = "", nickname = "getUploadedFilesByUser")
     @GetMapping(path = "/uploaded")
     public PageResource<FileSharedWithUsersDto> getUploadedFilesByUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
-                                                                       @RequestParam(required = false, defaultValue = "50")int pageSize) {
+                                                                       @RequestParam(required = false, defaultValue = "50") int pageSize) {
         return new PageResource<>(this.fileManagementService
                 .getFilesISharedWithOtherUsers(PageRequest.of(pageNumber, pageSize)));
     }
@@ -110,6 +111,20 @@ public class FileManagementController {
     @GetMapping(path = "/test")
     public DeferredResult<FileSharedToUser> test() {
         return this.schedulingService
-                .scheduleTask(() -> this.fileManagementService.test(),10000L);
+                .scheduleTask(() -> this.fileManagementService.test(), 10000L);
+    }
+
+    @ApiOperation(value = "", nickname = "getAllFiles")
+    @GetMapping(path = "/files")
+    public List<File> getAllFiles() {
+        return this.fileManagementService.getAllFiles();
+    }
+
+
+    @ApiOperation(value = "", nickname = "getAllFiles2")
+    @GetMapping(path = "/filess")
+    public DeferredResult<List<File>> getAllFiles2() {
+        return this.schedulingService
+                .scheduleTask(() -> this.fileManagementService.getAllFiles(), 10000L);
     }
 }

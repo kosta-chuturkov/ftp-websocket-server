@@ -17,7 +17,7 @@ public class ReactorEventsConfig {
   EventBus createEventBus() {
     return EventBus.create(Environment.initializeIfEmpty().assignErrorJournal(),
         new WorkQueueDispatcher
-            ("appWorkQueueDispatcher", 4, 8192, new ExceptionHandler()));
+            ("appWorkQueueDispatcher", Runtime.getRuntime().availableProcessors(), 8192, new ExceptionHandler()));
   }
 
   private class ExceptionHandler implements Consumer<Throwable> {

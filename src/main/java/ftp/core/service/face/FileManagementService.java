@@ -12,8 +12,12 @@ import ftp.core.model.entities.FileSharedToUser;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
+@Transactional
 public interface FileManagementService {
 
     UploadedFilesDto<JsonFileDto> uploadFile(MultipartFile file,
@@ -32,4 +36,6 @@ public interface FileManagementService {
     File updateFile(FileUpdateRequest updateRequest);
 
     FileSharedToUser test();
+
+    List<File> getAllFiles();
 }

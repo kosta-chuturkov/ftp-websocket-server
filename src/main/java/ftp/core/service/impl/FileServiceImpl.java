@@ -24,9 +24,8 @@ import ftp.core.util.DtoUtil;
 import ftp.core.websocket.dto.JsonResponse;
 import ftp.core.websocket.handler.Handlers;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
@@ -144,37 +143,60 @@ public class FileServiceImpl implements FileService {
         return this.fileSharedToUserRepository.findByUser(userService.findUserByNickName(userNickName), pageable);
     }
 
-    private File updateUsersForFile(final String fileHash, final Set<String> userNickNames) {
+    private File updateUsersForFile(final String fileHash, final List<User> updatedUserNickNames) {
         final File file = findByDeleteHashAndCreatorNickName(fileHash, User.getCurrent().getNickName());
         if (file == null) {
             throw new FtpServerException("File not found...");
         }
         final String downloadHash = file.getDownloadHash();
-
         //TODO delete removed and add new ones
-        final Set<String> persistentSharedToUsers = getListOfUsersFileIsSharedWith(file);
-        persistentSharedToUsers.removeAll(userNickNames);
+        List<User> toAdd = Lists.newArrayList();
+        List<User> toRemove = Lists.newArrayList();
+        Map<String, User> newUserToNickname =
+                updatedUserNickNames
+                        .stream()
+                        .collect(Collectors.toMap(User::getNickName, Function.identity()));
+        Map<String, User> persistentUserToNickname = fileSharedToUserRepository
+                .findByFile(file)
+                .stream()
+                .map(FileSharedToUser::getUser)
+                .collect(Collectors.toMap(User::getNickName, Function.identity()));
+
+        for (String nickName : persistentUserToNickname.keySet()) {
+            User user = persistentUserToNickname.get(nickName);
+            if (!newUserToNickname.containsKey(nickName)) {
+                toRemove.add(user);
+            }
+        }
+
+        for (String nickName : newUserToNickname.keySet()) {
+            User user = newUserToNickname.get(nickName);
+            if (!persistentUserToNickname.containsKey(nickName)) {
+                toAdd.add(user);
+            }
+        }
+
+        for (User user : toAdd) {
+            shareFileWithUser(file, user);
+        }
+
+
+        // if user in updatedUserNickNames and in persistentSharedToUsers keep
+        //if user in updatedUserNickNames but not in persistentSharedToUsers add
+        // if user in persistentSharedToUsers but not in updatedUserNickNames delete
         DeletedFileDto deletedFileDto = new DeletedFileDto(downloadHash);
-        persistentSharedToUsers.forEach(user -> {
+        toRemove.forEach(user -> {
             JsonResponse data = new JsonResponse<>(
                     new PageImpl<>(Lists.newArrayList(deletedFileDto)),
                     Handlers.DELETED_FILE.getHandlerName());
-            this.messagePublishingService.publish(user, data);
+            this.messagePublishingService.publish(user.getNickName(), data);
         });
         return file;
     }
 
     @Override
     public void updateUsers(final String deleteHash, final Set<ModifiedUserDto> modifiedUserDto) {
-        final Set<String> userNickNames = Sets.newHashSet();
-        if (modifiedUserDto.size() == 1) {
-            final String userNickName = modifiedUserDto.iterator().next().getName();
-            if (userNickName == null || "-1".equals(userNickName)) {
-                updateUsersForFile(deleteHash, userNickNames);
-                return;
-            }
-        }
-
+        List<User> updatedUserList = Lists.newArrayList();
         for (final ModifiedUserDto usersDto : modifiedUserDto) {
             final String name = usersDto.getName();
             final String escapedUserName = StringEscapeUtils.escapeSql(name);
@@ -185,13 +207,13 @@ public class FileServiceImpl implements FileService {
             if (escapedUserName.equals(User.getCurrent().getNickName())) {
                 throw new FtpServerException("Cant share file with yourself.");
             }
-            userNickNames.add(escapedUserName);
+            updatedUserList.add(userByNickName);
         }
 
-        final File file = updateUsersForFile(deleteHash, userNickNames);
+        final File file = updateUsersForFile(deleteHash, updatedUserList);
         final DataTransferObject fileDto = DtoUtil.toSharedFileWithMeDto(file);
-        for (final String userNickName : userNickNames) {
-            this.messagePublishingService.publish(userNickName,
+        for (final User userNickName : updatedUserList) {
+            this.messagePublishingService.publish(userNickName.getNickName(),
                     new JsonResponse<>(new PageImpl<>(Lists.newArrayList(fileDto)),
                             Handlers.FILES_SHARED_WITH_ME_HANDLER.getHandlerName()));
         }
@@ -233,5 +255,10 @@ public class FileServiceImpl implements FileService {
                 .stream()
                 .map(fileSharedToUser -> fileSharedToUser.getUser().getNickName())
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public List<File> findAllFiles() {
+        return fileRepository.findAll();
     }
 }
