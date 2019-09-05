@@ -1,0 +1,4 @@
+spring.data.elasticsearch.cluster-name=ftp-cluster
+spring.data.elasticsearch.cluster-nodes=localhost:9300,localhost:9301,localhost:9302
+  #spring.data.elasticsearch.properties.*= # Additional properties used to configure the client.
+spring.data.elasticsearch.repositories.enabled=true

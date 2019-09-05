@@ -1,6 +1,7 @@
 package ftp.core.model.entities;
 
 import com.google.common.collect.Sets;
+import org.springframework.data.elasticsearch.annotations.Document;
 
 import javax.persistence.Entity;
 import javax.persistence.*;
@@ -11,8 +12,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
-@Table(name = "files")
+@Document(indexName = "ftp.server", type = "file")
 public class File extends AbstractEntity<Long> implements Serializable{
 
   @ManyToOne(fetch = FetchType.EAGER)
