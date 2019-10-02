@@ -7,5 +7,5 @@ import ftp.core.websocket.api.JsonTypedHandler;
  */
 public interface JsonHandlerFactory {
 
-  JsonTypedHandler getHandlerByType(String type);
+    JsonTypedHandler getHandlerByType(String type);
 }

@@ -14,24 +14,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class UploadedFilesHandler extends BaseJsonRequestHandler {
 
-  private FileManagementService fileManagementService;
+    private FileManagementService fileManagementService;
 
-  @Autowired
-  public UploadedFilesHandler(JsonService jsonService,
-      FileManagementService fileManagementService) {
-    super(jsonService);
-    this.fileManagementService = fileManagementService;
-  }
+    @Autowired
+    public UploadedFilesHandler(JsonService jsonService,
+                                FileManagementService fileManagementService) {
+        super(jsonService);
+        this.fileManagementService = fileManagementService;
+    }
 
-  @Override
-  public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
-    return super.handle(jsonRequest,
-        (firstResult, maxResults) ->
-            this.fileManagementService.getFilesISharedWithOtherUsers(new PageRequest(firstResult, maxResults)));
-  }
+    @Override
+    public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
+        return super.handle(jsonRequest,
+                (firstResult, maxResults) ->
+                        this.fileManagementService.getFilesISharedWithOtherUsers(new PageRequest(firstResult, maxResults)));
+    }
 
-  @Override
-  public Handlers getHandlerType() {
-    return Handlers.FILES_I_SHARED_HANDLER;
-  }
+    @Override
+    public Handlers getHandlerType() {
+        return Handlers.FILES_I_SHARED_HANDLER;
+    }
 }

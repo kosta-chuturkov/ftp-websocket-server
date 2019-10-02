@@ -5,5 +5,5 @@ package ftp.core.repository.projections;
  */
 public interface NickNameProjection {
 
-  String getNickName();
+    String getNickName();
 }

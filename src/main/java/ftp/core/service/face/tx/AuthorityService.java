@@ -1,6 +1,7 @@
 package ftp.core.service.face.tx;
 
 import ftp.core.model.entities.Authority;
+
 import javax.transaction.Transactional;
 
 /**
@@ -9,5 +10,5 @@ import javax.transaction.Transactional;
 @Transactional
 public interface AuthorityService {
 
-  Authority save(Authority authority);
+    Authority save(Authority authority);
 }

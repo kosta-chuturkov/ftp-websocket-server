@@ -9,72 +9,72 @@ import ftp.core.model.entities.File.FileType;
  */
 public final class DtoUtil {
 
-  private DtoUtil() {
+    private DtoUtil() {
 
-  }
-
-  public static SharedFileDto toSharedFileWithMeDto(File file) {
-    return new SharedFileDtoImpl(file.getFileSize(),
-        file.getName(),
-        file.getCreatedDate().toString(),
-        file.getDownloadHash(),
-        file.getCreator().getNickName(),
-        file.getFileType());
-  }
-
-  public static class SharedFileDtoImpl implements SharedFileDto {
-
-    private long size;
-
-    private String name;
-
-    private String timestamp;
-
-    private String downloadHash;
-
-    private String sharingUserName;
-
-    private File.FileType fileType;
-
-    public SharedFileDtoImpl(long size, String name, String timestamp, String downloadHash,
-        String sharingUserName, FileType fileType) {
-      this.size = size;
-      this.name = name;
-      this.timestamp = timestamp;
-      this.downloadHash = downloadHash;
-      this.sharingUserName = sharingUserName;
-      this.fileType = fileType;
     }
 
-    @Override
-    public long getSize() {
-      return size;
+    public static SharedFileDto toSharedFileWithMeDto(File file) {
+        return new SharedFileDtoImpl(file.getFileSize(),
+                file.getName(),
+                file.getCreatedDate().toString(),
+                file.getDownloadHash(),
+                file.getCreator().getNickName(),
+                file.getFileType());
     }
 
-    @Override
-    public String getName() {
-      return name;
-    }
+    public static class SharedFileDtoImpl implements SharedFileDto {
 
-    @Override
-    public String getTimestamp() {
-      return timestamp;
-    }
+        private long size;
 
-    @Override
-    public String getDownloadHash() {
-      return downloadHash;
-    }
+        private String name;
 
-    @Override
-    public String getSharingUserName() {
-      return sharingUserName;
-    }
+        private String timestamp;
 
-    @Override
-    public FileType getFileType() {
-      return fileType;
+        private String downloadHash;
+
+        private String sharingUserName;
+
+        private File.FileType fileType;
+
+        public SharedFileDtoImpl(long size, String name, String timestamp, String downloadHash,
+                                 String sharingUserName, FileType fileType) {
+            this.size = size;
+            this.name = name;
+            this.timestamp = timestamp;
+            this.downloadHash = downloadHash;
+            this.sharingUserName = sharingUserName;
+            this.fileType = fileType;
+        }
+
+        @Override
+        public long getSize() {
+            return size;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String getTimestamp() {
+            return timestamp;
+        }
+
+        @Override
+        public String getDownloadHash() {
+            return downloadHash;
+        }
+
+        @Override
+        public String getSharingUserName() {
+            return sharingUserName;
+        }
+
+        @Override
+        public FileType getFileType() {
+            return fileType;
+        }
     }
-  }
 
 }

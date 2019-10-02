@@ -10,17 +10,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class RedisMessageProducer implements MessagePublishingService {
 
-  private RedisTemplate redisTemplate;
-  private final Gson gson;
+    private RedisTemplate redisTemplate;
+    private final Gson gson;
 
-  @Autowired
-  public RedisMessageProducer(
-      RedisTemplate redisTemplate, Gson gson) {
-    this.redisTemplate = redisTemplate;
-    this.gson = gson;
-  }
+    @Autowired
+    public RedisMessageProducer(
+            RedisTemplate redisTemplate, Gson gson) {
+        this.redisTemplate = redisTemplate;
+        this.gson = gson;
+    }
 
-  public void publish(String topic, Object message) {
-    redisTemplate.convertAndSend(topic, gson.toJson(message));
-  }
+    public void publish(String topic, Object message) {
+        redisTemplate.convertAndSend(topic, gson.toJson(message));
+    }
 }

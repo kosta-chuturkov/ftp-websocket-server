@@ -2,7 +2,9 @@ package ftp.core.service.face;
 
 import ftp.core.model.dto.DataTransferObject;
 import ftp.core.websocket.dto.JsonResponse;
+
 import java.util.Collection;
+
 import org.springframework.data.domain.Page;
 
 /**
@@ -10,6 +12,6 @@ import org.springframework.data.domain.Page;
  */
 public interface JsonService {
 
-  <T> JsonResponse<T> getJsonResponse(final String method,
-      final Page<T> data);
+    <T> JsonResponse<T> getJsonResponse(final String method,
+                                        final Page<T> data);
 }

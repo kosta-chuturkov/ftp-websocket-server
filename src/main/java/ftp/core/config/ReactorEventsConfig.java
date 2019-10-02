@@ -13,19 +13,19 @@ import reactor.fn.Consumer;
 @Configuration
 public class ReactorEventsConfig {
 
-  @Bean(name = "eventBus")
-  EventBus createEventBus() {
-    return EventBus.create(Environment.initializeIfEmpty().assignErrorJournal(),
-        new WorkQueueDispatcher
-            ("appWorkQueueDispatcher", Runtime.getRuntime().availableProcessors(), 8192, new ExceptionHandler()));
-  }
-
-  private class ExceptionHandler implements Consumer<Throwable> {
-
-    @Override
-    public void accept(final Throwable throwable) {
-
-      throw new RuntimeException(throwable.getMessage());
+    @Bean(name = "eventBus")
+    EventBus createEventBus() {
+        return EventBus.create(Environment.initializeIfEmpty().assignErrorJournal(),
+                new WorkQueueDispatcher
+                        ("appWorkQueueDispatcher", Runtime.getRuntime().availableProcessors(), 8192, new ExceptionHandler()));
     }
-  }
+
+    private class ExceptionHandler implements Consumer<Throwable> {
+
+        @Override
+        public void accept(final Throwable throwable) {
+
+            throw new RuntimeException(throwable.getMessage());
+        }
+    }
 }

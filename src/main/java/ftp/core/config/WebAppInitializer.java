@@ -2,6 +2,7 @@ package ftp.core.config;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,26 +22,26 @@ import org.springframework.web.servlet.DispatcherServlet;
 @EnableSpringDataWebSupport
 public class WebAppInitializer implements WebApplicationInitializer, ApplicationContextAware {
 
-  private ApplicationContext appContext;
+    private ApplicationContext appContext;
 
-  @Autowired
-  public WebAppInitializer(ApplicationContext appContext) {
-    this.appContext = appContext;
-  }
+    @Autowired
+    public WebAppInitializer(ApplicationContext appContext) {
+        this.appContext = appContext;
+    }
 
-  @Override
-  public void onStartup(final ServletContext container) {
+    @Override
+    public void onStartup(final ServletContext container) {
 
-    final ServletRegistration.Dynamic dispatcher = container.addServlet("dispatcher",
-        new DispatcherServlet((WebApplicationContext) this.appContext));
-    dispatcher.setLoadOnStartup(1);
-    dispatcher.addMapping("/*");
-  }
+        final ServletRegistration.Dynamic dispatcher = container.addServlet("dispatcher",
+                new DispatcherServlet((WebApplicationContext) this.appContext));
+        dispatcher.setLoadOnStartup(1);
+        dispatcher.addMapping("/*");
+    }
 
-  @Override
-  public void setApplicationContext(final ApplicationContext applicationContext)
-      throws BeansException {
+    @Override
+    public void setApplicationContext(final ApplicationContext applicationContext)
+            throws BeansException {
 
-    this.appContext = applicationContext;
-  }
+        this.appContext = applicationContext;
+    }
 }

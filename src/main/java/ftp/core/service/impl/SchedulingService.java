@@ -1,6 +1,7 @@
 package ftp.core.service.impl;
 
 import java.util.function.Supplier;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,21 +15,21 @@ import reactor.bus.EventBus;
 @Service
 public class SchedulingService {
 
-  private EventBus eventBus;
+    private EventBus eventBus;
 
-  @Autowired
-  public SchedulingService(EventBus eventBus) {
-    this.eventBus = eventBus;
-  }
+    @Autowired
+    public SchedulingService(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
 
-  public <T> DeferredResult<T> scheduleTask(Supplier<T> supplier, Long timeOut) {
-    DeferredResult<T> deferredResult = new DeferredResult<>(timeOut);
-    SecurityContext securityContext = SecurityContextHolder.getContext();
-    this.eventBus.schedule((data) -> {
-      SecurityContextHolder.setContext(securityContext);
-      data.setResult(supplier.get());
-    }, deferredResult);
-    return deferredResult;
-  }
+    public <T> DeferredResult<T> scheduleTask(Supplier<T> supplier, Long timeOut) {
+        DeferredResult<T> deferredResult = new DeferredResult<>(timeOut);
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        this.eventBus.schedule((data) -> {
+            SecurityContextHolder.setContext(securityContext);
+            data.setResult(supplier.get());
+        }, deferredResult);
+        return deferredResult;
+    }
 
 }

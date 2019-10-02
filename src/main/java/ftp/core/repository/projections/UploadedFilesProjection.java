@@ -1,6 +1,7 @@
 package ftp.core.repository.projections;
 
 import ftp.core.model.entities.File;
+
 import java.util.Set;
 
 /**
@@ -8,5 +9,5 @@ import java.util.Set;
  */
 public interface UploadedFilesProjection {
 
-  Set<File> getUploadedFiles();
+    Set<File> getUploadedFiles();
 }

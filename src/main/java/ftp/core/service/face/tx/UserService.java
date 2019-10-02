@@ -5,6 +5,7 @@ import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
 import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.repository.projections.UploadedFilesProjection;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -13,35 +14,35 @@ import javax.transaction.Transactional;
 @Transactional
 public interface UserService {
 
-  User findByEmailAndPassword(String email, String password);
+    User findByEmailAndPassword(String email, String password);
 
-  Long getRandomTokenFromDB();
+    Long getRandomTokenFromDB();
 
-  User findUserByNickName(String nickName);
+    User findUserByNickName(String nickName);
 
-  User getUserByEmail(String email);
+    User getUserByEmail(String email);
 
-  void updateRemainingStorageForUser(long fileSize, String userId, long remainingStorage);
+    void updateRemainingStorageForUser(long fileSize, String userId, long remainingStorage);
 
-  List<NickNameProjection> getUserByNickLike(String userNickName);//
+    List<NickNameProjection> getUserByNickLike(String userNickName);//
 
-  void validateUserCredentials(String email, String password, String nickName,
-      String password_repeated) throws IllegalArgumentException;
+    void validateUserCredentials(String email, String password, String nickName,
+                                 String password_repeated) throws IllegalArgumentException;
 
-  User registerUser(String email, String nickName, String password, String password_repeated)
-      throws IllegalArgumentException;
+    User registerUser(String email, String nickName, String password, String password_repeated)
+            throws IllegalArgumentException;
 
-  String getUserSaltedPassword(final String rawPassword, final Long token);//
+    String getUserSaltedPassword(final String rawPassword, final Long token);//
 
-  Set<NickNameProjection> findByNickNameIn(Collection<String> nickNames);//
+    Set<NickNameProjection> findByNickNameIn(Collection<String> nickNames);//
 
-  UploadedFilesProjection findUploadedFilesByUserId(Long userId);
+    UploadedFilesProjection findUploadedFilesByUserId(Long userId);
 
-  User save(User current);
+    User save(User current);
 
-  String getUserDetails(String userNickName);
+    String getUserDetails(String userNickName);
 
-  void updateUsers(String deleteHash, Set<ModifiedUserDto> modifiedUserDto);
+    void updateUsers(String deleteHash, Set<ModifiedUserDto> modifiedUserDto);
 
-  List<User> findAll();
+    List<User> findAll();
 }

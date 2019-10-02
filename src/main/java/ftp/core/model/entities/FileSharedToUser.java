@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "file_shared_to_user", uniqueConstraints={
+@Table(name = "file_shared_to_user", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"fileId", "userId"})
 })
 public class FileSharedToUser extends AbstractEntity<Long> implements Serializable {

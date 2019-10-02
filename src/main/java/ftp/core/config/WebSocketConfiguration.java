@@ -20,31 +20,31 @@ import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 @EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer, WebMvcConfigurer {
 
-  @Autowired
-  private UserService userService;
+    @Autowired
+    private UserService userService;
 
-  @Override
-  public void registerWebSocketHandlers(final WebSocketHandlerRegistry registry) {
-    registry
-        .addHandler(echoWebSocketHandler(), "/sockjs/files")
-        .withSockJS()
-        .setInterceptors(handshakeInterceptor());
-  }
+    @Override
+    public void registerWebSocketHandlers(final WebSocketHandlerRegistry registry) {
+        registry
+                .addHandler(echoWebSocketHandler(), "/sockjs/files")
+                .withSockJS()
+                .setInterceptors(handshakeInterceptor());
+    }
 
-  @Bean
-  public WebSocketHandler echoWebSocketHandler() {
-    return new PerConnectionWebSocketHandler(JsonRequestDispatcher.class);
-  }
+    @Bean
+    public WebSocketHandler echoWebSocketHandler() {
+        return new PerConnectionWebSocketHandler(JsonRequestDispatcher.class);
+    }
 
-  @Bean
-  public org.springframework.web.socket.server.HandshakeInterceptor handshakeInterceptor() {
-    return new HandshakeInterceptor(this.userService);
-  }
+    @Bean
+    public org.springframework.web.socket.server.HandshakeInterceptor handshakeInterceptor() {
+        return new HandshakeInterceptor(this.userService);
+    }
 
-  // Allow serving HTML files through the default Servlet
+    // Allow serving HTML files through the default Servlet
 
-  @Override
-  public void configureDefaultServletHandling(final DefaultServletHandlerConfigurer configurer) {
-    configurer.enable();
-  }
+    @Override
+    public void configureDefaultServletHandling(final DefaultServletHandlerConfigurer configurer) {
+        configurer.enable();
+    }
 }

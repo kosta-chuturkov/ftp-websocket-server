@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class JsonServiceImpl implements JsonService {
 
-  @Override
-  public <T> JsonResponse<T> getJsonResponse(final String method,
-      final Page<T> data) {
-    final JsonResponse<T> jsonResponse = new JsonResponse<>();
-    jsonResponse.setResponseMethod(method);
-    jsonResponse.setResult(data);
-    return jsonResponse;
-  }
+    @Override
+    public <T> JsonResponse<T> getJsonResponse(final String method,
+                                               final Page<T> data) {
+        final JsonResponse<T> jsonResponse = new JsonResponse<>();
+        jsonResponse.setResponseMethod(method);
+        jsonResponse.setResult(data);
+        return jsonResponse;
+    }
 }

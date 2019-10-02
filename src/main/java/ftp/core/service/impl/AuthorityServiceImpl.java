@@ -3,7 +3,9 @@ package ftp.core.service.impl;
 import ftp.core.model.entities.Authority;
 import ftp.core.repository.AuthorityRepository;
 import ftp.core.service.face.tx.AuthorityService;
+
 import javax.transaction.Transactional;
+
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,16 +14,16 @@ import org.springframework.stereotype.Service;
 @Service("authorityService")
 @Transactional
 public class AuthorityServiceImpl implements
-    AuthorityService {
+        AuthorityService {
 
-  private final AuthorityRepository authorityRepository;
+    private final AuthorityRepository authorityRepository;
 
-  public AuthorityServiceImpl(AuthorityRepository authorityRepository) {
-    this.authorityRepository = authorityRepository;
-  }
+    public AuthorityServiceImpl(AuthorityRepository authorityRepository) {
+        this.authorityRepository = authorityRepository;
+    }
 
-  @Override
-  public Authority save(Authority authority) {
-    return authorityRepository.save(authority);
-  }
+    @Override
+    public Authority save(Authority authority) {
+        return authorityRepository.save(authority);
+    }
 }

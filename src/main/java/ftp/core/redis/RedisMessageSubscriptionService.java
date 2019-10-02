@@ -12,27 +12,27 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
 @Service
-public class RedisMessageSubscriptionService implements MessageSubscriptionService{
+public class RedisMessageSubscriptionService implements MessageSubscriptionService {
 
-  private final Gson gson;
-  private final RedisMessageListenerContainer redisMessageListenerContainer;
+    private final Gson gson;
+    private final RedisMessageListenerContainer redisMessageListenerContainer;
 
-  @Autowired
-  public RedisMessageSubscriptionService(Gson gson,
-      RedisMessageListenerContainer redisMessageListenerContainer) {
-    this.gson = gson;
-    this.redisMessageListenerContainer = redisMessageListenerContainer;
-  }
+    @Autowired
+    public RedisMessageSubscriptionService(Gson gson,
+                                           RedisMessageListenerContainer redisMessageListenerContainer) {
+        this.gson = gson;
+        this.redisMessageListenerContainer = redisMessageListenerContainer;
+    }
 
-  @Override
-  public MessageConsumer subscribe(String topic, WebSocketSession session) {
-    RedisMessageConsumer redisMessageConsumer = new RedisMessageConsumer(session, this.gson);
-    redisMessageListenerContainer.addMessageListener(redisMessageConsumer, new ChannelTopic(topic));
-    return redisMessageConsumer;
-  }
+    @Override
+    public MessageConsumer subscribe(String topic, WebSocketSession session) {
+        RedisMessageConsumer redisMessageConsumer = new RedisMessageConsumer(session, this.gson);
+        redisMessageListenerContainer.addMessageListener(redisMessageConsumer, new ChannelTopic(topic));
+        return redisMessageConsumer;
+    }
 
-  @Override
-  public void unsubscribe(String topic, MessageConsumer messageConsumer) {
-    redisMessageListenerContainer.removeMessageListener((MessageListener) messageConsumer, new ChannelTopic(topic));
-  }
+    @Override
+    public void unsubscribe(String topic, MessageConsumer messageConsumer) {
+        redisMessageListenerContainer.removeMessageListener((MessageListener) messageConsumer, new ChannelTopic(topic));
+    }
 }

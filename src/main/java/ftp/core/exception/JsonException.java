@@ -5,14 +5,14 @@ package ftp.core.exception;
  */
 public class JsonException extends RuntimeException {
 
-  private final String method;
+    private final String method;
 
-  public JsonException(final String message, final String method) {
-    super(message);
-    this.method = method;
-  }
+    public JsonException(final String message, final String method) {
+        super(message);
+        this.method = method;
+    }
 
-  public String getMethod() {
-    return this.method;
-  }
+    public String getMethod() {
+        return this.method;
+    }
 }

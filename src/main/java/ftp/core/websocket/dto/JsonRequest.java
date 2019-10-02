@@ -7,32 +7,32 @@ import com.google.gson.JsonObject;
  */
 public class JsonRequest {
 
-  private String method;
+    private String method;
 
-  private JsonObject params;
+    private JsonObject params;
 
-  public JsonRequest(final String method, final JsonObject params) {
-    this.method = method;
-    this.params = params;
-  }
+    public JsonRequest(final String method, final JsonObject params) {
+        this.method = method;
+        this.params = params;
+    }
 
-  public JsonRequest() {
+    public JsonRequest() {
 
-  }
+    }
 
-  public String getMethod() {
-    return this.method;
-  }
+    public String getMethod() {
+        return this.method;
+    }
 
-  public void setMethod(final String method) {
-    this.method = method;
-  }
+    public void setMethod(final String method) {
+        this.method = method;
+    }
 
-  public JsonObject getParams() {
-    return this.params;
-  }
+    public JsonObject getParams() {
+        return this.params;
+    }
 
-  public void setParams(final JsonObject params) {
-    this.params = params;
-  }
+    public void setParams(final JsonObject params) {
+        this.params = params;
+    }
 }

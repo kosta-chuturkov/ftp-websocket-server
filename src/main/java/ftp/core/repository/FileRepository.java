@@ -15,14 +15,14 @@ import java.util.List;
 
 public interface FileRepository extends JpaRepository<File, Long> {
 
-  File findByDownloadHash(String downloadHash);
+    File findByDownloadHash(String downloadHash);
 
-  List<File> findByCreator_Id(Long creatorId);
+    List<File> findByCreator_Id(Long creatorId);
 
-  File findByDeleteHashAndCreatorNickName(String deleteHash, String creatorNickName);
+    File findByDeleteHashAndCreatorNickName(String deleteHash, String creatorNickName);
 
-  Page<PersonalFileDto> findByCreatorNickNameAndFileType(String creatorNickName, File.FileType fileType, Pageable pageable);
+    Page<PersonalFileDto> findByCreatorNickNameAndFileType(String creatorNickName, File.FileType fileType, Pageable pageable);
 
-  Page<FileSharedWithUsersDto> findByFileTypeAndCreatorNickName(File.FileType fileType, String creatorNickName, Pageable pageable);
+    Page<FileSharedWithUsersDto> findByFileTypeAndCreatorNickName(File.FileType fileType, String creatorNickName, Pageable pageable);
 
 }
