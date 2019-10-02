@@ -268,16 +268,16 @@ public class FileManagementServiceImpl implements FileManagementService {
     @Override
     public FileSharedToUser test() {
         User user = new User();
-        user.setEmail(UUID.randomUUID().toString());
-        user.setNickName(UUID.randomUUID().toString());
-        user.setPassword(UUID.randomUUID().toString());
+        user.setEmail(UUID.randomUUID().toString().substring(5));
+        user.setNickName(UUID.randomUUID().toString().substring(5));
+        user.setPassword(UUID.randomUUID().toString().substring(5));
         User current = userService.save(user);
 
         File file = new File();
         file.setCreator(current);
-        file.setName(UUID.randomUUID().toString());
-        file.setDeleteHash(UUID.randomUUID().toString());
-        file.setDownloadHash(UUID.randomUUID().toString());
+        file.setName(UUID.randomUUID().toString().substring(5));
+        file.setDeleteHash(UUID.randomUUID().toString().substring(5));
+        file.setDownloadHash(UUID.randomUUID().toString().substring(5));
         file.setFileType(File.FileType.SHARED);
         File save = fileService.save(file);
 
