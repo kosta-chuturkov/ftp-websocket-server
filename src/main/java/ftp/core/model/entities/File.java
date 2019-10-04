@@ -51,7 +51,7 @@ public class File extends AuditEntity<Long> implements Serializable {
                 this.fileType,
                 this.getCreatedBy().getNickName()),
                 " ");
-        this.searchString = StringUtils.substring(fullSearchString, 0, 999);
+        this.searchString = StringUtils.substring(fullSearchString, 0, 999).toLowerCase();
     }
 
     public File() {
