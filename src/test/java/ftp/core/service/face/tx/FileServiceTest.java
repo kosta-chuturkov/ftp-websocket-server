@@ -61,7 +61,7 @@ public class FileServiceTest extends AbstractTest {
     File uploadedFile = Iterables.get(uploadedFiles, 0);
     assertThat(uploadedFile.getId(), is(fileToBeSaved.getId()));
     assertThat(uploadedFile.getName(), is(fileToBeSaved.getName()));
-    assertThat(uploadedFile.getCreator().getEmail(), is(fileToBeSaved.getCreator().getEmail()));
+    assertThat(uploadedFile.getCreatedBy(), is(fileToBeSaved.getCreatedBy()));
     assertThat(uploadedFile.getDeleteHash(), is(fileToBeSaved.getDeleteHash()));
     assertThat(uploadedFile.getDownloadHash(), is(fileToBeSaved.getDownloadHash()));
     assertThat(uploadedFile.getFileSize(), is(fileToBeSaved.getFileSize()));

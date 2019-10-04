@@ -19,6 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -116,15 +119,17 @@ public class FileManagementController {
 
     @ApiOperation(value = "", nickname = "getAllFiles")
     @GetMapping(path = "/files")
-    public List<File> getAllFiles() {
-        return this.fileManagementService.getAllFiles();
+    public PageResource<File> getAllFiles(@RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+                                          @RequestParam(name = "size", required = false, defaultValue = "50") Integer size) {
+        return new PageResource<>(this.fileManagementService.getAllFiles(PageRequest.of(page, size)));
     }
 
-
-    @ApiOperation(value = "", nickname = "getAllFiles2")
-    @GetMapping(path = "/filess")
-    public DeferredResult<List<File>> getAllFiles2() {
-        return this.schedulingService
-                .scheduleTask(() -> this.fileManagementService.getAllFiles(), 10000L);
+    @ApiOperation(value = "", nickname = "findByQuery")
+    @GetMapping(path = "/files/search")
+    public PageResource<File> findByQuery(@RequestParam(name = "q") String query,
+                                          @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+                                          @RequestParam(name = "size", required = false, defaultValue = "50") Integer size) throws UnsupportedEncodingException {
+        return new PageResource<>(this.fileManagementService.findByQuery(URLDecoder.decode(query, StandardCharsets.UTF_8.name()), PageRequest.of(page, size)));
     }
+
 }

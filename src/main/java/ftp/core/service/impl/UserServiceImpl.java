@@ -4,13 +4,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.ModifiedUserDto;
-import ftp.core.model.entities.Authority;
 import ftp.core.model.entities.User;
 import ftp.core.repository.UserRepository;
 import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.repository.projections.UploadedFilesProjection;
 import ftp.core.security.Authorities;
-import ftp.core.service.face.tx.AuthorityService;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
 
@@ -41,17 +39,16 @@ public class UserServiceImpl implements UserService {
 
     private PasswordEncoder passwordEncoder;
 
-    private AuthorityService authorityService;
+//    private AuthorityService authorityService;
 
     private SecureRandom random = new SecureRandom();
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, @Lazy FileService fileService,
-                           PasswordEncoder passwordEncoder, AuthorityService authorityService) {
+                           PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.fileService = fileService;
         this.passwordEncoder = passwordEncoder;
-        this.authorityService = authorityService;
     }
 
     @Secured(Authorities.USER)
@@ -171,9 +168,9 @@ public class UserServiceImpl implements UserService {
         Optional<User> registeredUserOpt = userRepository.findById(savedUser.getId());
         if (registeredUserOpt.isPresent()) {
             User registeredUser = registeredUserOpt.get();
-            Authority authority = new Authority(Authorities.USER);
-            this.authorityService.save(authority);
-            registeredUser.addAuthority(authority);
+//            Authority authority = new Authority(Authorities.USER);
+//            this.authorityService.save(authority);
+//            registeredUser.addAuthority(authority);
             save(registeredUser);
             return registeredUser;
         }

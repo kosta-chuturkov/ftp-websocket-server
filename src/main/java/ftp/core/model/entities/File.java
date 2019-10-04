@@ -1,23 +1,21 @@
 package ftp.core.model.entities;
 
-import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Entity;
 import javax.persistence.*;
+import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "files")
-public class File extends AbstractEntity<Long> implements Serializable {
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User creator;
+@EntityListeners(AuditingEntityListener.class)
+public class File extends AuditEntity<Long> implements Serializable {
 
     @NotNull
     @Size(min = 1, max = 255)
@@ -35,37 +33,38 @@ public class File extends AbstractEntity<Long> implements Serializable {
     @Column(name = "file_size")
     private Long fileSize;
 
-    @Column(name = "createdDate")
-    private Date createdDate;
-
-    @Column(name = "updatedDate")
-    private Date updatedDate;
-
     @NotNull
     @Enumerated
     @Column(name = "filetype")
     private FileType fileType;
+
+    @Column(length = 1000)
+    private String searchString;
+
+
+    @PreUpdate
+    @PrePersist
+    void updateSearchString() {
+        final String fullSearchString = StringUtils.join(Arrays.asList(
+                this.name,
+                this.fileSize,
+                this.fileType,
+                this.getCreatedBy().getNickName()),
+                " ");
+        this.searchString = StringUtils.substring(fullSearchString, 0, 999);
+    }
 
     public File() {
 
     }
 
     private File(Builder builder) {
-        setCreator(builder.creator);
         setName(builder.name);
         setDownloadHash(builder.downloadHash);
         setDeleteHash(builder.deleteHash);
         setFileSize(builder.fileSize);
         setCreatedDate(builder.timestamp);
         setFileType(builder.fileType);
-    }
-
-    public User getCreator() {
-        return this.creator;
-    }
-
-    public void setCreator(final User creator) {
-        this.creator = creator;
     }
 
     public String getName() {
@@ -100,14 +99,6 @@ public class File extends AbstractEntity<Long> implements Serializable {
         this.fileSize = fileSize;
     }
 
-    public Date getCreatedDate() {
-        return this.createdDate;
-    }
-
-    public void setCreatedDate(final Date createdDate) {
-        this.createdDate = createdDate;
-    }
-
     public FileType getFileType() {
         return this.fileType;
     }
@@ -115,15 +106,6 @@ public class File extends AbstractEntity<Long> implements Serializable {
     public void setFileType(final FileType fileType) {
         this.fileType = fileType;
     }
-
-    public Date getUpdatedDate() {
-        return updatedDate;
-    }
-
-    public void setUpdatedDate(Date updatedDate) {
-        this.updatedDate = updatedDate;
-    }
-
 
     public enum FileType {
         SHARED, PRIVATE
@@ -144,12 +126,10 @@ public class File extends AbstractEntity<Long> implements Serializable {
         }
 
         public Builder(File copy) {
-            this.creator = copy.creator;
             this.name = copy.name;
             this.downloadHash = copy.downloadHash;
             this.deleteHash = copy.deleteHash;
             this.fileSize = copy.fileSize;
-            this.timestamp = copy.createdDate;
             this.fileType = copy.fileType;
         }
 
@@ -193,24 +173,30 @@ public class File extends AbstractEntity<Long> implements Serializable {
         }
     }
 
+    public String getSearchString() {
+        return searchString;
+    }
+
+    public void setSearchString(String searchString) {
+        this.searchString = searchString;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         File file = (File) o;
-        return Objects.equals(creator, file.creator) &&
-                Objects.equals(name, file.name) &&
+        return Objects.equals(name, file.name) &&
                 Objects.equals(downloadHash, file.downloadHash) &&
                 Objects.equals(deleteHash, file.deleteHash) &&
                 Objects.equals(fileSize, file.fileSize) &&
-                Objects.equals(createdDate, file.createdDate) &&
-                Objects.equals(updatedDate, file.updatedDate) &&
-                fileType == file.fileType;
+                fileType == file.fileType &&
+                Objects.equals(searchString, file.searchString);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), creator, name, downloadHash, deleteHash, fileSize, createdDate, updatedDate, fileType);
+        return Objects.hash(super.hashCode(), name, downloadHash, deleteHash, fileSize, fileType, searchString);
     }
 }

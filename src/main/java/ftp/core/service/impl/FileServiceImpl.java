@@ -1,7 +1,6 @@
 package ftp.core.service.impl;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import ftp.core.api.MessagePublishingService;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.DataTransferObject;
@@ -62,7 +61,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public File findByDeleteHashAndCreatorNickName(final String deleteHash, final String creatorNickName) {
-        return this.fileRepository.findByDeleteHashAndCreatorNickName(deleteHash, creatorNickName);
+        return this.fileRepository.findByDeleteHashAndCreatedBy_NickName(deleteHash, creatorNickName);
     }
 
     @Override
@@ -125,17 +124,17 @@ public class FileServiceImpl implements FileService {
             return false;
         }
         final User userByNickName = this.userService.findUserByNickName(userNickName);
-        return exists.get().getCreator().getNickName().equals(userByNickName.getNickName());
+        return exists.get().getCreatedBy().equals(userByNickName);
     }
 
     @Override
     public Page<FileSharedWithUsersDto> getFilesISharedWithOtherUsers(final String userNickName, Pageable pageable) {
-        return this.fileRepository.findByFileTypeAndCreatorNickName(FileType.SHARED, userNickName, pageable);
+        return this.fileRepository.findByFileTypeAndCreatedBy_NickName(FileType.SHARED, userNickName, pageable);
     }
 
     @Override
     public Page<PersonalFileDto> getPrivateFilesForUser(final String userNickName, Pageable pageable) {
-        return this.fileRepository.findByCreatorNickNameAndFileType(userNickName, FileType.PRIVATE, pageable);
+        return this.fileRepository.findByCreatedBy_NickNameAndFileType(userNickName, FileType.PRIVATE, pageable);
     }
 
     @Override
@@ -258,7 +257,12 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public List<File> findAllFiles() {
-        return fileRepository.findAll();
+    public Page<File> findAllFiles(Pageable pageable) {
+        return fileRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<File> findByQuery(String query, Pageable pageable) {
+        return fileRepository.findBySearchStringContaining(query, pageable);
     }
 }

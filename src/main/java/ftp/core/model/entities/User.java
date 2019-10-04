@@ -29,12 +29,12 @@ public class User extends AbstractEntity<Long> implements UserDetails {
 
     @NotNull
     @NotEmpty
-    @Column(name = "nickname", length = 36)
+    @Column(name = "nickname",unique = true, length = 36)
     private String nickName;
 
     @NotNull
     @NotEmpty
-    @Column(name = "email", length = 36)
+    @Column(name = "email",unique = true, length = 36)
     private String email;
 
     @NotNull
@@ -50,11 +50,11 @@ public class User extends AbstractEntity<Long> implements UserDetails {
     @JsonIgnore
     private Long token;
 
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<Authority> authorities;
+//    @JsonIgnore
+//    @OneToMany(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "user_id")
+//    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+//    private Set<Authority> authorities;
 
     @JsonIgnore
     @Column(name = "account_non_expired")
@@ -73,7 +73,7 @@ public class User extends AbstractEntity<Long> implements UserDetails {
     private Boolean enabled = Boolean.TRUE;
 
     public User() {
-        this.authorities = Sets.newHashSet();
+
     }
 
     private User(Builder builder) {
@@ -82,12 +82,10 @@ public class User extends AbstractEntity<Long> implements UserDetails {
         setPassword(builder.password);
         setRemainingStorage(builder.remainingStorage);
         setToken(builder.token);
-        setAuthorities(builder.authorities);
         this.accountNonExpired = builder.accountNonExpired;
         this.accountNonLocked = builder.accountNonLocked;
         this.credentialsNonExpired = builder.credentialsNonExpired;
         this.enabled = builder.enabled;
-        this.authorities = Sets.newHashSet();
     }
 
 
@@ -136,11 +134,11 @@ public class User extends AbstractEntity<Long> implements UserDetails {
         return true;
     }
 
-    public void addAuthority(Authority authority) {
-        if (!this.authorities.contains(authority)) {
-            this.authorities.add(authority);
-        }
-    }
+//    public void addAuthority(Authority authority) {
+//        if (!this.authorities.contains(authority)) {
+//            this.authorities.add(authority);
+//        }
+//    }
 
     public String getNickName() {
         return this.nickName;
@@ -225,13 +223,13 @@ public class User extends AbstractEntity<Long> implements UserDetails {
     }
 
     @Override
-    public Set<Authority> getAuthorities() {
-        return this.authorities;
+    public Set<GrantedAuthority> getAuthorities() {
+        return Sets.newHashSet();
     }
-
-    public void setAuthorities(final Set<Authority> authorities) {
-        this.authorities = authorities;
-    }
+//
+//    public void setAuthorities(final Set<Authority> authorities) {
+//        this.authorities = authorities;
+//    }
 
     @Override
     public int hashCode() {
@@ -286,7 +284,6 @@ public class User extends AbstractEntity<Long> implements UserDetails {
         private String password;
         private long remainingStorage;
         private Long token;
-        private Set<Authority> authorities;
         private Boolean accountNonExpired;
         private Boolean accountNonLocked;
         private Boolean credentialsNonExpired;
@@ -301,7 +298,6 @@ public class User extends AbstractEntity<Long> implements UserDetails {
             this.password = copy.password;
             this.remainingStorage = copy.remainingStorage;
             this.token = copy.token;
-            this.authorities = copy.authorities;
             this.accountNonExpired = copy.accountNonExpired;
             this.accountNonLocked = copy.accountNonLocked;
             this.credentialsNonExpired = copy.credentialsNonExpired;
@@ -333,10 +329,10 @@ public class User extends AbstractEntity<Long> implements UserDetails {
             return this;
         }
 
-        public Builder withAuthorities(Set<Authority> val) {
-            this.authorities = val;
-            return this;
-        }
+//        public Builder withAuthorities(Set<Authority> val) {
+//            this.authorities = val;
+//            return this;
+//        }
 
         public Builder withAccountNonExpired(Boolean val) {
             this.accountNonExpired = val;

@@ -17,12 +17,12 @@ public interface FileRepository extends JpaRepository<File, Long> {
 
     File findByDownloadHash(String downloadHash);
 
-    List<File> findByCreator_Id(Long creatorId);
+    File findByDeleteHashAndCreatedBy_NickName(String deleteHash, String creatorNickName);
 
-    File findByDeleteHashAndCreatorNickName(String deleteHash, String creatorNickName);
+    Page<PersonalFileDto> findByCreatedBy_NickNameAndFileType(String creatorNickName, File.FileType fileType, Pageable pageable);
 
-    Page<PersonalFileDto> findByCreatorNickNameAndFileType(String creatorNickName, File.FileType fileType, Pageable pageable);
+    Page<FileSharedWithUsersDto> findByFileTypeAndCreatedBy_NickName(File.FileType fileType, String creatorNickName, Pageable pageable);
 
-    Page<FileSharedWithUsersDto> findByFileTypeAndCreatorNickName(File.FileType fileType, String creatorNickName, Pageable pageable);
+    Page<File> findBySearchStringContaining(String query, Pageable pageable);
 
 }

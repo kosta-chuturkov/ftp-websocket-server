@@ -7,7 +7,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import ftp.core.base.AbstractTest;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
@@ -100,7 +99,7 @@ UserServiceTest extends AbstractTest {
     File uploadedFile = Iterables.get(uploadedFiles, 0);
     assertThat(uploadedFile.getId(), is(savedFile.getId()));
     assertThat(uploadedFile.getName(), is(savedFile.getName()));
-    assertThat(uploadedFile.getCreator().getEmail(), is(savedFile.getCreator().getEmail()));
+    assertThat(uploadedFile.getCreatedBy(), is(savedFile.getCreatedBy()));
     assertThat(uploadedFile.getDeleteHash(), is(savedFile.getDeleteHash()));
     assertThat(uploadedFile.getDownloadHash(), is(savedFile.getDownloadHash()));
     assertThat(uploadedFile.getFileSize(), is(savedFile.getFileSize()));

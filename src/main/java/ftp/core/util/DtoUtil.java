@@ -18,7 +18,7 @@ public final class DtoUtil {
                 file.getName(),
                 file.getCreatedDate().toString(),
                 file.getDownloadHash(),
-                file.getCreator().getNickName(),
+                file.getCreatedBy().getNickName(),
                 file.getFileType());
     }
 

@@ -42,6 +42,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.bus.Event;
 
+import javax.annotation.PostConstruct;
+
 @Service("fileManagementService")
 public class FileManagementServiceImpl implements FileManagementService {
 
@@ -217,7 +219,7 @@ public class FileManagementServiceImpl implements FileManagementService {
                         throw new FtpServerException(
                                 "This file is not shared with you. You dont have permission to access this file.");
                     }
-                    locationFolderName = file.getCreator().getEmail();
+                    locationFolderName = file.getCreatedBy().getEmail();
                     break;
                 default:
                     break;
@@ -253,43 +255,72 @@ public class FileManagementServiceImpl implements FileManagementService {
             throw new RuntimeException("You are not logged in.");
         }
         final File file = getFile(updateRequest.getDownloadHash());
-        if (file.getCreator() != current) {
+        if (file.getCreatedBy() != current) {
             throw new RuntimeException("You are not the owner of this file and cannot update it.");
         }
 
         fileService.shareFileWithUsers(file, updateRequest.getSharedWithUsers());
         file.setFileType(updateRequest.getFileType());
         file.setName(updateRequest.getName());
-        file.setUpdatedDate(new Date());
         return fileService.save(file);
     }
 
 
-    @Override
-    public FileSharedToUser test() {
+    @PostConstruct
+    public void init() {
         User user = new User();
         user.setEmail(UUID.randomUUID().toString().substring(5));
-        user.setNickName(UUID.randomUUID().toString().substring(5));
+        user.setNickName("lexter");
         user.setPassword(UUID.randomUUID().toString().substring(5));
-        User current = userService.save(user);
-
-        File file = new File();
-        file.setCreator(current);
-        file.setName(UUID.randomUUID().toString().substring(5));
-        file.setDeleteHash(UUID.randomUUID().toString().substring(5));
-        file.setDownloadHash(UUID.randomUUID().toString().substring(5));
-        file.setFileType(File.FileType.SHARED);
-        File save = fileService.save(file);
-
-        FileSharedToUser fileSharedToUser = new FileSharedToUser();
-        fileSharedToUser.setFile(save);
-        fileSharedToUser.setUser(current);
-        return fileSharedToUserRepository.save(fileSharedToUser);
+        userService.save(user);
     }
 
     @Override
-    public List<File> getAllFiles() {
-        return fileService.findAllFiles();
+    public FileSharedToUser test() {
+        List<String> names = new ArrayList<>();
+        names.add("Alison Marriott");
+        names.add("Daniela Roche");
+        names.add("Ashton Hartman");
+        names.add("Tyrese Hutchinson");
+        names.add("Saim Schwartz");
+        names.add("Mikaela Duffy");
+        names.add("Omari Irwin");
+        names.add("Borys Denton");
+        names.add("Priya English");
+        names.add("Denis Foley");
+        boolean flag = false;
+        for (String name : names) {
+            File file = new File();
+            file.setName(name);
+            file.setFileSize((long) (Math.random() * 1000));
+            file.setDeleteHash(UUID.randomUUID().toString().substring(5));
+            file.setDownloadHash(UUID.randomUUID().toString().substring(5));
+            if (!flag) {
+                file.setFileType(File.FileType.SHARED);
+                flag = true;
+            } else {
+                file.setFileType(File.FileType.PRIVATE);
+                flag = false;
+            }
+            fileService.save(file);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public Page<File> getAllFiles(Pageable pageable) {
+        return fileService.findAllFiles(pageable);
+    }
+
+    @Override
+    public Page<File> findByQuery(String query, Pageable pageable) {
+        return fileService.findByQuery(query, pageable);
     }
 
 }

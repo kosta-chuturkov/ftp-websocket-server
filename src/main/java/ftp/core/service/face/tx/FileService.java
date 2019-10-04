@@ -48,5 +48,7 @@ public interface FileService {
 
     Set<String> getListOfUsersFileIsSharedWith(File findByDeleteHash);
 
-    List<File> findAllFiles();
+    Page<File> findAllFiles(Pageable pageable);
+
+    Page<File> findByQuery(String query, Pageable pageable);
 }
