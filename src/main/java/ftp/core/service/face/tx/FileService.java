@@ -6,7 +6,6 @@ import ftp.core.model.dto.PersonalFileDto;
 import ftp.core.model.dto.SharedFileDto;
 import ftp.core.model.entities.File;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.transaction.Transactional;
@@ -48,7 +47,7 @@ public interface FileService {
 
     Set<String> getListOfUsersFileIsSharedWith(File findByDeleteHash);
 
-    Page<File> findAllFiles(Pageable pageable);
+    Page<File> findAllFiles(Pageable pageable, String fileType);
 
-    Page<File> findByQuery(String query, Pageable pageable);
+    Page<File> findByQuery(String query, String fileType, Pageable pageable);
 }

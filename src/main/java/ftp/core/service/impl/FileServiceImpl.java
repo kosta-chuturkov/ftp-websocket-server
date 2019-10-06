@@ -257,12 +257,12 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Page<File> findAllFiles(Pageable pageable) {
-        return fileRepository.findAll(pageable);
+    public Page<File> findAllFiles(Pageable pageable, String fileType) {
+        return fileRepository.findAllByFileType(pageable, FileType.valueOf(fileType));
     }
 
     @Override
-    public Page<File> findByQuery(String query, Pageable pageable) {
-        return fileRepository.findBySearchStringContaining(query, pageable);
+    public Page<File> findByQuery(String query, String fileType, Pageable pageable) {
+        return fileRepository.findByFileTypeAndSearchStringContaining(FileType.valueOf(fileType), query, pageable);
     }
 }

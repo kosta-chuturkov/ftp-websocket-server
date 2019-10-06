@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.Objects;
 
 @Entity
-@Table(name = "files")
+@Table(name = "files", indexes = {@Index(name = "ftp_server_file_type_index", columnList = "fileType")})
 @EntityListeners(AuditingEntityListener.class)
 public class File extends AuditEntity<Long> implements Serializable {
 

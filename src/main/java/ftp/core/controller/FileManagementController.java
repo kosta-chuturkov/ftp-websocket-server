@@ -119,17 +119,19 @@ public class FileManagementController {
 
     @ApiOperation(value = "", nickname = "getAllFiles")
     @GetMapping(path = "/files")
-    public PageResource<File> getAllFiles(@RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+    public PageResource<File> getAllFiles(@RequestParam(name = "type") String type,
+                                          @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
                                           @RequestParam(name = "size", required = false, defaultValue = "50") Integer size) {
-        return new PageResource<>(this.fileManagementService.getAllFiles(PageRequest.of(page, size)));
+        return new PageResource<>(this.fileManagementService.getAllFiles(PageRequest.of(page, size), type));
     }
 
     @ApiOperation(value = "", nickname = "findByQuery")
     @GetMapping(path = "/files/search")
     public PageResource<File> findByQuery(@RequestParam(name = "q") String query,
+                                          @RequestParam(name = "type") String type,
                                           @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
                                           @RequestParam(name = "size", required = false, defaultValue = "50") Integer size) throws UnsupportedEncodingException {
-        return new PageResource<>(this.fileManagementService.findByQuery(URLDecoder.decode(query, StandardCharsets.UTF_8.name()), PageRequest.of(page, size)));
+        return new PageResource<>(this.fileManagementService.findByQuery(URLDecoder.decode(query, StandardCharsets.UTF_8.name()), type, PageRequest.of(page, size)));
     }
 
 }

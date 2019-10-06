@@ -23,6 +23,7 @@ public interface FileRepository extends JpaRepository<File, Long> {
 
     Page<FileSharedWithUsersDto> findByFileTypeAndCreatedBy_NickName(File.FileType fileType, String creatorNickName, Pageable pageable);
 
-    Page<File> findBySearchStringContaining(String query, Pageable pageable);
+    Page<File> findByFileTypeAndSearchStringContaining(File.FileType fileType, String query, Pageable pageable);
 
+    Page<File> findAllByFileType(Pageable pageable, File.FileType fileType);
 }

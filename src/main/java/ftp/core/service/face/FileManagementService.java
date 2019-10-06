@@ -37,7 +37,7 @@ public interface FileManagementService {
 
     FileSharedToUser test();
 
-    Page<File> getAllFiles(Pageable pageable);
+    Page<File> getAllFiles(Pageable pageable, String fileType);
 
-    Page<File> findByQuery(String query, Pageable pageable);
+    Page<File> findByQuery(String query, String fileType, Pageable pageable);
 }

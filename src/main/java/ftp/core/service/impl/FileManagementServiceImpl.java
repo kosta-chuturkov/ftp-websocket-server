@@ -314,13 +314,13 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public Page<File> getAllFiles(Pageable pageable) {
-        return fileService.findAllFiles(pageable);
+    public Page<File> getAllFiles(Pageable pageable, String fileType) {
+        return fileService.findAllFiles(pageable, fileType);
     }
 
     @Override
-    public Page<File> findByQuery(String query, Pageable pageable) {
-        return fileService.findByQuery(query, pageable);
+    public Page<File> findByQuery(String query, String fileType, Pageable pageable) {
+        return fileService.findByQuery(query, fileType, pageable);
     }
 
 }
