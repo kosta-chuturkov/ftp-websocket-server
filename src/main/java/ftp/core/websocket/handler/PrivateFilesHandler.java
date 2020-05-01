@@ -27,7 +27,7 @@ public class PrivateFilesHandler extends BaseJsonRequestHandler {
     public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
         return super.handle(jsonRequest,
                 (firstResult, maxResults)
-                        -> this.fileManagementService.getPrivateFiles(new PageRequest(firstResult, maxResults)));
+                        -> this.fileManagementService.getPrivateFiles(PageRequest.of(firstResult, maxResults)));
     }
 
     @Override

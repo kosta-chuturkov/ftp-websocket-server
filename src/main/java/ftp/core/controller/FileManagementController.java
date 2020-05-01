@@ -3,7 +3,6 @@ package ftp.core.controller;
 import ftp.core.model.dto.*;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.FileSharedToUser;
-import ftp.core.rest.PageResource;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
 import ftp.core.service.impl.SchedulingService;
@@ -11,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,6 @@ import javax.validation.constraints.NotNull;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -86,28 +85,28 @@ public class FileManagementController {
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getSharedFilesForUser")
     @GetMapping(path = "/shared")
-    public PageResource<SharedFileDto> getSharedFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
-                                                             @RequestParam(required = false, defaultValue = "50") int pageSize) {
-        return new PageResource<>(this.fileManagementService
-                .getFilesSharedToMe(PageRequest.of(pageNumber, pageSize)));
+    public Page<SharedFileDto> getSharedFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
+                                                     @RequestParam(required = false, defaultValue = "50") int pageSize) {
+        return this.fileManagementService
+                .getFilesSharedToMe(PageRequest.of(pageNumber, pageSize));
     }
 
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getPrivateFilesForUser")
     @GetMapping(path = "/private")
-    public PageResource<PersonalFileDto> getPrivateFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
-                                                                @RequestParam(required = false, defaultValue = "50") int pageSize) {
-        return new PageResource<>(this.fileManagementService
-                .getPrivateFiles(PageRequest.of(pageNumber, pageSize)));
+    public Page<PersonalFileDto> getPrivateFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
+                                                        @RequestParam(required = false, defaultValue = "50") int pageSize) {
+        return this.fileManagementService
+                .getPrivateFiles(PageRequest.of(pageNumber, pageSize));
     }
 
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getUploadedFilesByUser")
     @GetMapping(path = "/uploaded")
-    public PageResource<FileSharedWithUsersDto> getUploadedFilesByUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
-                                                                       @RequestParam(required = false, defaultValue = "50") int pageSize) {
-        return new PageResource<>(this.fileManagementService
-                .getFilesISharedWithOtherUsers(PageRequest.of(pageNumber, pageSize)));
+    public Page<FileSharedWithUsersDto> getUploadedFilesByUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
+                                                               @RequestParam(required = false, defaultValue = "50") int pageSize) {
+        return this.fileManagementService
+                .getFilesISharedWithOtherUsers(PageRequest.of(pageNumber, pageSize));
     }
 
     @ApiOperation(value = "", nickname = "test")
@@ -119,19 +118,19 @@ public class FileManagementController {
 
     @ApiOperation(value = "", nickname = "getAllFiles")
     @GetMapping(path = "/files")
-    public PageResource<File> getAllFiles(@RequestParam(name = "type") String type,
-                                          @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
-                                          @RequestParam(name = "size", required = false, defaultValue = "50") Integer size) {
-        return new PageResource<>(this.fileManagementService.getAllFiles(PageRequest.of(page, size), type));
+    public Page<File> getAllFiles(@RequestParam(name = "type") String type,
+                                  @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+                                  @RequestParam(name = "size", required = false, defaultValue = "50") Integer size) {
+        return this.fileManagementService.getAllFiles(PageRequest.of(page, size), type);
     }
 
     @ApiOperation(value = "", nickname = "findByQuery")
     @GetMapping(path = "/files/search")
-    public PageResource<File> findByQuery(@RequestParam(name = "q") String query,
-                                          @RequestParam(name = "type") String type,
-                                          @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
-                                          @RequestParam(name = "size", required = false, defaultValue = "50") Integer size) throws UnsupportedEncodingException {
-        return new PageResource<>(this.fileManagementService.findByQuery(URLDecoder.decode(query, StandardCharsets.UTF_8.name()), type, PageRequest.of(page, size)));
+    public Page<File> findByQuery(@RequestParam(name = "q") String query,
+                                  @RequestParam(name = "type") String type,
+                                  @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+                                  @RequestParam(name = "size", required = false, defaultValue = "50") Integer size) throws UnsupportedEncodingException {
+        return this.fileManagementService.findByQuery(URLDecoder.decode(query, StandardCharsets.UTF_8.name()), type, PageRequest.of(page, size));
     }
 
 }

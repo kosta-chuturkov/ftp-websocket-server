@@ -1,26 +1,13 @@
 package ftp.core.config;
 
-import static ftp.core.constants.ServerConstants.AUTHORIZATION_HEADER;
-import static ftp.core.constants.ServerConstants.REQUEST_ID_HEADER;
-import static springfox.documentation.builders.PathSelectors.regex;
-
 import ftp.core.controller.FileManagementController;
 import ftp.core.controller.UserManagementController;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -38,13 +25,27 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.ModelRendering;
 import springfox.documentation.swagger.web.UiConfiguration;
 import springfox.documentation.swagger.web.UiConfigurationBuilder;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux;
+import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static ftp.core.constants.ServerConstants.AUTHORIZATION_HEADER;
+import static ftp.core.constants.ServerConstants.REQUEST_ID_HEADER;
+import static springfox.documentation.builders.PathSelectors.regex;
 
 /**
  * Configures swagger documentation.
  */
 @Configuration
-@EnableSwagger2
+@ComponentScan(basePackageClasses = {
+        FileManagementController.class
+})
+@EnableSwagger2WebMvc
+@EnableSwagger2WebFlux
 public class SwaggerConfiguration extends WebMvcConfigurationSupport {
 
     private static final String INFO_TITLE = "FTP Server REST API";
@@ -101,9 +102,9 @@ public class SwaggerConfiguration extends WebMvcConfigurationSupport {
                 EnumSet.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.PUT));
     }
 
+
     @Bean
     public Docket ftpApi() throws IOException {
-
         return new Docket(DocumentationType.SWAGGER_2)
                 .groupName(GROUP_NAME)
                 .apiInfo(apiInfo())
@@ -118,14 +119,18 @@ public class SwaggerConfiguration extends WebMvcConfigurationSupport {
                         ResponseDefinition.getResponses(RequestMethod.PUT))
                 .globalResponseMessage(RequestMethod.DELETE,
                         ResponseDefinition.getResponses(RequestMethod.DELETE))
-                .apiInfo(apiInfo())
                 .tags(
                         new Tag(FileManagementController.TAG, "Files API"),
                         new Tag(UserManagementController.TAG, "Users API")
                 )
                 .select()
                 .paths(regex(API_PATH_REGEX))
-                .build();
+                .build()
+                //.pathMapping("/")
+                .directModelSubstitute(LocalDate.class, String.class)
+                .genericModelSubstitutes(ResponseEntity.class)
+                .useDefaultResponseMessages(false)
+                .enableUrlTemplating(true);
     }
 
     @Bean

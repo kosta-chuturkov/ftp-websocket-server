@@ -27,7 +27,7 @@ public class SharedWithMeHandler extends BaseJsonRequestHandler {
     public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
         return super.handle(jsonRequest,
                 (firstResult, maxResults) ->
-                        this.fileManagementService.getFilesSharedToMe(new PageRequest(firstResult, maxResults)));
+                        this.fileManagementService.getFilesSharedToMe(PageRequest.of(firstResult, maxResults)));
     }
 
     @Override

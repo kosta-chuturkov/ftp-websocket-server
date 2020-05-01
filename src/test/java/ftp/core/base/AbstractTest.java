@@ -14,9 +14,7 @@ import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.UserService;
 import java.sql.Statement;
 import javax.sql.DataSource;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +24,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles(value = {Profiles.TEST})
 @SpringBootTest(classes = BootLoader.class)
 public abstract class AbstractTest {
@@ -40,7 +37,6 @@ public abstract class AbstractTest {
   @Autowired
   private FtpConfigurationProperties ftpConfigurationProperties;
 
-  @Before
   public void setUp() {
     makeRequestsAs();
   }
@@ -72,7 +68,6 @@ public abstract class AbstractTest {
         new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities()));
   }
 
-  @After
   public void cleanup() throws Exception {
     Assert.isTrue(
         this.dataSource.getConnection().getMetaData().getDriverName()

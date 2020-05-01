@@ -47,11 +47,10 @@ import javax.annotation.PostConstruct;
 @Service("fileManagementService")
 public class FileManagementServiceImpl implements FileManagementService {
 
-    private UserService userService;
-    private FileService fileService;
-    private MessagePublishingService messagePublishingService;
-    private StorageService storageService;
-    private FileSharedToUserRepository fileSharedToUserRepository;
+    private final UserService userService;
+    private final FileService fileService;
+    private final MessagePublishingService messagePublishingService;
+    private final StorageService storageService;
     private final Gson gson;
 
     @Autowired
@@ -63,14 +62,13 @@ public class FileManagementServiceImpl implements FileManagementService {
         this.fileService = fileService;
         this.messagePublishingService = messagePublishingService;
         this.storageService = storageService;
-        this.fileSharedToUserRepository = fileSharedToUserRepository;
         this.gson = gson;
     }
 
     @Override
     public UploadedFilesDto<JsonFileDto> uploadFile(final MultipartFile multipartFile,
                                                     final String userNickNamesRaw) {
-        Set<String> userNickNames = this.gson.fromJson(userNickNamesRaw, HashSet.class);
+        HashSet<String> userNickNames = this.gson.fromJson(userNickNamesRaw, HashSet.class);
         User currentUser = User.getCurrent();
         if (currentUser == null) {
             throw new RuntimeException("You are not logged in.");

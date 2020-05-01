@@ -27,7 +27,7 @@ public class UploadedFilesHandler extends BaseJsonRequestHandler {
     public JsonResponse handleRequestAndReturnJson(final JsonRequest jsonRequest) {
         return super.handle(jsonRequest,
                 (firstResult, maxResults) ->
-                        this.fileManagementService.getFilesISharedWithOtherUsers(new PageRequest(firstResult, maxResults)));
+                        this.fileManagementService.getFilesISharedWithOtherUsers(PageRequest.of(firstResult, maxResults)));
     }
 
     @Override

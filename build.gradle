@@ -1,40 +1,22 @@
-buildscript {
-    ext {
-        springBootVersion = '2.1.1.RELEASE'
-    }
-    repositories {
-        mavenCentral()
-        jcenter()
-        maven {
-            url 'http://repo.spring.io/plugins-release/'
-        }
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-    }
+plugins {
+    id 'org.springframework.boot' version '2.2.6.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
 }
-
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-
 
 group = 'ftp.core'
 sourceCompatibility = 1.8
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+    maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
+
 }
 
-configurations {
-    developmentOnly
-    runtimeClasspath {
-        extendsFrom developmentOnly
-    }
-}
 dependencies {
     //Apache
-
+    implementation 'org.springframework.boot:spring-boot-starter'
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     implementation('org.springframework.boot:spring-boot-starter-security')
     implementation('org.springframework.boot:spring-boot-starter-web')
@@ -53,29 +35,28 @@ dependencies {
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
 
     compile('org.springframework.boot:spring-boot-configuration-processor')
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
     testCompile('org.springframework.security:spring-security-test')
     //GOOGLE
     compile('com.google.code.gson:gson:2.6.1')
+    compile 'com.google.guava:guava:20.0'
     //EVENTS
     compile("io.projectreactor:reactor-bus:2.0.8.RELEASE")
     compile group: 'io.projectreactor', name: 'reactor-core', version: '2.0.8.RELEASE'
 
     //swagger and docs
-    compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.8.0'
-    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.8.0'
-    compile group: 'io.springfox', name: 'springfox-bean-validators', version: '2.8.0'
-    //REDIS
-    compile group: 'org.springframework.data', name: 'spring-data-redis'
-    compile group: 'redis.clients', name: 'jedis', version: '2.9.0'
-
-    //SPRING SESSION REDIS
-    compile group: 'org.springframework.session', name: 'spring-session-data-redis'
-
-    developmentOnly('org.springframework.boot:spring-boot-devtools')
+    compile group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0-SNAPSHOT'
+    compile 'io.springfox:springfox-swagger-ui:3.0.0-SNAPSHOT'
+    compile group: 'io.springfox', name: 'springfox-spring-webmvc', version: '3.0.0-SNAPSHOT'
+    compile group: 'io.springfox', name: 'springfox-bean-validators', version: '3.0.0-SNAPSHOT'
 
     // IMAGE THUMBNAILING
     compile('net.coobird:thumbnailator:0.4.8')
 
 
+}
+test {
+    useJUnitPlatform()
 }

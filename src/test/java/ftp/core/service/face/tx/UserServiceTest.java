@@ -15,16 +15,17 @@ import ftp.core.repository.projections.UploadedFilesProjection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import org.junit.Ignore;
-import org.junit.Test;
+
+import jdk.nashorn.internal.ir.annotations.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by Kosta_Chuturkov on 10/17/2016.
  */
-@Ignore
-public class
-UserServiceTest extends AbstractTest {
+@Disabled
+public class UserServiceTest extends AbstractTest {
 
   @Autowired
   private UserService userService;

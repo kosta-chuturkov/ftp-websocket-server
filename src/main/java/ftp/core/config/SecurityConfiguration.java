@@ -76,6 +76,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                                 final DaoAuthenticationProvider daoAuthenticationProvider) throws Exception {
         auth.authenticationProvider(daoAuthenticationProvider);
     }
+    private static final String[] AUTH_WHITELIST = {
+
+            // -- swagger ui
+            "/swagger-resources/**",
+            "/swagger-ui.html",
+            "/v2/api-docs",
+            "/webjars/**"
+    };
 
     @Override
     public void configure(final WebSecurity web) throws Exception {
@@ -121,7 +129,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/register").permitAll()
                 .antMatchers("/login").permitAll()
-                .antMatchers("/api/**").permitAll();
+                .antMatchers("/api/**").permitAll()
+                .antMatchers(AUTH_WHITELIST).permitAll()
+                .antMatchers("/**/*").denyAll();
         // .authenticated();
 
     }
