@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping(path = FileManagementController.PATH, produces = APPLICATION_JSON_VALUE)
 @Api(tags = FileManagementController.TAG)
 public class FileManagementController {
@@ -111,6 +112,7 @@ public class FileManagementController {
         return this.schedulingService
                 .scheduleTask(() -> this.fileManagementService.uploadMockupData(), 10000L);
     }
+
 
     @ApiOperation(value = "", nickname = "getAllFiles")
     @GetMapping(path = "/files")
