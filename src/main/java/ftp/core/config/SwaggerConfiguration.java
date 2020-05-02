@@ -45,7 +45,6 @@ import static springfox.documentation.builders.PathSelectors.regex;
         FileManagementController.class
 })
 @EnableSwagger2WebMvc
-@EnableSwagger2WebFlux
 public class SwaggerConfiguration extends WebMvcConfigurationSupport {
 
     private static final String INFO_TITLE = "FTP Server REST API";
@@ -125,12 +124,7 @@ public class SwaggerConfiguration extends WebMvcConfigurationSupport {
                 )
                 .select()
                 .paths(regex(API_PATH_REGEX))
-                .build()
-                //.pathMapping("/")
-                .directModelSubstitute(LocalDate.class, String.class)
-                .genericModelSubstitutes(ResponseEntity.class)
-                .useDefaultResponseMessages(false)
-                .enableUrlTemplating(true);
+                .build();
     }
 
     @Bean

@@ -47,10 +47,8 @@ public class UserManagementController {
 
     @ApiOperation(value = "", nickname = "findUsers")
     @GetMapping()
-    public DeferredResult<List<User>> findAllUsers() {
-        return this.schedulingService
-                .scheduleTask(() -> this.userService.findAll(),
-                        10000L);
+    public List<User> findAllUsers() {
+        return this.userService.findAll();
     }
 
     @Secured(Authorities.USER)

@@ -274,7 +274,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public FileSharedToUser test() {
+    public FileSharedToUser uploadMockupData() {
         List<String> names = new ArrayList<>();
         names.add("Alison Marriott");
         names.add("Daniela Roche");
@@ -302,7 +302,7 @@ public class FileManagementServiceImpl implements FileManagementService {
             }
             fileService.save(file);
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

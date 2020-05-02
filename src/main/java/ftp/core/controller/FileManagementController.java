@@ -3,6 +3,7 @@ package ftp.core.controller;
 import ftp.core.model.dto.*;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.FileSharedToUser;
+import ftp.core.rest.PageResource;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
 import ftp.core.service.impl.SchedulingService;
@@ -10,7 +11,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@RestController("fileManagementController")
+@RestController
 @RequestMapping(path = FileManagementController.PATH, produces = APPLICATION_JSON_VALUE)
 @Api(tags = FileManagementController.TAG)
 public class FileManagementController {
@@ -46,14 +46,11 @@ public class FileManagementController {
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "uploadFile")
     @PostMapping(path = "/upload")
-    public DeferredResult<UploadedFilesDto<JsonFileDto>> uploadFile(
+    public UploadedFilesDto<JsonFileDto> uploadFile(
             @RequestParam("files[]") final MultipartFile file,
             @RequestParam("userNickNames") final String nickNamesAsString) {
-        return this.schedulingService.scheduleTask(() -> {
-            UploadedFilesDto<JsonFileDto> uploadedFilesDto = this.fileManagementService
-                    .uploadFile(file, nickNamesAsString);
-            return uploadedFilesDto;
-        }, null);
+        return this.fileManagementService.uploadFile(file, nickNamesAsString);
+
     }
 
     @Secured(Authorities.USER)
@@ -61,8 +58,7 @@ public class FileManagementController {
     @DeleteMapping(path = "/{deleteHash}/delete")
     public DeferredResult<DeletedFilesDto> deleteFile(
             @NotNull @PathVariable final String deleteHash) {
-        return this.schedulingService
-                .scheduleTask(() -> this.fileManagementService.deleteFiles(deleteHash), 10000L);
+        return this.schedulingService.scheduleTask(() -> this.fileManagementService.deleteFiles(deleteHash), 10000L);
     }
 
 
@@ -85,52 +81,52 @@ public class FileManagementController {
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getSharedFilesForUser")
     @GetMapping(path = "/shared")
-    public Page<SharedFileDto> getSharedFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
-                                                     @RequestParam(required = false, defaultValue = "50") int pageSize) {
-        return this.fileManagementService
-                .getFilesSharedToMe(PageRequest.of(pageNumber, pageSize));
+    public PageResource<SharedFileDto> getSharedFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
+                                                             @RequestParam(required = false, defaultValue = "50") int pageSize) {
+        return new PageResource<>(this.fileManagementService
+                .getFilesSharedToMe(PageRequest.of(pageNumber, pageSize)));
     }
 
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getPrivateFilesForUser")
     @GetMapping(path = "/private")
-    public Page<PersonalFileDto> getPrivateFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
-                                                        @RequestParam(required = false, defaultValue = "50") int pageSize) {
-        return this.fileManagementService
-                .getPrivateFiles(PageRequest.of(pageNumber, pageSize));
+    public PageResource<PersonalFileDto> getPrivateFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
+                                                                @RequestParam(required = false, defaultValue = "50") int pageSize) {
+        return new PageResource<>(this.fileManagementService
+                .getPrivateFiles(PageRequest.of(pageNumber, pageSize)));
     }
 
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getUploadedFilesByUser")
     @GetMapping(path = "/uploaded")
-    public Page<FileSharedWithUsersDto> getUploadedFilesByUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
-                                                               @RequestParam(required = false, defaultValue = "50") int pageSize) {
-        return this.fileManagementService
-                .getFilesISharedWithOtherUsers(PageRequest.of(pageNumber, pageSize));
+    public PageResource<FileSharedWithUsersDto> getUploadedFilesByUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
+                                                                       @RequestParam(required = false, defaultValue = "50") int pageSize) {
+        return new PageResource<>(this.fileManagementService
+                .getFilesISharedWithOtherUsers(PageRequest.of(pageNumber, pageSize)));
     }
 
     @ApiOperation(value = "", nickname = "test")
-    @GetMapping(path = "/test")
-    public DeferredResult<FileSharedToUser> test() {
+    @GetMapping(path = "/upload_mockup_data")
+    public DeferredResult<FileSharedToUser> uploadMockupData() {
         return this.schedulingService
-                .scheduleTask(() -> this.fileManagementService.test(), 10000L);
+                .scheduleTask(() -> this.fileManagementService.uploadMockupData(), 10000L);
     }
 
     @ApiOperation(value = "", nickname = "getAllFiles")
     @GetMapping(path = "/files")
-    public Page<File> getAllFiles(@RequestParam(name = "type") String type,
-                                  @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
-                                  @RequestParam(name = "size", required = false, defaultValue = "50") Integer size) {
-        return this.fileManagementService.getAllFiles(PageRequest.of(page, size), type);
+    public PageResource<File> getAllFiles(@RequestParam(name = "type") String type,
+                                          @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+                                          @RequestParam(name = "size", required = false, defaultValue = "50") Integer size) {
+        return new PageResource<>(this.fileManagementService.getAllFiles(PageRequest.of(page, size), type));
     }
 
     @ApiOperation(value = "", nickname = "findByQuery")
     @GetMapping(path = "/files/search")
-    public Page<File> findByQuery(@RequestParam(name = "q") String query,
-                                  @RequestParam(name = "type") String type,
-                                  @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
-                                  @RequestParam(name = "size", required = false, defaultValue = "50") Integer size) throws UnsupportedEncodingException {
-        return this.fileManagementService.findByQuery(URLDecoder.decode(query, StandardCharsets.UTF_8.name()), type, PageRequest.of(page, size));
+    public PageResource<File> findByQuery(@RequestParam(name = "q") String query,
+                                          @RequestParam(name = "type") String type,
+                                          @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+                                          @RequestParam(name = "size", required = false, defaultValue = "50") Integer size) throws UnsupportedEncodingException {
+        return new PageResource<>(this.fileManagementService.findByQuery(URLDecoder.decode(query, StandardCharsets.UTF_8.name()), type, PageRequest.of(page, size)));
     }
 
 }

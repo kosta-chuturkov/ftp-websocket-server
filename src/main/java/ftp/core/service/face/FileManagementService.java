@@ -35,7 +35,7 @@ public interface FileManagementService {
 
     File updateFile(FileUpdateRequest updateRequest);
 
-    FileSharedToUser test();
+    FileSharedToUser uploadMockupData();
 
     Page<File> getAllFiles(Pageable pageable, String fileType);
 
