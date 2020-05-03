@@ -4,11 +4,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import ftp.core.constants.ServerConstants;
 import ftp.core.model.dto.ModifiedUserDto;
+import ftp.core.model.dto.RegistrationRequest;
+import ftp.core.model.entities.Authority;
 import ftp.core.model.entities.User;
 import ftp.core.repository.UserRepository;
 import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.repository.projections.UploadedFilesProjection;
 import ftp.core.security.Authorities;
+import ftp.core.service.face.tx.AuthorityService;
 import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.UserService;
 
@@ -39,16 +42,17 @@ public class UserServiceImpl implements UserService {
 
     private PasswordEncoder passwordEncoder;
 
-//    private AuthorityService authorityService;
+    private AuthorityService authorityService;
 
     private SecureRandom random = new SecureRandom();
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, @Lazy FileService fileService,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder, AuthorityService authorityService) {
         this.userRepository = userRepository;
         this.fileService = fileService;
         this.passwordEncoder = passwordEncoder;
+        this.authorityService = authorityService;
     }
 
     @Secured(Authorities.USER)
@@ -146,8 +150,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User registerUser(final String email, final String nickName, final String password,
-                             final String password_repeated) throws IllegalArgumentException {
+    public User registerUser(RegistrationRequest registrationRequest) throws IllegalArgumentException {
+        String email = registrationRequest.getEmail();
+        String nickName = registrationRequest.getNickname();
+        String password = registrationRequest.getPassword();
+        String password_repeated = registrationRequest.getPasswordRepeated();
         validateUserCredentials(email, password, nickName, password_repeated);
         final Long randomTokenFromDB = getRandomTokenFromDB();
         final String saltedPassword = getUserSaltedPassword(password, randomTokenFromDB);
@@ -165,12 +172,16 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User savedUser = save(user);
+        return addAuthority(savedUser);
+    }
+
+    private User addAuthority(User savedUser) {
         Optional<User> registeredUserOpt = userRepository.findById(savedUser.getId());
         if (registeredUserOpt.isPresent()) {
             User registeredUser = registeredUserOpt.get();
-//            Authority authority = new Authority(Authorities.USER);
-//            this.authorityService.save(authority);
-//            registeredUser.addAuthority(authority);
+            Authority authority = new Authority(Authorities.USER);
+            this.authorityService.save(authority);
+            registeredUser.addAuthority(authority);
             save(registeredUser);
             return registeredUser;
         }
@@ -183,38 +194,34 @@ public class UserServiceImpl implements UserService {
         if (!isEmailValid(email)) {
             throw new UsernameNotFoundException("Wrong email format");
         }
+        if (!isNickNameValid(nickName)) {
+            throw new UsernameNotFoundException("Nickname should be at least 3 symbols, only letters, numbers and '.' or '_'");
+        }
+        if (!isPasswordValid(password)) {
+            throw new UsernameNotFoundException("Password should be between 6 and 64 characters");
+        }
+        if (!password.equals(password_repeated)) {
+            throw new UsernameNotFoundException("Provided password and password repeated dont match");
+        }
+
         final User userByEmail = getUserByEmail(email);
         if (userByEmail != null) {
             throw new UsernameNotFoundException("User with this email already exists.");
         }
 
-        if (!isNickNameValid(nickName)) {
-            throw new UsernameNotFoundException("Wrong nickname format.");
-        }
         final User userByNickName = findUserByNickName(nickName);
         if (userByNickName != null) {
             throw new UsernameNotFoundException("User with this nickname already exists.");
         }
 
-        if (!isPasswordValid(password)) {
-            throw new UsernameNotFoundException("Wrong password format.");
-        }
-        if (!password.equals(password_repeated)) {
-            throw new UsernameNotFoundException("Passwords do not match.");
-        }
+
     }
 
     public boolean isPasswordValid(final String password) {
-        if (password == null) {
-            return false;
-        }
-        if (password.length() < ServerConstants.MINIMUM_PASSWORD_LENGTH) {
-            return false;
-        }
-        if (password.length() > ServerConstants.MAXIMUM_PASSWORD_lENGTH) {
-            return false;
-        }
-        return true;
+        return (password != null
+                && password.length() >= ServerConstants.MINIMUM_PASSWORD_LENGTH
+                && password.length() <= ServerConstants.MAXIMUM_PASSWORD_lENGTH);
+
     }
 
     public boolean isEmailValid(final String email) {

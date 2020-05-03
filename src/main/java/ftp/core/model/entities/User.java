@@ -50,11 +50,11 @@ public class User extends AbstractEntity<Long> implements UserDetails {
     @JsonIgnore
     private Long token;
 
-//    @JsonIgnore
-//    @OneToMany(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "user_id")
-//    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-//    private Set<Authority> authorities;
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<Authority> authorities = Sets.newHashSet();
 
     @JsonIgnore
     @Column(name = "account_non_expired")
@@ -125,20 +125,20 @@ public class User extends AbstractEntity<Long> implements UserDetails {
             final Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             if (authorities != null) {
                 for (final GrantedAuthority authority : authorities) {
-                    if (authority.getAuthority().equals(Authorities.ANONYMOUS)) {
-                        return false;
+                    if (authority.getAuthority().equals(Authorities.USER)) {
+                        return true;
                     }
                 }
             }
         }
-        return true;
+        return false;
     }
 
-//    public void addAuthority(Authority authority) {
-//        if (!this.authorities.contains(authority)) {
-//            this.authorities.add(authority);
-//        }
-//    }
+    public void addAuthority(Authority authority) {
+        if (!this.authorities.contains(authority)) {
+            this.authorities.add(authority);
+        }
+    }
 
     public String getNickName() {
         return this.nickName;
@@ -223,13 +223,13 @@ public class User extends AbstractEntity<Long> implements UserDetails {
     }
 
     @Override
-    public Set<GrantedAuthority> getAuthorities() {
-        return Sets.newHashSet();
+    public Set<Authority> getAuthorities() {
+        return this.authorities;
     }
-//
-//    public void setAuthorities(final Set<Authority> authorities) {
-//        this.authorities = authorities;
-//    }
+
+    public void setAuthorities(final Set<Authority> authorities) {
+        this.authorities = authorities;
+    }
 
     @Override
     public int hashCode() {
@@ -328,11 +328,6 @@ public class User extends AbstractEntity<Long> implements UserDetails {
             this.token = val;
             return this;
         }
-
-//        public Builder withAuthorities(Set<Authority> val) {
-//            this.authorities = val;
-//            return this;
-//        }
 
         public Builder withAccountNonExpired(Boolean val) {
             this.accountNonExpired = val;

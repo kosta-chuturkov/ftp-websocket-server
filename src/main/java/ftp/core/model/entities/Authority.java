@@ -13,9 +13,9 @@ import org.springframework.security.core.GrantedAuthority;
 /**
  * An authority (a security role) used by Spring Security.
  */
-//@Entity
-//@Table(name = "authority")
-//@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Entity
+@Table(name = "authority")
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Authority extends AbstractEntity<Long> implements GrantedAuthority {
 
     private static final long serialVersionUID = 1L;

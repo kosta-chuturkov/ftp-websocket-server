@@ -1,6 +1,7 @@
 package ftp.core.service.face.tx;
 
 import ftp.core.model.dto.ModifiedUserDto;
+import ftp.core.model.dto.RegistrationRequest;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
 import ftp.core.repository.projections.NickNameProjection;
@@ -29,7 +30,7 @@ public interface UserService {
     void validateUserCredentials(String email, String password, String nickName,
                                  String password_repeated) throws IllegalArgumentException;
 
-    User registerUser(String email, String nickName, String password, String password_repeated)
+    User registerUser(RegistrationRequest registrationRequest)
             throws IllegalArgumentException;
 
     String getUserSaltedPassword(final String rawPassword, final Long token);//
