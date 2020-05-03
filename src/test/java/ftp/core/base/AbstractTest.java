@@ -7,6 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import com.google.common.collect.Sets;
 import ftp.core.BootLoader;
 import ftp.core.config.FtpConfigurationProperties;
+import ftp.core.model.dto.RegistrationRequest;
 import ftp.core.model.entities.Authority;
 import ftp.core.model.entities.User;
 import ftp.core.profiles.Profiles;
@@ -49,7 +50,7 @@ public abstract class AbstractTest {
   protected abstract void makeRequestsAs();
 
   protected void makeRequestsAdminUser() {
-    User user = this.userService.registerUser("admin@gmail.com", "admin", "admin1234", "admin1234");
+    User user = this.userService.registerUser(new RegistrationRequest("admin@gmail.com", "admin", "admin1234", "admin1234"));
     assertThat(user, is(notNullValue()));
     SecurityContext context = SecurityContextHolder.getContext();
     context.setAuthentication(

@@ -1,10 +1,13 @@
 package ftp.core.security;
 
+import static ftp.core.security.Authorities.USER;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import ftp.core.model.entities.Authority;
 import ftp.core.model.entities.User;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +26,8 @@ public class SecurityUtilsUnitTest {
   @Test
   public void testIsAuthenticated() {
     SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-    securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "admin"));
+    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("admin", "admin", Collections.singletonList(new Authority(USER)));
+    securityContext.setAuthentication(authentication);
     SecurityContextHolder.setContext(securityContext);
     boolean isAuthenticated = User.isAuthenticated();
     assertThat(isAuthenticated).isTrue();

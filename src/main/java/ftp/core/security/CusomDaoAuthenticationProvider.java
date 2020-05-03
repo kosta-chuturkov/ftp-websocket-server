@@ -38,7 +38,7 @@ public class CusomDaoAuthenticationProvider extends DaoAuthenticationProvider {
         final String presentedPassword = this.userService
                 .getUserSaltedPassword(authentication.getCredentials().toString(), tokenByEmail);
 
-        if (!super.getPasswordEncoder().matches(userDetails.getPassword(), presentedPassword)) {
+        if (!presentedPassword.equals(userDetails.getPassword())) {
             this.logger.debug("Authentication failed: password does not match stored value");
 
             throw new BadCredentialsException(this.messages

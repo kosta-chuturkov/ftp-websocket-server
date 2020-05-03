@@ -101,23 +101,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http
-                .csrf()
-                .and()
-                .addFilterAfter(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
+                .csrf().disable()
+              //  .and()
+              //  .addFilterAfter(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
                 .exceptionHandling()
                 .accessDeniedHandler(new CustomAccessDeniedHandler())
                 .authenticationEntryPoint(this.authenticationEntryPoint)
                 .and()
                 .formLogin()
-                .loginProcessingUrl("/login")
+                .loginProcessingUrl("/api/v1/login")
                 .successHandler(this.ajaxAuthenticationSuccessHandler)
                 .failureHandler(this.ajaxAuthenticationFailureHandler)
                 .usernameParameter("email")
-                .passwordParameter("pswd")
+                .passwordParameter("password")
                 .permitAll()
                 .and()
                 .logout()
-                .logoutUrl("/logout")
+                .logoutUrl("/api/v1/logout")
                 .logoutSuccessHandler(this.ajaxLogoutSuccessHandler)
                 .deleteCookies("JSESSIONID", "CSRF-TOKEN")
                 .permitAll()
@@ -127,11 +127,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .disable()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/register").permitAll()
-                .antMatchers("/login").permitAll()
-                .antMatchers("/api/**").permitAll()
-                .antMatchers(AUTH_WHITELIST).permitAll()
-                .antMatchers("/**/*").denyAll();
+                .antMatchers("/api/v1/register").permitAll()
+                .antMatchers("/api/v1/login").permitAll()
+                //.antMatchers("/api/**").permitAll()
+                .antMatchers(AUTH_WHITELIST).permitAll();
         // .authenticated();
 
     }

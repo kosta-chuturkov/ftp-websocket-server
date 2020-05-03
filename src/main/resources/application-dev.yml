@@ -4,7 +4,7 @@ app:
   instance-id: ${random.uuid}
 # patch swagger-ui.html
 spring.resources.static-locations: classpath:/patch/, classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
-security.enabled: false
+security.enabled: true
 
 ftp:
  server:
@@ -21,6 +21,7 @@ ftpserver:
         rootStorageFolderName: ./FileStorage
 
 server:
+    forward-headers-strategy: framework
     tomcat:
         remote_ip_header: X-Forwarded-For
         protocol_header: X-Forwarded-Proto

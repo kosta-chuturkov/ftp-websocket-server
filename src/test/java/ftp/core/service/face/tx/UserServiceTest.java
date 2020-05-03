@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import ftp.core.base.AbstractTest;
+import ftp.core.model.dto.RegistrationRequest;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.User;
 import ftp.core.repository.projections.NickNameProjection;
@@ -49,16 +50,16 @@ public class UserServiceTest extends AbstractTest {
     //given
     String badmin = "badmin";
     User user1 = this.userService
-        .registerUser("badmin1@gmail.com", badmin, "admin1234", "admin1234");
+        .registerUser(new RegistrationRequest("badmin1@gmail.com", badmin, "admin1234", "admin1234"));
     assertThat(user1, is(notNullValue()));
 
     String sen2 = "sen2";
-    User user2 = this.userService.registerUser("sen2@gmail.com", sen2, "admin1234", "admin1234");
+    User user2 = this.userService.registerUser(new RegistrationRequest("sen2@gmail.com", sen2, "admin1234", "admin1234"));
     assertThat(user2, is(notNullValue()));
 
     String ladadmin3 = "ladadmin3";
     User user3 = this.userService
-        .registerUser("ladadmin3@gmail.com", ladadmin3, "admin1234", "admin1234");
+        .registerUser(new RegistrationRequest("ladadmin3@gmail.com", ladadmin3, "admin1234", "admin1234"));
     assertThat(user3, is(notNullValue()));
 
     //when

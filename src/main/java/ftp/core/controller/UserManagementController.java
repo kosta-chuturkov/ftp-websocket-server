@@ -45,6 +45,7 @@ public class UserManagementController {
         this.schedulingService = schedulingService;
     }
 
+    @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "findUsers")
     @GetMapping()
     public List<User> findAllUsers() {

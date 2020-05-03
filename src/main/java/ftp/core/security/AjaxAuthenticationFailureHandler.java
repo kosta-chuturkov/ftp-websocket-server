@@ -21,13 +21,5 @@ public class AjaxAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
                                         final AuthenticationException exception) throws IOException, ServletException {
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        redirect("/login", response);
-    }
-
-    public void redirect(final String resourceName, final HttpServletResponse response)
-            throws ServletException, IOException {
-        final String urlWithSessionID = response.encodeRedirectURL(resourceName);
-        response.sendRedirect(urlWithSessionID);
-
     }
 }

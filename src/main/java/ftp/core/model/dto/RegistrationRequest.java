@@ -14,6 +14,16 @@ public class RegistrationRequest implements Serializable {
     @JsonProperty("password_repeated")
     private String passwordRepeated;
 
+    public RegistrationRequest() {
+    }
+
+    public RegistrationRequest(String email, String nickname, String password, String passwordRepeated) {
+        this.email = email;
+        this.nickname = nickname;
+        this.password = password;
+        this.passwordRepeated = passwordRepeated;
+    }
+
     public String getPasswordRepeated() {
         return passwordRepeated;
     }

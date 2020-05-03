@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.transaction.Transactional;
 
+import ftp.core.util.ServerUtil;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -91,7 +92,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String getUserSaltedPassword(final String rawPassword, final Long token) {
-        return SALT + rawPassword + token.toString();
+        String initialHash = ServerUtil.hashSHA256(SALT + rawPassword);
+        return ServerUtil.hashSHA256(initialHash + token.toString());
     }
 
     @Override
@@ -158,11 +160,10 @@ public class UserServiceImpl implements UserService {
         validateUserCredentials(email, password, nickName, password_repeated);
         final Long randomTokenFromDB = getRandomTokenFromDB();
         final String saltedPassword = getUserSaltedPassword(password, randomTokenFromDB);
-        final String hashedPassword = encodePassword(saltedPassword);
         final User user = new User.Builder()
                 .withNickName(nickName)
                 .withEmail(email)
-                .withPassword(hashedPassword)
+                .withPassword(saltedPassword)
                 .withRemainingStorage(ServerConstants.USER_MAX_UPLOAD_IN_BYTES)
                 .withToken(randomTokenFromDB)
                 .withAccountNonExpired(true)

@@ -11,8 +11,8 @@ spring.datasource.hikari.connection-timeout: 40000
   # LOGGING
 logging.level.root: INFO
 logging.level.ftp.core: DEBUG
-logging.level.org.springframework.security: ERROR
-logging.level.org.springframework.web: ERROR
+logging.level.org.springframework.security: DEBUG
+logging.level.org.springframework.web: DEBUG
 logging.level.org.springframework.data: ERROR
 logging.level.org.hibernate: INFO
 logging.level.springfox.bean.validators.plugins.parameter.SizeAnnotationPlugin: ERROR
