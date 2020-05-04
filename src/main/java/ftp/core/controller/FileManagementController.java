@@ -26,7 +26,6 @@ import java.nio.charset.StandardCharsets;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
-@CrossOrigin(origins = "http://localhost")
 @RequestMapping(path = FileManagementController.PATH, produces = APPLICATION_JSON_VALUE)
 @Api(tags = FileManagementController.TAG)
 public class FileManagementController {

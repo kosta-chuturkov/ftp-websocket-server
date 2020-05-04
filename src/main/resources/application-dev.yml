@@ -21,7 +21,6 @@ ftpserver:
         rootStorageFolderName: ./FileStorage
 
 server:
-    forward-headers-strategy: framework
     tomcat:
         remote_ip_header: X-Forwarded-For
         protocol_header: X-Forwarded-Proto

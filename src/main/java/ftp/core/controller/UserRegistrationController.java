@@ -9,7 +9,6 @@ import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 
 @RestController
-@CrossOrigin(origins = "http://localhost")
 @RequestMapping(path = UserRegistrationController.PATH)
 public class UserRegistrationController {
 

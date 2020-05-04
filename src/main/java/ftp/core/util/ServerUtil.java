@@ -3,12 +3,16 @@ package ftp.core.util;
 import com.google.common.hash.Hashing;
 
 import java.nio.charset.Charset;
+import java.time.LocalDateTime;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import ftp.core.model.dto.ErrorDetails;
+import ftp.core.model.dto.ErrorDetailsWrapper;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 
 public final class ServerUtil {
 
@@ -30,6 +34,18 @@ public final class ServerUtil {
             session.invalidate();
         }
     }
+    public static ErrorDetailsWrapper getErrorDetailsWrapper(Exception ex, HttpStatus status, String message, String requestURI) {
+        ErrorDetailsWrapper response = new ErrorDetailsWrapper();
+        ErrorDetails error = new ErrorDetails();
+        error.setCode(status.value());
+        error.setMessage(message);
+        error.setPath(requestURI);
+        error.setTimestamp(LocalDateTime.now().toString());
+        error.setType(ex.getClass().getSimpleName());
+        response.addError(error);
+        return response;
+    }
+
 
     public static String hashSHA256(final String payload) {
         return Hashing.sha256().hashString(payload, Charset.forName("utf-8")).toString();

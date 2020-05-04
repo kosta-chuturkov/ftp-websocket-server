@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.time.LocalDateTime;
+
+import static ftp.core.util.ServerUtil.getErrorDetailsWrapper;
 
 @ControllerAdvice
 public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHandler {
@@ -38,31 +41,36 @@ public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHan
                                                             WebRequest webRequest) {
         LOG.error("Error when processing URL {}.",
                 request.getRequestURL(), e);
-        return processException(e, webRequest);
+        return processException(e, webRequest, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<Object> handleIllegalArgumentException(Exception e, WebRequest request) {
-        return processException(e, request);
+        return processException(e, request, HttpStatus.BAD_REQUEST);
     }
 
 
-    private ResponseEntity<Object> processException(Exception e, WebRequest request) {
+    private ResponseEntity<Object> processException(Exception e, WebRequest request, HttpStatus httpStatus) {
         HttpHeaders httpHeaders = new HttpHeaders();
-        return this.handleErrorInternal(e, httpHeaders, HttpStatus.BAD_REQUEST, request);
+        return this.handleErrorInternal(e, httpHeaders, httpStatus, request);
     }
 
 
     @ExceptionHandler({RuntimeException.class, IOException.class})
     public ResponseEntity<Object> handleInternalErrors(Exception e, WebRequest request) {
-        return processException(e, request);
+        return processException(e, request, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({ AuthenticationException.class})
+    public ResponseEntity<Object> handleAuthenticationException(Exception e, WebRequest request) {
+        return processException(e, request, HttpStatus.UNAUTHORIZED);
     }
 
 
     @ExceptionHandler({ConstraintViolationException.class})
     public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException e,
                                                                      WebRequest request) {
-        return processException(e, request);
+        return processException(e, request, HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -73,20 +81,15 @@ public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHan
         return handleErrorInternal(ex, headers, status, request);
     }
 
-    private ResponseEntity<Object> handleExceptionWithCustomMessage(Exception ex, HttpHeaders headers,
+    public ResponseEntity<Object> handleExceptionWithCustomMessage(Exception ex, HttpHeaders headers,
                                                                     HttpStatus status, WebRequest request, String message) {
         String requestURI = this.request.getRequestURI();
-        ErrorDetailsWrapper response = new ErrorDetailsWrapper();
-        ErrorDetails error = new ErrorDetails();
-        error.setCode(status.value());
-        error.setMessage(message);
-        error.setPath(requestURI);
-        error.setTimestamp(LocalDateTime.now().toString());
-        error.setType(ex.getClass().getSimpleName());
-        response.addError(error);
+        ErrorDetailsWrapper response = getErrorDetailsWrapper(ex, status, message, requestURI);
         headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
-        return super.handleExceptionInternal(ex, response, headers, status, request);
+        return new ResponseEntity<>(response, headers, status);
     }
+
+
 
     private ResponseEntity<Object> handleErrorInternal(Exception ex, HttpHeaders headers,
                                                        HttpStatus status, WebRequest request) {

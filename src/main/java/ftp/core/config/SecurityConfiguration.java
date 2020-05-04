@@ -1,5 +1,6 @@
 package ftp.core.config;
 
+import com.google.gson.Gson;
 import ftp.core.security.AjaxAuthenticationFailureHandler;
 import ftp.core.security.AjaxAuthenticationSuccessHandler;
 import ftp.core.security.AjaxLogoutSuccessHandler;
@@ -7,7 +8,6 @@ import ftp.core.security.CusomDaoAuthenticationProvider;
 import ftp.core.security.CustomAccessDeniedHandler;
 import ftp.core.security.Http401UnauthorizedEntryPoint;
 import ftp.core.service.face.tx.UserService;
-import ftp.core.web.filter.CsrfCookieGeneratorFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -26,7 +26,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
-import org.springframework.security.web.csrf.CsrfFilter;
 
 
 @Configuration
@@ -36,6 +35,7 @@ import org.springframework.security.web.csrf.CsrfFilter;
 @ConditionalOnProperty(value = "security.enabled", havingValue = "true")
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+    private Gson gson;
     private UserService userService;
     private UserDetailsService userDetailsService;
     private PasswordEncoder passwordEncoder;
@@ -46,12 +46,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public SecurityConfiguration(
-            AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler,
+            Gson gson, AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler,
             @Lazy UserService userService,
             AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler,
             AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler,
             Http401UnauthorizedEntryPoint authenticationEntryPoint,
             UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        this.gson = gson;
         this.ajaxAuthenticationSuccessHandler = ajaxAuthenticationSuccessHandler;
         this.userService = userService;
         this.ajaxAuthenticationFailureHandler = ajaxAuthenticationFailureHandler;
