@@ -263,16 +263,6 @@ public class FileManagementServiceImpl implements FileManagementService {
         return fileService.save(file);
     }
 
-
-    @PostConstruct
-    public void init() {
-        User user = new User();
-        user.setEmail(UUID.randomUUID().toString().substring(5));
-        user.setNickName("lexter");
-        user.setPassword(UUID.randomUUID().toString().substring(5));
-        userService.save(user);
-    }
-
     @Override
     public FileSharedToUser uploadMockupData() {
         List<String> names = new ArrayList<>();

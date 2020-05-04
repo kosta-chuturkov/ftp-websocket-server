@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import ftp.core.model.dto.ErrorDetails;
-import ftp.core.model.dto.ErrorDetailsWrapper;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 
@@ -34,16 +33,14 @@ public final class ServerUtil {
             session.invalidate();
         }
     }
-    public static ErrorDetailsWrapper getErrorDetailsWrapper(Exception ex, HttpStatus status, String message, String requestURI) {
-        ErrorDetailsWrapper response = new ErrorDetailsWrapper();
+    public static ErrorDetails getErrorDetailsWrapper(Exception ex, HttpStatus status, String message, String requestURI) {
         ErrorDetails error = new ErrorDetails();
         error.setCode(status.value());
         error.setMessage(message);
         error.setPath(requestURI);
         error.setTimestamp(LocalDateTime.now().toString());
         error.setType(ex.getClass().getSimpleName());
-        response.addError(error);
-        return response;
+        return error;
     }
 
 

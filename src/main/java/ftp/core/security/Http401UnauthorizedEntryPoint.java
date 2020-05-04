@@ -38,6 +38,5 @@ public class Http401UnauthorizedEntryPoint implements AuthenticationEntryPoint {
 
     public void redirect(final String resourceName, final HttpServletResponse response)
             throws ServletException, IOException {
-        response.setStatus(401);
     }
 }

@@ -1,5 +1,6 @@
 package ftp.core.controller;
 
+import ftp.core.exception.ApiAuthenticationException;
 import ftp.core.model.dto.ErrorDetails;
 import ftp.core.model.dto.ErrorDetailsWrapper;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHan
         return processException(e, request, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({ AuthenticationException.class})
+    @ExceptionHandler({ ApiAuthenticationException.class})
     public ResponseEntity<Object> handleAuthenticationException(Exception e, WebRequest request) {
         return processException(e, request, HttpStatus.UNAUTHORIZED);
     }
@@ -84,7 +85,7 @@ public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHan
     public ResponseEntity<Object> handleExceptionWithCustomMessage(Exception ex, HttpHeaders headers,
                                                                     HttpStatus status, WebRequest request, String message) {
         String requestURI = this.request.getRequestURI();
-        ErrorDetailsWrapper response = getErrorDetailsWrapper(ex, status, message, requestURI);
+        ErrorDetails response = getErrorDetailsWrapper(ex, status, message, requestURI);
         headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         return new ResponseEntity<>(response, headers, status);
     }
