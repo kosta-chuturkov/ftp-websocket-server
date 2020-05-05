@@ -81,30 +81,31 @@ public class FileManagementController {
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getSharedFilesForUser")
     @GetMapping(path = "/shared")
-    public PageResource<SharedFileDto> getSharedFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
-                                                             @RequestParam(required = false, defaultValue = "50") int pageSize) {
+    public PageResource<SharedFileDto> getSharedFilesForUser(@RequestParam(required = false, defaultValue = "0") int page,
+                                                             @RequestParam(required = false, defaultValue = "50") int size) {
         return new PageResource<>(this.fileManagementService
-                .getFilesSharedToMe(PageRequest.of(pageNumber, pageSize)));
+                .getFilesSharedToMe(PageRequest.of(page, size)));
     }
 
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getPrivateFilesForUser")
     @GetMapping(path = "/private")
-    public PageResource<PersonalFileDto> getPrivateFilesForUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
-                                                                @RequestParam(required = false, defaultValue = "50") int pageSize) {
+    public PageResource<PersonalFileDto> getPrivateFilesForUser(@RequestParam(required = false, defaultValue = "0") int page,
+                                                                @RequestParam(required = false, defaultValue = "50") int size) {
         return new PageResource<>(this.fileManagementService
-                .getPrivateFiles(PageRequest.of(pageNumber, pageSize)));
+                .getPrivateFiles(PageRequest.of(page, size)));
     }
 
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getUploadedFilesByUser")
     @GetMapping(path = "/uploaded")
-    public PageResource<FileSharedWithUsersDto> getUploadedFilesByUser(@RequestParam(required = false, defaultValue = "0") int pageNumber,
-                                                                       @RequestParam(required = false, defaultValue = "50") int pageSize) {
+    public PageResource<FileSharedWithUsersDto> getUploadedFilesByUser(@RequestParam(required = false, defaultValue = "0") int page,
+                                                                       @RequestParam(required = false, defaultValue = "50") int size) {
         return new PageResource<>(this.fileManagementService
-                .getFilesISharedWithOtherUsers(PageRequest.of(pageNumber, pageSize)));
+                .getFilesISharedWithOtherUsers(PageRequest.of(page, size)));
     }
 
+    @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "test")
     @GetMapping(path = "/upload_mockup_data")
     public DeferredResult<FileSharedToUser> uploadMockupData() {
@@ -113,6 +114,7 @@ public class FileManagementController {
     }
 
 
+    @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getAllFiles")
     @GetMapping(path = "/files")
     public PageResource<File> getAllFiles(@RequestParam(name = "type") String type,
@@ -121,6 +123,7 @@ public class FileManagementController {
         return new PageResource<>(this.fileManagementService.getAllFiles(PageRequest.of(page, size), type));
     }
 
+    @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "findByQuery")
     @GetMapping(path = "/files/search")
     public PageResource<File> findByQuery(@RequestParam(name = "q") String query,

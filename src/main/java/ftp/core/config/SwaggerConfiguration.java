@@ -14,13 +14,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.view.RedirectView;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.ParameterBuilder;
+import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.ResponseMessageBuilder;
 import springfox.documentation.schema.ModelRef;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.Parameter;
-import springfox.documentation.service.ResponseMessage;
-import springfox.documentation.service.Tag;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.ModelRendering;
 import springfox.documentation.swagger.web.UiConfiguration;
@@ -124,7 +123,24 @@ public class SwaggerConfiguration extends WebMvcConfigurationSupport {
                 )
                 .select()
                 .paths(regex(API_PATH_REGEX))
+                .build()
+                .securityContexts(Collections.singletonList(actuatorSecurityContext()))
+                .securitySchemes(Collections.singletonList(basicAuthScheme()));
+    }
+
+    private SecurityContext actuatorSecurityContext() {
+        return SecurityContext.builder()
+                .securityReferences(Collections.singletonList(basicAuthReference()))
+                .forPaths(PathSelectors.ant("/actuator/**"))
                 .build();
+    }
+
+    private SecurityScheme basicAuthScheme() {
+        return new BasicAuth("basicAuth");
+    }
+
+    private SecurityReference basicAuthReference() {
+        return new SecurityReference("basicAuth", new AuthorizationScope[0]);
     }
 
     @Bean

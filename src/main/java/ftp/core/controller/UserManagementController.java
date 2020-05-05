@@ -45,7 +45,7 @@ public class UserManagementController {
         this.schedulingService = schedulingService;
     }
 
-    @Secured(Authorities.USER)
+    @Secured(Authorities.ADMIN)
     @ApiOperation(value = "", nickname = "findUsers")
     @GetMapping()
     public List<User> findAllUsers() {
