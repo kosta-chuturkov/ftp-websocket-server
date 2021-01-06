@@ -20,6 +20,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     implementation('org.springframework.boot:spring-boot-starter-security')
     implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation 'org.junit.jupiter:junit-jupiter:5.4.2'
 
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
     compile group: 'commons-validator', name: 'commons-validator', version: '1.4.0'
@@ -54,7 +55,6 @@ dependencies {
 
     // IMAGE THUMBNAILING
     compile('net.coobird:thumbnailator:0.4.8')
-
 
 }
 test {
