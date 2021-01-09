@@ -3,14 +3,10 @@ package ftp.core.config;
 import ftp.core.controller.FileManagementController;
 import ftp.core.controller.UserManagementController;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.view.RedirectView;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.ParameterBuilder;
@@ -24,11 +20,9 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.ModelRendering;
 import springfox.documentation.swagger.web.UiConfiguration;
 import springfox.documentation.swagger.web.UiConfigurationBuilder;
-import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux;
-import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,16 +44,7 @@ public class SwaggerConfiguration extends WebMvcConfigurationSupport {
     private static final String SWAGGER_INFO_FILE = "info.md";
     private static final String INFO_API_VERSION = "2.0.0";
     private static final String API_PATH_REGEX = "/api/v1*|/api/v1/.*";
-    private static final String GROUP_NAME = "bsc";
-
-    @Override
-    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("swagger-ui.html")
-                .addResourceLocations("classpath:/META-INF/resources/");
-
-        registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/");
-    }
+    private static final String GROUP_NAME = "ftp-server";
 
 
     @Bean

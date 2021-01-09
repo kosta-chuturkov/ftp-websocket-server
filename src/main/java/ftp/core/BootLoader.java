@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -32,7 +33,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableTransactionManagement
 @EnableScheduling
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@EnableWebMvc
 @EntityScan("ftp.core.model.entities")
 @EnableJpaRepositories("ftp.core.repository")
 @EnableConfigurationProperties({FtpConfigurationProperties.class})
