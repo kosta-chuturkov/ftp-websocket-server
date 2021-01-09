@@ -280,6 +280,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         for (String name : names) {
             File file = new File();
             file.setName(name);
+            file.setCreatedBy(User.getCurrent());
             file.setFileSize((long) (Math.random() * 1000));
             file.setDeleteHash(UUID.randomUUID().toString().substring(5));
             file.setDownloadHash(UUID.randomUUID().toString().substring(5));
@@ -298,7 +299,7 @@ public class FileManagementServiceImpl implements FileManagementService {
             }
         }
 
-        return null;
+        return new FileSharedToUser();
     }
 
     @Override

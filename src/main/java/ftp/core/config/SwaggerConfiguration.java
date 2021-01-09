@@ -34,11 +34,8 @@ import static springfox.documentation.builders.PathSelectors.regex;
  * Configures swagger documentation.
  */
 @Configuration
-@ComponentScan(basePackageClasses = {
-        FileManagementController.class
-})
-@EnableSwagger2WebMvc
-public class SwaggerConfiguration extends WebMvcConfigurationSupport {
+@EnableSwagger2
+public class SwaggerConfiguration{
 
     private static final String INFO_TITLE = "FTP Server REST API";
     private static final String SWAGGER_INFO_FILE = "info.md";

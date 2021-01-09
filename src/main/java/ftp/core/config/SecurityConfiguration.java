@@ -1,12 +1,6 @@
 package ftp.core.config;
 
-import com.google.gson.Gson;
-import ftp.core.security.AjaxAuthenticationFailureHandler;
-import ftp.core.security.AjaxAuthenticationSuccessHandler;
-import ftp.core.security.AjaxLogoutSuccessHandler;
-import ftp.core.security.CusomDaoAuthenticationProvider;
-import ftp.core.security.CustomAccessDeniedHandler;
-import ftp.core.security.Http401UnauthorizedEntryPoint;
+import ftp.core.security.*;
 import ftp.core.service.face.tx.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
@@ -35,24 +29,22 @@ import org.springframework.security.data.repository.query.SecurityEvaluationCont
 @ConditionalOnProperty(value = "security.enabled", havingValue = "true")
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private Gson gson;
-    private UserService userService;
-    private UserDetailsService userDetailsService;
-    private PasswordEncoder passwordEncoder;
-    private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
-    private Http401UnauthorizedEntryPoint authenticationEntryPoint;
-    private AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
-    private AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler;
+    private final UserService userService;
+    private final UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
+    private final AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
+    private final Http401UnauthorizedEntryPoint authenticationEntryPoint;
+    private final AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
+    private final AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler;
 
     @Autowired
     public SecurityConfiguration(
-            Gson gson, AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler,
+            AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler,
             @Lazy UserService userService,
             AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler,
             AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler,
             Http401UnauthorizedEntryPoint authenticationEntryPoint,
             UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        this.gson = gson;
         this.ajaxAuthenticationSuccessHandler = ajaxAuthenticationSuccessHandler;
         this.userService = userService;
         this.ajaxAuthenticationFailureHandler = ajaxAuthenticationFailureHandler;
@@ -78,12 +70,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(daoAuthenticationProvider);
     }
     private static final String[] AUTH_WHITELIST = {
-
             // -- swagger ui
             "/swagger-resources/**",
             "/swagger-ui.html",
             "/v2/api-docs",
-            "/webjars/**"
+            "/webjars/**",
+            "/swagger-ui/index.html"
     };
 
     @Override
@@ -104,8 +96,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(final HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-              //  .and()
-              //  .addFilterAfter(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
+//                .and()
+//                .addFilterAfter(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
                 .exceptionHandling()
                 .accessDeniedHandler(new CustomAccessDeniedHandler())
                 .authenticationEntryPoint(this.authenticationEntryPoint)
@@ -131,9 +123,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/v1/register").permitAll()
                 .antMatchers("/api/v1/login").permitAll()
-                //.antMatchers("/api/**").permitAll()
-                .antMatchers(AUTH_WHITELIST).permitAll();
-        // .authenticated();
+                .antMatchers(AUTH_WHITELIST).permitAll()
+                .antMatchers("/api/v1/**")
+                .authenticated();
 
     }
 

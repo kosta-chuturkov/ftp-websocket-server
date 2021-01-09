@@ -49,6 +49,8 @@ public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHan
 
 
     private ResponseEntity<Object> processException(Exception e, WebRequest request, HttpStatus httpStatus) {
+        LOG.error("Error when processing URL {}.",
+                request.getContextPath(), e);
         HttpHeaders httpHeaders = new HttpHeaders();
         return this.handleErrorInternal(e, httpHeaders, httpStatus, request);
     }
@@ -56,10 +58,11 @@ public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHan
 
     @ExceptionHandler({RuntimeException.class, IOException.class})
     public ResponseEntity<Object> handleInternalErrors(Exception e, WebRequest request) {
+
         return processException(e, request, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({ ApiAuthenticationException.class})
+    @ExceptionHandler({ApiAuthenticationException.class})
     public ResponseEntity<Object> handleAuthenticationException(Exception e, WebRequest request) {
         return processException(e, request, HttpStatus.UNAUTHORIZED);
     }
@@ -80,13 +83,12 @@ public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHan
     }
 
     public ResponseEntity<Object> handleExceptionWithCustomMessage(Exception ex, HttpHeaders headers,
-                                                                    HttpStatus status, WebRequest request, String message) {
+                                                                   HttpStatus status, WebRequest request, String message) {
         String requestURI = this.request.getRequestURI();
         ErrorDetails response = getErrorDetailsWrapper(ex, status, message, requestURI);
         headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         return new ResponseEntity<>(response, headers, status);
     }
-
 
 
     private ResponseEntity<Object> handleErrorInternal(Exception ex, HttpHeaders headers,
@@ -98,6 +100,8 @@ public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHan
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body,
                                                              HttpHeaders headers, HttpStatus status, WebRequest request) {
+        LOG.error("Error when processing URL {}.",
+                request.getContextPath(), ex);
         return this.handleErrorInternal(ex, headers, status, request);
     }
 

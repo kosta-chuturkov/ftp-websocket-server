@@ -17,10 +17,6 @@ import java.util.UUID;
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class JpaAuditingConfig {
 
-    @Lazy
-    @Autowired
-    private UserService userService;
-
     @Bean
     public AuditorAware<User> auditorAware() {
         return new CustomAuditorAware();
@@ -29,8 +25,7 @@ public class JpaAuditingConfig {
     public class CustomAuditorAware implements AuditorAware<User> {
         @Override
         public Optional<User> getCurrentAuditor() {
-            return Optional.of(userService.findUserByNickName("lexter"));
-//            return Optional.of(User.getCurrent());
+            return Optional.of(User.getCurrent());
         }
     }
 }

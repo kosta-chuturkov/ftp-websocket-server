@@ -105,12 +105,11 @@ public class FileManagementController {
                 .getFilesISharedWithOtherUsers(PageRequest.of(page, size)));
     }
 
-    @Secured(Authorities.USER)
+//    @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "test")
     @GetMapping(path = "/upload_mockup_data")
-    public DeferredResult<FileSharedToUser> uploadMockupData() {
-        return this.schedulingService
-                .scheduleTask(() -> this.fileManagementService.uploadMockupData(), 10000L);
+    public void uploadMockupData() {
+        this.fileManagementService.uploadMockupData();
     }
 
 

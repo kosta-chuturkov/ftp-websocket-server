@@ -1,5 +1,4 @@
 spring:
-  profiles: postgres
   jpa.hibernate.ddl-auto: update
   jpa.hibernate.use-new-id-generator-mappings: false
   jpa.database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -8,8 +7,12 @@ spring:
     username: ${FTP_DB_USER:ftp_user}
     password: ${FTP_DB_PASSWORD:ribamech}
     type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: org.postgresql.Driver
   session:
     store-type: jdbc
     jdbc:
       table-name: SPRING_SESSION
+  config:
+    activate:
+      on-profile: postgres
 
