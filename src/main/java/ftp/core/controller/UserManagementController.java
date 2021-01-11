@@ -4,6 +4,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import ftp.core.model.dto.ModifiedUserDto;
 import ftp.core.model.entities.User;
+import ftp.core.repository.projections.NickNameProjection;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.service.impl.SchedulingService;
@@ -45,11 +46,19 @@ public class UserManagementController {
         this.schedulingService = schedulingService;
     }
 
-    @Secured(Authorities.ADMIN)
+    @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "findUsers")
     @GetMapping()
-    public List<User> findAllUsers() {
-        return this.userService.findAll();
+    public String findAllUsers() {
+        return this.userService.getUserDetails();
+    }
+
+    @Secured(Authorities.USER)
+    @ApiOperation(value = "", nickname = "getUserDetails")
+    @GetMapping("/search")
+    public List<NickNameProjection>  getUserInfo(
+            @NotNull @ModelAttribute("q") final String userNickName) {
+        return this.userService.getUserByNickLike(userNickName);
     }
 
     @Secured(Authorities.USER)

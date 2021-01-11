@@ -57,26 +57,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Secured(Authorities.USER)
-    public String getUserDetails(final String userNickName) {
+    public String getUserDetails() {
         final JsonObject jsonResponse = new JsonObject();
         final JsonArray jsonArrayWrapper = new JsonArray();
-        List<NickNameProjection> userByNickLike = getUserByNickLike(userNickName);
+        List<User> userByNickLike = userRepository.findAll();
         userByNickLike
-                .forEach(userName -> {
-                    final JsonObject userObject = new JsonObject();
-                    userObject.addProperty("id", userName.getNickName());
-                    userObject.addProperty("full_name", userName.getNickName());
-                    final JsonObject owner = new JsonObject();
-                    owner.addProperty("id", Math.random());
-                    userObject.add("owner", owner);
-                    jsonArrayWrapper.add(userObject);
+                .forEach(user -> {
+                    if (!User.getCurrent().getId().equals(user.getId())) {
+                        final JsonObject userObject = new JsonObject();
+                        userObject.addProperty("value", user.getNickName());
+                        userObject.addProperty("display", user.getNickName());
+                        jsonArrayWrapper.add(userObject);
+                    }
                 });
 
         jsonResponse.addProperty("total_count", userByNickLike.size());
-        jsonResponse.addProperty("incomplete_results", Boolean.FALSE);
         jsonResponse.add("items", jsonArrayWrapper);
 
-        return jsonResponse.toString();
+        return jsonArrayWrapper.toString();
     }
 
 

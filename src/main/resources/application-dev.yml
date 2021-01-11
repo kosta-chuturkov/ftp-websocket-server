@@ -22,8 +22,9 @@ ftpserver:
 
 server:
     tomcat:
-        remote_ip_header: X-Forwarded-For
-        protocol_header: X-Forwarded-Proto
+      remoteip:
+        remote-ip-header: X-Forwarded-For
+        protocol-header: X-Forwarded-Proto
         internalProxies: .*
     servlet:
         contextPath: /

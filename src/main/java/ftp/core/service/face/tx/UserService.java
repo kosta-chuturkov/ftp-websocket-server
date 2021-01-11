@@ -41,7 +41,7 @@ public interface UserService {
 
     User save(User current);
 
-    String getUserDetails(String userNickName);
+    String getUserDetails();
 
     void updateUsers(String deleteHash, Set<ModifiedUserDto> modifiedUserDto);
 
