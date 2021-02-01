@@ -130,12 +130,12 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public Page<FileSharedWithUsersDto> getFilesISharedWithOtherUsers(final String userNickName, Pageable pageable) {
-        return this.fileRepository.findByFileTypeAndCreatedBy_NickName(FileType.SHARED, userNickName, pageable);
+        return this.fileRepository.findByFileTypeAndCreatedBy_NickNameOrderByCreatedDateDesc(FileType.SHARED, userNickName, pageable);
     }
 
     @Override
     public Page<PersonalFileDto> getPrivateFilesForUser(final String userNickName, Pageable pageable) {
-        return this.fileRepository.findByCreatedBy_NickNameAndFileType(userNickName, FileType.PRIVATE, pageable);
+        return this.fileRepository.findByCreatedBy_NickNameAndFileTypeOrderByCreatedDateDesc(userNickName, FileType.PRIVATE, pageable);
     }
 
     @Override

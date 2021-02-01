@@ -19,9 +19,9 @@ public interface FileRepository extends JpaRepository<File, Long> {
 
     File findByDeleteHashAndCreatedBy_NickName(String deleteHash, String creatorNickName);
 
-    Page<PersonalFileDto> findByCreatedBy_NickNameAndFileType(String creatorNickName, File.FileType fileType, Pageable pageable);
+    Page<PersonalFileDto> findByCreatedBy_NickNameAndFileTypeOrderByCreatedDateDesc(String creatorNickName, File.FileType fileType, Pageable pageable);
 
-    Page<FileSharedWithUsersDto> findByFileTypeAndCreatedBy_NickName(File.FileType fileType, String creatorNickName, Pageable pageable);
+    Page<FileSharedWithUsersDto> findByFileTypeAndCreatedBy_NickNameOrderByCreatedDateDesc(File.FileType fileType, String creatorNickName, Pageable pageable);
 
     Page<File> findByFileTypeAndSearchStringContaining(File.FileType fileType, String query, Pageable pageable);
 
