@@ -89,6 +89,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findById(Long userId) {
+        return this.userRepository.findById(userId).orElse(null);
+    }
+
+    @Override
     public String getUserSaltedPassword(final String rawPassword, final Long token) {
         String initialHash = ServerUtil.hashSHA256(SALT + rawPassword);
         return ServerUtil.hashSHA256(initialHash + token.toString());

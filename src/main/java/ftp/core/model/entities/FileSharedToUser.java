@@ -12,34 +12,34 @@ import java.util.Objects;
         @UniqueConstraint(columnNames = {"fileId", "userId"})
 })
 public class FileSharedToUser extends AbstractEntity<Long> implements Serializable {
-    @Column(name = "fileId", nullable = false)
-    private File file;
+    @Column(nullable = false)
+    private Long fileId;
 
-    @Column(name = "userId", nullable = false)
-    private User user;
+    @Column(nullable = false)
+    private Long userId;
+
+    public Long getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(Long fileId) {
+        this.fileId = fileId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
     public FileSharedToUser() {
     }
 
     public FileSharedToUser(File file, User user) {
-        this.file = file;
-        this.user = user;
-    }
-
-    public File getFile() {
-        return file;
-    }
-
-    public void setFile(File file) {
-        this.file = file;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+        this.fileId = file.getId();
+        this.userId = user.getId();
     }
 
     @Override
@@ -48,12 +48,12 @@ public class FileSharedToUser extends AbstractEntity<Long> implements Serializab
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         FileSharedToUser that = (FileSharedToUser) o;
-        return Objects.equals(file, that.file) &&
-                Objects.equals(user, that.user);
+        return Objects.equals(fileId, that.fileId) &&
+                Objects.equals(userId, that.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), file, user);
+        return Objects.hash(super.hashCode(), fileId, userId);
     }
 }

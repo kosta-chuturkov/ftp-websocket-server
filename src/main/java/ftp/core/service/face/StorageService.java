@@ -33,4 +33,6 @@ public interface StorageService {
     Resource loadAsResource(Path resourcePath);
 
     Resource loadProfilePicture(String userName);
+
+    Path load(String filename, String destinationFolder);
 }

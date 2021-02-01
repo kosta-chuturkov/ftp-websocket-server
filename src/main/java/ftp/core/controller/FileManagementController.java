@@ -71,14 +71,6 @@ public class FileManagementController {
     }
 
     @Secured(Authorities.USER)
-    @ApiOperation(value = "", nickname = "downloadFile")
-    @GetMapping(path = "/{downloadHash}/download")
-    public FileSystemResource downloadFile(
-            @NotNull @PathVariable String downloadHash) {
-        return this.fileManagementService.downloadFile(downloadHash);
-    }
-
-    @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getSharedFilesForUser")
     @GetMapping(path = "/shared")
     public PageResource<SharedFileDto> getSharedFilesForUser(@RequestParam(required = false, defaultValue = "0") int page,

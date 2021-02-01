@@ -5,14 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import ftp.core.api.MessagePublishingService;
 import ftp.core.constants.ServerConstants;
-import ftp.core.model.dto.DeletedFileDto;
-import ftp.core.model.dto.DeletedFilesDto;
-import ftp.core.model.dto.FileSharedWithUsersDto;
-import ftp.core.model.dto.FileUpdateRequest;
-import ftp.core.model.dto.JsonFileDto;
-import ftp.core.model.dto.PersonalFileDto;
-import ftp.core.model.dto.SharedFileDto;
-import ftp.core.model.dto.UploadedFilesDto;
+import ftp.core.model.dto.*;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.FileSharedToUser;
 import ftp.core.model.entities.User;
@@ -25,16 +18,10 @@ import ftp.core.service.face.tx.UserService;
 import ftp.core.util.ServerUtil;
 import ftp.core.websocket.dto.JsonResponse;
 import ftp.core.websocket.handler.Handlers;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +29,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.bus.Event;
 
-import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.FileNameMap;
+import java.net.URLConnection;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.util.*;
 
 @Service("fileManagementService")
 public class FileManagementServiceImpl implements FileManagementService {
@@ -76,8 +73,7 @@ public class FileManagementServiceImpl implements FileManagementService {
         final Long token = currentUser.getToken();
         final String fileName = StringEscapeUtils.escapeSql(multipartFile.getOriginalFilename());
         final long currentTime = System.currentTimeMillis();
-        final String tempFileName = Long.toString(currentTime);
-        final String serverFileName = tempFileName + "_" + fileName;
+        final String serverFileName = currentTime + "_" + fileName;
         final String deleteHash = ServerUtil
                 .hashSHA256(ServerUtil.hashSHA256(serverFileName + token) + ServerConstants.DELETE_SALT);
         final String downloadHash = ServerUtil
@@ -85,19 +81,28 @@ public class FileManagementServiceImpl implements FileManagementService {
 
         final File fileToBeSaved = new File.Builder()
                 .withName(fileName)
-                .withTimestamp(new Date(currentTime))
                 .withDownloadHash(downloadHash)
                 .withDeleteHash(deleteHash)
                 .withFileSize(multipartFile.getSize())
                 .withCreator(userService.getUserByEmail(currentUser.getEmail()))
                 .withFileType(userNickNames.isEmpty() ? File.FileType.PRIVATE : File.FileType.SHARED)
                 .build();
-        this.fileService.saveFile(fileToBeSaved, userNickNames);
+        File file = this.fileService.saveFile(fileToBeSaved, userNickNames);
         this.storageService
-                .store(getInputStream(multipartFile), serverFileName, currentUser.getEmail());
+                .store(getInputStream(multipartFile), file.getCreatedDate().getTime() + "_" + fileName, currentUser.getEmail());
         return buildResponseObject(multipartFile, "", fileName, deleteHash,
                 downloadHash);
 
+    }
+
+    @Override
+    public void copy(InputStream source, OutputStream target) throws IOException {
+        byte[] buf = new byte[8192];
+        int length;
+        while ((length = source.read(buf)) > 0) {
+            target.write(buf, 0, length);
+        }
+        target.flush();
     }
 
     private InputStream getInputStream(MultipartFile file) {
@@ -171,7 +176,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public FileSystemResource downloadFile(String downloadHash) {
+    public void downloadFile(String downloadHash, HttpServletResponse response) {
         final User current = User.getCurrent();
         if (current == null) {
             throw new RuntimeException("You are not logged in.");
@@ -179,15 +184,23 @@ public class FileManagementServiceImpl implements FileManagementService {
         final File fileByDownloadHash = getFile(downloadHash);
         final Date timestamp = fileByDownloadHash.getCreatedDate();
         final String fileName = fileByDownloadHash.getName();
-        final File.FileType fileType = fileByDownloadHash.getFileType();
-        String fileLocationFolder = getFolderNameByFileType(current, fileByDownloadHash, fileType);
+        String fileLocationFolder = getFolderNameByFileType(current, fileByDownloadHash);
         try {
-            org.springframework.core.io.Resource resource = this.storageService
-                    .loadAsResource(getFilenameWithTimestamp(timestamp, fileName), fileLocationFolder);
-            return new FileSystemResource(resource.getFile());
+            Path resource = this.storageService.load(getFilenameWithTimestamp(timestamp, fileName), fileLocationFolder);
+            java.io.File file = resource.toFile();
+            String mimeType = deriveMimeType(file);
+            response.setContentType(mimeType);
+            FileChannel fc = new FileInputStream(file).getChannel();
+            fc.transferTo(0, file.length(), Channels.newChannel(response.getOutputStream()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String deriveMimeType(java.io.File file) {
+        FileNameMap fileNameMap = URLConnection.getFileNameMap();
+        String mimeType = fileNameMap.getContentTypeFor(file.getName());
+        return mimeType;
     }
 
     private String getFilenameWithTimestamp(Date timestamp, String fileName) {
@@ -202,14 +215,13 @@ public class FileManagementServiceImpl implements FileManagementService {
         return fileByDownloadHash;
     }
 
-    private String getFolderNameByFileType(final User requester, final File file,
-                                           final File.FileType fileType) {
+    private String getFolderNameByFileType(final User requester, final File file) {
         String locationFolderName = "";
         String nickName = requester.getNickName();
         if (this.fileService.isFileCreator(file.getId(), nickName)) {
             return requester.getEmail();
         } else {
-            switch (fileType) {
+            switch (file.getFileType()) {
                 case PRIVATE:
                     throw new FtpServerException("You dont have permission to access this file.");
                 case SHARED:

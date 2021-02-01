@@ -46,4 +46,6 @@ public interface UserService {
     void updateUsers(String deleteHash, Set<ModifiedUserDto> modifiedUserDto);
 
     List<User> findAll();
+
+    User findById(Long userId);
 }

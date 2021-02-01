@@ -65,7 +65,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void saveFile(File fileToBeSaved, Set<String> userNickNames) {
+    public File saveFile(File fileToBeSaved, Set<String> userNickNames) {
         final User currentUser = User.getCurrent();
         final long remainingStorage = currentUser.getRemainingStorage();
         long fileSize = fileToBeSaved.getFileSize();
@@ -88,6 +88,7 @@ public class FileServiceImpl implements FileService {
                         new JsonResponse<SharedFileDto>(new PageImpl<>(Lists.newArrayList(data)),
                                 Handlers.FILES_SHARED_WITH_ME_HANDLER.getHandlerName())));
             }
+            return savedFile;
         } else {
             throw new RuntimeException("Unable to add file!");
         }
@@ -114,7 +115,7 @@ public class FileServiceImpl implements FileService {
     }
 
     public boolean isUserFromFileSharedUsers(final File fileId, final String nickName) {
-        return fileSharedToUserRepository.existsByUserAndFile(userService.findUserByNickName(nickName), fileId);
+        return fileSharedToUserRepository.existsByUserIdAndFileId(userService.findUserByNickName(nickName).getId(), fileId.getId());
     }
 
     @Override
@@ -139,7 +140,46 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public Page<SharedFileDto> getSharedFilesWithCurrent(String userNickName, Pageable pageable) {
-        return this.fileSharedToUserRepository.findByUser(userService.findUserByNickName(userNickName), pageable);
+        Page<FileSharedToUser> byUserId = this.fileSharedToUserRepository.findByUserId(userService.findUserByNickName(userNickName).getId(), pageable);
+
+        List<FileSharedToUser> content = byUserId.getContent();
+        List<SharedFileDto> data = new ArrayList<>();
+        for (FileSharedToUser fileSharedToUser : content) {
+            File file = fileRepository.findById(fileSharedToUser.getFileId()).orElse(null);
+            data.add(new SharedFileDto() {
+                @Override
+                public long getSize() {
+                    return file.getFileSize();
+                }
+
+                @Override
+                public String getName() {
+                    return file.getName();
+                }
+
+                @Override
+                public String getTimestamp() {
+                    return file.getCreatedDate().toString();
+                }
+
+                @Override
+                public String getDownloadHash() {
+                    return file.getDownloadHash();
+                }
+
+                @Override
+                public String getSharingUserName() {
+                    return file.getCreatedBy().getNickName();
+                }
+
+                @Override
+                public FileType getFileType() {
+                    return file.getFileType();
+                }
+            });
+        }
+
+        return new PageImpl<>(data, pageable, byUserId.getTotalElements());
     }
 
     private File updateUsersForFile(final String fileHash, final List<User> updatedUserNickNames) {
@@ -156,9 +196,9 @@ public class FileServiceImpl implements FileService {
                         .stream()
                         .collect(Collectors.toMap(User::getNickName, Function.identity()));
         Map<String, User> persistentUserToNickname = fileSharedToUserRepository
-                .findByFile(file)
+                .findByFileId(file.getId())
                 .stream()
-                .map(FileSharedToUser::getUser)
+                .map(entity -> userService.findById(entity.getUserId()))
                 .collect(Collectors.toMap(User::getNickName, Function.identity()));
 
         for (String nickName : persistentUserToNickname.keySet()) {
@@ -241,18 +281,18 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void shareFileWithUser(File file, User user) {
-        boolean exists = fileSharedToUserRepository.existsByUserAndFile(user, file);
+        boolean exists = fileSharedToUserRepository.existsByUserIdAndFileId(user.getId(), file.getId());
         if (!exists) {
             fileSharedToUserRepository.save(new FileSharedToUser(file, user));
         }
     }
 
     @Override
-    public Set<String> getListOfUsersFileIsSharedWith(File findByDeleteHash) {
+    public Set<String> getListOfUsersFileIsSharedWith(File file) {
         return fileSharedToUserRepository
-                .findByFile(findByDeleteHash)
+                .findByFileId(file.getId())
                 .stream()
-                .map(fileSharedToUser -> fileSharedToUser.getUser().getNickName())
+                .map(fileSharedToUser -> userService.findById(fileSharedToUser.getUserId()).getNickName())
                 .collect(Collectors.toSet());
     }
 

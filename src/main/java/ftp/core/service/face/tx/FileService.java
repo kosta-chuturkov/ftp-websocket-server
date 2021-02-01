@@ -21,7 +21,7 @@ public interface FileService {
 
     File findByDeleteHashAndCreatorNickName(String deleteHash, String creatorNickName);
 
-    void saveFile(File fileToBeSaved, Set<String> userNickNames);
+    File saveFile(File fileToBeSaved, Set<String> userNickNames);
 
     boolean isUserFromFileSharedUsers(File fileId, String nickName);
 

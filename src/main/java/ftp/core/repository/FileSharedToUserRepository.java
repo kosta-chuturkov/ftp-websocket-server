@@ -11,13 +11,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface FileSharedToUserRepository extends JpaRepository<FileSharedToUser, Long> {
-    List<FileSharedToUser> findByFile(File file);
+    List<FileSharedToUser> findByFileId(Long fileId);
 
-    Page<SharedFileDto> findByUser(User user, Pageable pageable);
+    Page<FileSharedToUser> findByUserId(Long userId, Pageable pageable);
 
-    void deleteByFileAndUser(File file, User user);
+    void deleteByFileIdAndUserId(Long fileId, Long userId);
 
-    List<FileSharedToUser> findByUserAndFile(User user, File file);
+    List<FileSharedToUser> findByUserIdAndFileId(Long userId, Long fileId);
 
-    boolean existsByUserAndFile(User user, File file);
+    boolean existsByUserIdAndFileId(Long userId, Long fileId);
 }
