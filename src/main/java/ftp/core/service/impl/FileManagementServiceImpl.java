@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import ftp.core.api.MessagePublishingService;
 import ftp.core.constants.ServerConstants;
+import ftp.core.exception.FileAccessDeniedException;
 import ftp.core.model.dto.*;
 import ftp.core.model.entities.File;
 import ftp.core.model.entities.FileSharedToUser;
@@ -168,7 +169,7 @@ public class FileManagementServiceImpl implements FileManagementService {
     private File getFile(String deleteHash, String nickName) {
         final File findByDeleteHash = this.fileService.findByDeleteHashAndCreatorNickName(deleteHash, nickName);
         if (findByDeleteHash == null) {
-            throw new RuntimeException("File does not exist.");
+            throw new FileAccessDeniedException("You dont have permission to delete this file");
         }
         return findByDeleteHash;
     }

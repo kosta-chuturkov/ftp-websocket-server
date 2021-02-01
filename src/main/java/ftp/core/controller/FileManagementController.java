@@ -2,7 +2,6 @@ package ftp.core.controller;
 
 import ftp.core.model.dto.*;
 import ftp.core.model.entities.File;
-import ftp.core.model.entities.FileSharedToUser;
 import ftp.core.rest.PageResource;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
@@ -10,11 +9,9 @@ import ftp.core.service.impl.SchedulingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
@@ -56,9 +53,9 @@ public class FileManagementController {
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "deleteFile")
     @DeleteMapping(path = "/{deleteHash}/delete")
-    public DeferredResult<DeletedFilesDto> deleteFile(
+    public DeletedFilesDto deleteFile(
             @NotNull @PathVariable final String deleteHash) {
-        return this.schedulingService.scheduleTask(() -> this.fileManagementService.deleteFiles(deleteHash), 10000L);
+        return this.fileManagementService.deleteFiles(deleteHash);
     }
 
 

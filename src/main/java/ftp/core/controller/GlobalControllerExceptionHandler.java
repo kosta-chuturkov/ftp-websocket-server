@@ -1,6 +1,7 @@
 package ftp.core.controller;
 
 import ftp.core.exception.ApiAuthenticationException;
+import ftp.core.exception.FileAccessDeniedException;
 import ftp.core.model.dto.ErrorDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,11 @@ public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHan
     @ExceptionHandler({ApiAuthenticationException.class})
     public ResponseEntity<Object> handleAuthenticationException(Exception e, WebRequest request) {
         return processException(e, request, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler({FileAccessDeniedException.class})
+    public ResponseEntity<Object> handleFileAccessDeniedException(Exception e, WebRequest request) {
+        return processException(e, request, HttpStatus.FORBIDDEN);
     }
 
 
