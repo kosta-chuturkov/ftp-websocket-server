@@ -150,21 +150,19 @@ public class FileManagementServiceImpl implements FileManagementService {
         final String storageInfo =
                 FileUtils.byteCountToDisplaySize(updatedUser.getRemainingStorage()) + " left from "
                         + FileUtils.byteCountToDisplaySize(ServerConstants.UPLOAD_LIMIT) + ".";
-        try {
-            HashMap<String, String> objectObjectHashMap = Maps.newHashMap();
-            objectObjectHashMap.put(name, Boolean.TRUE.toString());
-            return new DeletedFilesDto(objectObjectHashMap, storageInfo);
-        } finally {
-            this.storageService
-                    .deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
-            DeletedFileDto deletedFileDto = new DeletedFileDto(downloadHash);
-            usersToBeNotifiedFileDeleted.forEach(user -> {
-                Event<JsonResponse> data = Event
-                        .wrap(new JsonResponse<>(new PageImpl<>(Lists.newArrayList(deletedFileDto)),
-                                Handlers.DELETED_FILE.getHandlerName()));
-                this.messagePublishingService.publish(user, data);
-            });
-        }
+        HashMap<String, String> objectObjectHashMap = Maps.newHashMap();
+        objectObjectHashMap.put(name, Boolean.TRUE.toString());
+        this.storageService
+                .deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
+        DeletedFileDto deletedFileDto = new DeletedFileDto(downloadHash);
+        usersToBeNotifiedFileDeleted.forEach(user -> {
+            Event<JsonResponse> data = Event
+                    .wrap(new JsonResponse<>(new PageImpl<>(Lists.newArrayList(deletedFileDto)),
+                            Handlers.DELETED_FILE.getHandlerName()));
+            this.messagePublishingService.publish(user, data);
+        });
+        return new DeletedFilesDto(objectObjectHashMap, storageInfo);
+
     }
 
     private File getFile(String deleteHash, String nickName) {

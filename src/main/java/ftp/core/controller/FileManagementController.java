@@ -97,13 +97,6 @@ public class FileManagementController {
                 .getFilesISharedWithOtherUsers(PageRequest.of(page, size)));
     }
 
-//    @Secured(Authorities.USER)
-    @ApiOperation(value = "", nickname = "test")
-    @GetMapping(path = "/upload_mockup_data")
-    public void uploadMockupData() {
-        this.fileManagementService.uploadMockupData();
-    }
-
 
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "getAllFiles")
