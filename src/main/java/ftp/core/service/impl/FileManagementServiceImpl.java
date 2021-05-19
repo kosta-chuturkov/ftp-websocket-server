@@ -39,7 +39,10 @@ import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Service("fileManagementService")
@@ -191,9 +194,17 @@ public class FileManagementServiceImpl implements FileManagementService {
             response.setContentType(mimeType);
             FileChannel fc = new FileInputStream(file).getChannel();
             fc.transferTo(0, file.length(), Channels.newChannel(response.getOutputStream()));
+            fc.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    static String readFile(String path, Charset encoding)
+            throws IOException
+    {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, encoding);
     }
 
     private String deriveMimeType(java.io.File file) {

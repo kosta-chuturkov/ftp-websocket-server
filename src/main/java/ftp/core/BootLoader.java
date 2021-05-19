@@ -4,20 +4,12 @@ import ch.qos.logback.classic.LoggerContext;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ftp.core.config.FtpConfigurationProperties;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.TimeZone;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -27,7 +19,14 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.TimeZone;
+
+import static ftp.core.config.DefaultProfileUtil.addDefaultProfile;
 
 @SpringBootApplication
 @EnableTransactionManagement
@@ -42,6 +41,7 @@ public class BootLoader {
 
     public static void main(String[] args) throws UnknownHostException {
         SpringApplication app = new SpringApplication(BootLoader.class);
+        addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
         String hostAddress = InetAddress.getLocalHost().getHostAddress();
         log.info("\n----------------------------------------------------------\n\t" +

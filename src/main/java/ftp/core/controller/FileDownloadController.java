@@ -26,11 +26,11 @@ public class FileDownloadController {
     @Secured(Authorities.USER)
     @ApiOperation(value = "", nickname = "downloadFile")
     @RequestMapping(path = "/api/v1/files/{downloadHash}/download/{fileName}", method = RequestMethod.GET)
-    public ModelAndView downloadFile(
+    public void downloadFile(
             @NotNull @PathVariable String downloadHash,
             @NotNull @PathVariable String fileName,
             HttpServletResponse response) {
         this.fileManagementService.downloadFile(downloadHash, response);
-        return new ModelAndView();
+//        return new ModelAndView();
     }
 }
