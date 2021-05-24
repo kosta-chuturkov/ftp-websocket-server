@@ -5,7 +5,6 @@ import ftp.core.model.entities.File;
 import ftp.core.rest.PageResource;
 import ftp.core.security.Authorities;
 import ftp.core.service.face.FileManagementService;
-import ftp.core.service.impl.SchedulingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +30,11 @@ public class FileManagementController {
 
     public static final String PATH = "/api/v1/files";
 
-    private SchedulingService schedulingService;
     private FileManagementService fileManagementService;
 
     @Autowired
-    public FileManagementController(FileManagementService fileManagementService, SchedulingService schedulingService) {
+    public FileManagementController(FileManagementService fileManagementService) {
         this.fileManagementService = fileManagementService;
-        this.schedulingService = schedulingService;
     }
 
     @Secured(Authorities.USER)

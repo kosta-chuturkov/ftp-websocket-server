@@ -17,18 +17,14 @@ import ftp.core.service.face.tx.FileService;
 import ftp.core.service.face.tx.FtpServerException;
 import ftp.core.service.face.tx.UserService;
 import ftp.core.util.ServerUtil;
-import ftp.core.websocket.dto.JsonResponse;
-import ftp.core.websocket.handler.Handlers;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import reactor.bus.Event;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
@@ -160,10 +156,10 @@ public class FileManagementServiceImpl implements FileManagementService {
                 .deleteResource(getFilenameWithTimestamp(timestamp, name), updatedUser.getEmail());
         DeletedFileDto deletedFileDto = new DeletedFileDto(downloadHash);
         usersToBeNotifiedFileDeleted.forEach(user -> {
-            Event<JsonResponse> data = Event
-                    .wrap(new JsonResponse<>(new PageImpl<>(Lists.newArrayList(deletedFileDto)),
-                            Handlers.DELETED_FILE.getHandlerName()));
-            this.messagePublishingService.publish(user, data);
+//            Event<JsonResponse> data = Event
+//                    .wrap(new JsonResponse<>(new PageImpl<>(Lists.newArrayList(deletedFileDto)),
+//                            Handlers.DELETED_FILE.getHandlerName()));
+            this.messagePublishingService.publish(user, new Object());
         });
         return new DeletedFilesDto(objectObjectHashMap, storageInfo);
 
